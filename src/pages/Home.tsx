@@ -1,10 +1,10 @@
-import { Form } from "src/components/Form/Form"
-import { MainPageLayout } from "../layouts/MainPageLayout"
+import { CreateRequest } from "src/components/CreateRequest/CreateRequest";
+import { MainPageLayout } from "../layouts/MainPageLayout";
 
 export const Home = () => {
   return (
     <MainPageLayout>
-        <Form />
+      <CreateRequest />
     </MainPageLayout>
-  )
-}
+  );
+};
