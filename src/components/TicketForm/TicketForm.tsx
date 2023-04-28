@@ -2,8 +2,8 @@ import { Box, Stack, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
-export const UserStories = () => {
-  const { watch, getValues } = useFormContext();
+export const TicketForm = () => {
+  const { register, watch } = useFormContext();
   const { t } = useTranslation(["common", "inputs", "createTicket"]);
 
   return (
@@ -12,7 +12,7 @@ export const UserStories = () => {
         sx={{
           mb: "15px",
           height: "inherit",
-          width: "100%",
+          width: "50%",
         }}
       >
         <Typography
@@ -25,7 +25,7 @@ export const UserStories = () => {
             lineHeight: "30px",
           }}
         >
-          {t("createTicket:summary")}
+          {t("createTicket:welcome")}
         </Typography>
 
         <Box
@@ -40,6 +40,26 @@ export const UserStories = () => {
             },
           }}
         >
+          <TextField
+            className="rtl-able"
+            {...register("title")}
+            dir={
+              watch("title") &&
+              watch("title").match("[\u0600-\u06FF\u0750-\u077F]")
+                ? "rtl"
+                : "ltr"
+            }
+            sx={{
+              width: "100%",
+              mb: {
+                xs: "15px",
+                sm: "26px",
+                md: "26px",
+                xl: "26px",
+              },
+            }}
+            placeholder={t("inputs:title") || ""}
+          />
           <Box
             sx={{
               display: "flex",
@@ -52,14 +72,16 @@ export const UserStories = () => {
           >
             <Box sx={{ width: { xs: "100%", tablet: "48%" } }}>
               <TextField
+                className="rtl-able"
+                {...register("description")}
                 multiline
-                value={getValues("summary")}
                 dir={
-                  watch("summary") &&
-                  watch("summary").match("[\u0600-\u06FF\u0750-\u077F]") //rtl
+                  watch("description") &&
+                  watch("description").match("[\u0600-\u06FF\u0750-\u077F]") //rtl
                     ? "rtl"
                     : "ltr"
                 }
+                placeholder={t("inputs:ticketDesc") || ""}
                 inputProps={{
                   sx: {
                     "& > textarea": {
@@ -67,7 +89,6 @@ export const UserStories = () => {
                     },
                     shrink: true,
                   },
-                  readOnly: true,
                 }}
                 sx={{
                   height: {
@@ -89,6 +110,14 @@ export const UserStories = () => {
                   },
                 }}
               />
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "15px",
+                }}
+              ></Box>
             </Box>
           </Box>
         </Box>

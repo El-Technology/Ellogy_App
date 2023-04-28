@@ -1,5 +1,4 @@
 {
-  "title": "title",
-  "ticketDesc": "Please describe your role within the organization here, or copy past the key activities from your job description.",
-  "ticketResult": "Your suggested SMART Objectives will be shown here"
+  "title": "Please provide a title for your request",
+  "ticketDesc": "Please describe your request here... e.g. \nI’m looking to automate startups onboarding process"
 }
