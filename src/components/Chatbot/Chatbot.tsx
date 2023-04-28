@@ -35,8 +35,8 @@ export const Chatbot = () => {
      ChatGPT should to act as a requirements engineer and have a conversation with the requester about his demand
      Current conversation:
      {chat_history}
-     {value}
-     `);
+     Human: {value}
+     AI:`);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
       Give a summary of this chat history in form only from user view "As a user I want to: "
