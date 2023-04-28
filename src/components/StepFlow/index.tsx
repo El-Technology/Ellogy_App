@@ -4,7 +4,6 @@ import { useState, FC, ReactNode } from "react";
 
 interface IStepFlowProps {
   children: ReactNode[];
-
 }
 
 export const StepFlow: FC<IStepFlowProps> = ({ children }) => {
@@ -14,7 +13,6 @@ export const StepFlow: FC<IStepFlowProps> = ({ children }) => {
   const isFirst = stepIndex === 0;
   const nextPage = () => {
     setStepIndex((prev) => prev + 1);
-
   };
   const prevPage = () => {
     setStepIndex((prev) => prev - 1);
@@ -31,7 +29,7 @@ export const StepFlow: FC<IStepFlowProps> = ({ children }) => {
       >
         <Button
           className="rtl-able"
-          type={isFirst ? "reset" : "button"}
+          style={{ visibility: isFirst ? "hidden" : "visible" }}
           onClick={!isFirst ? prevPage : () => {}}
           sx={{
             width: "131px",
@@ -59,12 +57,11 @@ export const StepFlow: FC<IStepFlowProps> = ({ children }) => {
             },
           }}
         >
-          {t(isFirst ? "clear" : "prev")}
+          {t("prev")}
         </Button>
 
         <Button
           className="rtl-able"
-          type={isLast ? "submit" : "button"}
           onClick={!isLast ? nextPage : () => {}}
           sx={{
             width: "131px",
