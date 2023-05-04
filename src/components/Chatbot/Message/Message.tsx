@@ -1,4 +1,4 @@
-import { FC, useMemo } from "react";
+import { FC, memo, useMemo } from "react";
 import cx from 'classnames';
 import styles from "./Message.module.scss";
 export interface IMessage {
@@ -8,9 +8,8 @@ export interface IMessage {
 interface IMessageProps {
   model: IMessage;
 }
-export const Message: FC<IMessageProps> = ({ model }) => {
+export const Message: FC<IMessageProps> = memo(({ model }) => {
   const messageClasses = useMemo(() => model.sender === 'user'? styles['message__human']: styles['message__bot'] , [model.sender]);
-  console.log('model', model);
 
   return (
     <div
@@ -18,4 +17,4 @@ export const Message: FC<IMessageProps> = ({ model }) => {
       dangerouslySetInnerHTML={{ __html: model.content }}
     />
   );
-};
+});
