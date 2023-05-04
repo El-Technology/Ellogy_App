@@ -1,18 +1,19 @@
-import { KeyboardEvent, useState, forwardRef } from "react";
+import { KeyboardEvent, forwardRef } from "react";
 import { IMessage } from "../Message/Message";
 import styles from "./MessageInput.module.scss";
 interface IMessageInputProps {
   placeholder?: string;
   disabled?: boolean;
   onSend: (message: IMessage) => void;
+  value: string;
+  setValue: (value: string) => void;
 }
 export const MessageInput = forwardRef<HTMLInputElement, IMessageInputProps>(
-  ({ onSend, placeholder = "", disabled = false }, ref) => {
-    const [message, setMessage] = useState<string>("");
+  ({ onSend, placeholder = "", disabled = false, value, setValue }, ref) => {
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-      if (event.key === "Enter" && message.trim()) {
-        onSend({ content: message, sender: "user" });
-        setMessage("");
+      if (event.key === "Enter" && value.trim()) {
+        onSend({ content: value, sender: "user" });
+        setValue("");
       }
     };
 
@@ -23,8 +24,8 @@ export const MessageInput = forwardRef<HTMLInputElement, IMessageInputProps>(
         className={styles.message_input}
         disabled={disabled}
         onKeyDown={handleKeyDown}
-        onChange={(e) => setMessage(e.target.value)}
-        value={message}
+        onChange={(e) => setValue(e.target.value)}
+        value={value}
       />
     );
   }

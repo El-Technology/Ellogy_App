@@ -16,8 +16,14 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
             md: "calc(100vw - 91px)",
             xl: "calc(100vw - 91px)",
           },
+          overflowY: "auto",
+          overflowX: "hidden",
           height: "auto",
           minHeight: "calc(100vh - 70px)",
+          maxHeight: {
+            xs: "auto",
+            sm: "calc(100vh - 70px)"
+          },
           position: "absolute",
           left: {
             xs: 0,
@@ -47,6 +53,7 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
           display={"flex"}
           flexDirection={"column"}
           flexGrow={1}
+          height="100%"
         >
           {children}
         </Box>

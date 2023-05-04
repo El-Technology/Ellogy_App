@@ -21,6 +21,8 @@ export const StepPage: FC<IStepPageProps> = ({ onNext, onBack, children }) => {
           display: "flex",
           justifyContent: "space-between",
           mt: "auto",
+          gap: "15px",
+          boxSizing: "border-box",
         }}
       >
         <Button
