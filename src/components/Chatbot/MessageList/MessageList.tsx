@@ -9,15 +9,16 @@ interface IMessagesListProps {
 export const MessageList = forwardRef<HTMLDivElement, IMessagesListProps>(
   ({ list, isTyping }, ref) => {
     return (
-      <div className={styles.messages_list} ref={ref}>
-        {list.map((message, i) => (
-          <Message model={message} key={i} />
-        ))}
-
+      <>
+        <div className={styles.messages_list} ref={ref}>
+          {list.map((message, i) => (
+            <Message model={message} key={i} />
+          ))}
         <div className={styles["chat-typing"]}>
           {isTyping && "ChatGPT is typing ..."}
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 );

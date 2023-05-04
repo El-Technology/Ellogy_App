@@ -8,10 +8,12 @@ import { PromptTemplate } from "langchain/prompts";
 import { useFormContext } from "react-hook-form";
 import { IMessage } from "./Message/Message";
 import styles from "./Chatbot.module.scss";
+import { Box, Button } from "@mui/material";
 
 export const Chatbot = () => {
   const { setValue, getValues } = useFormContext();
   const [messages, setMessages] = useState<IMessage[]>(getValues("messages"));
+  const [messageValue, setMessageValue] = useState<string>("");
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -32,11 +34,10 @@ export const Chatbot = () => {
   }, [chat]);
 
   const prompt = PromptTemplate.fromTemplate(`
-     ChatGPT should to act as a requirements engineer and have a conversation with the requester about his demand
-     Current conversation:
+    The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.     Current conversation:
      {chat_history}
-     {value}
-     `);
+     Human: {value}
+     AI:`);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
       Give a summary of this chat history in form only from user view "As a user I want to: "
@@ -66,9 +67,11 @@ export const Chatbot = () => {
       handleSummary();
     };
   }, []);
+
   useEffect(() => {
     !isTyping && inputRef.current!.focus();
   }, [isTyping]);
+
   useEffect(() => {
     chatWindowRef.current!.scrollTop = chatWindowRef.current!.scrollHeight;
     setValue("messages", messages);
@@ -88,6 +91,7 @@ export const Chatbot = () => {
   };
 
   const handleSend = async (message: IMessage) => {
+    setMessageValue("");
     setMessages([...messages, message]);
     try {
       setIsTyping(true);
@@ -109,15 +113,48 @@ export const Chatbot = () => {
     };
     setMessages((prev) => [...prev, res]);
   };
+
   return (
-    <div className={styles.chat}>
-      <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
-      <MessageInput
-        ref={inputRef}
-        placeholder={"Type message"}
-        onSend={handleSend}
-        disabled={isTyping}
-      />
-    </div>
+    <>
+      <Box
+        className={styles.chat}
+        sx={{ height: { xs: "300px", sm: "450px", md: "500px" } }}
+      >
+        <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
+      </Box>
+      <div className={styles["chat-input__container"]}>
+        <span>Textbox</span>
+        <MessageInput
+          ref={inputRef}
+          placeholder={"Type message"}
+          onSend={handleSend}
+          setValue={setMessageValue}
+          value={messageValue}
+          disabled={isTyping}
+        />
+      </div>
+      <Button
+        sx={{
+          textTransform: "uppercase",
+          boxSizing: "border-box",
+          width: "100%",
+          backgroundColor: "#dfdfdf",
+          fontWeight: "700",
+          fontSize: "17px",
+          color: "#000",
+          "&:hover": {
+            transition: "0.5s all",
+            bgcolor: "#c5c2c2",
+            opacity: "0.7",
+          },
+        }}
+        type="button"
+        onClick={() => handleSend({ content: messageValue, sender: "user" })}
+        className={styles["chat__submit"]}
+        disabled={isTyping || !messageValue.trim()}
+      >
+        Submit
+      </Button>
+    </>
   );
 };
