@@ -6,8 +6,8 @@ import { ConversationSummaryMemory } from "langchain/memory";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
 import { useFormContext } from "react-hook-form";
-import styles from "./Chatbot.module.scss";
 import { IMessage } from "./Message/Message";
+import styles from "./Chatbot.module.scss";
 
 export const Chatbot = () => {
   const { setValue, getValues } = useFormContext();
@@ -35,8 +35,8 @@ export const Chatbot = () => {
      ChatGPT should to act as a requirements engineer and have a conversation with the requester about his demand
      Current conversation:
      {chat_history}
-     Human: {value}
-     AI:`);
+     {value}
+     `);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
       Give a summary of this chat history in form only from user view "As a user I want to: "
@@ -61,8 +61,11 @@ export const Chatbot = () => {
     messages.length === 0 &&
       firstMessage &&
       handleSend({ content: firstMessage, sender: "user" });
-  }, []);
 
+    return () => {
+      handleSummary();
+    };
+  }, []);
   useEffect(() => {
     !isTyping && inputRef.current!.focus();
   }, [isTyping]);
@@ -72,11 +75,16 @@ export const Chatbot = () => {
   }, [messages]);
 
   const handleSummary = async () => {
-    const history = await memory.loadMemoryVariables({});
-    const response = await userStoryChain.call({
-      history: history.chat_history[0].text,
-    });
-    setValue("summary", response.text);
+    try {
+      const history = await memory.loadMemoryVariables({});
+      const response = await userStoryChain.call({
+        history: history.chat_history[0].text,
+      });
+      console.log(response.text);
+      setValue("summary", response.text);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleSend = async (message: IMessage) => {
