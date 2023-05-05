@@ -33,18 +33,6 @@ export const CreateRequest = () => {
     reset();
   };
   const [isTyping, setIsTyping] = useState<boolean>(false);
-  //  const handleSummary = async (memory, chain) => {
-  //    try {
-  //      const history = await memory.loadMemoryVariables({});
-  //      const response = await chain.call({
-  //        history: history.chat_history[0].text,
-  //      });
-  //      console.log(response.text);
-  //      setValue("summary", response.text);
-  //    } catch (error) {
-  //      console.log(error);
-  //    }
-  //  };
   const [messageValue, setMessageValue] = useState<string>("");
   const [messages, setMessages] = useState<IMessage[]>(getValues("messages"));
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
@@ -88,35 +76,6 @@ export const CreateRequest = () => {
       memory: memory,
     });
   }, [chat, userStoryPrompt, memory]);
-
-  //  useEffect(() => {
-  //    const firstMessage = getValues("description");
-  //    messages.length === 0 &&
-  //      firstMessage &&
-  //      handleSend({ content: firstMessage, sender: "user" });
-
-  //    return () => {
-  //      handleSummary();
-  //    };
-  //  }, [messages.length]);
-
-  // const handleSummary = async () => {
-  //   try {
-  //     setIsSummaryLoading(true);
-  //     const history = await memory.loadMemoryVariables({});
-  //     console.log('history', history);
-  //     const response = await userStoryChain.call({
-  //       history: history.chat_history[0].text,
-  //     });
-  //     console.log(response.text);
-  //     setValue("summary", response.text);
-  //   } catch (error) {
-  //     console.log(error);
-  //   } finally {
-  //     console.log('resolved');
-  //     setIsSummaryLoading(false);
-  //   }
-  // };
 
   const handleSummary = async () => {
     try {

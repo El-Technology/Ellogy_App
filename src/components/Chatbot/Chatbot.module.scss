@@ -5,6 +5,12 @@
   width: 100%;
   border-radius: 10px;
   overflow: hidden;
+
+  &__title {
+    padding: 4px;
+    background-color: lightgrey;
+    border-radius: 10px 4px;
+  }
 }
 
 .chat-input__container {

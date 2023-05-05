@@ -18,10 +18,9 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
           },
           overflowY: "auto",
           overflowX: "hidden",
-          height: "auto",
-          minHeight: "calc(100vh - 70px)",
+          height: "100%",
           maxHeight: {
-            xs: "auto",
+            xs: "calc(100vh - 170px)",
             sm: "calc(100vh - 70px)"
           },
           position: "absolute",
