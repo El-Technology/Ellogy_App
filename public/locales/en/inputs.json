@@ -1,4 +1,5 @@
 {
   "title": "Please provide a title for your request",
-  "ticketDesc": "Please describe your request here... e.g. \nI’m looking to automate startups onboarding process"
+  "ticketDesc": "Please describe your request here... e.g. \nI’m looking to automate startups onboarding process",
+  "messagePlaceholder": "Type message"
 }

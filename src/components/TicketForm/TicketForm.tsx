@@ -12,7 +12,7 @@ export const TicketForm = () => {
         sx={{
           mb: "15px",
           height: "inherit",
-          width: "50%",
+          width: { xs: "100%", md: "50%", },
         }}
       >
         <Typography

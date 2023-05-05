@@ -32,14 +32,14 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
             xl: "91px",
           },
           paddingLeft: {
-            xs: "30px",
+            xs: "20px",
             sm: "70px",
             md: "70px",
             xl: "70px",
           },
-          paddingTop: "30px",
+          paddingTop: "20px",
           paddingRight: {
-            xs: "30px",
+            xs: "20px",
             sm: "82px",
             md: "82px",
             xl: "82px",
