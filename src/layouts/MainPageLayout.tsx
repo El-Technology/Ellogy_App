@@ -18,10 +18,9 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
           },
           overflowY: "auto",
           overflowX: "hidden",
-          height: "auto",
-          minHeight: "calc(100vh - 70px)",
+          height: "100%",
           maxHeight: {
-            xs: "auto",
+            xs: "calc(100vh - 170px)",
             sm: "calc(100vh - 70px)"
           },
           position: "absolute",
@@ -32,14 +31,14 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
             xl: "91px",
           },
           paddingLeft: {
-            xs: "30px",
+            xs: "20px",
             sm: "70px",
             md: "70px",
             xl: "70px",
           },
-          paddingTop: "30px",
+          paddingTop: "20px",
           paddingRight: {
-            xs: "30px",
+            xs: "20px",
             sm: "82px",
             md: "82px",
             xl: "82px",

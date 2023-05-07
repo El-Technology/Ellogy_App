@@ -11,7 +11,7 @@ export const UserStories = () => {
       <Stack
         sx={{
           mb: "15px",
-          height: "inherit",
+          height:"100%",
           width: "100%",
         }}
       >
@@ -33,7 +33,7 @@ export const UserStories = () => {
             width: "100%",
             display: "flex",
             flexGrow: 1,
-            height: "inherit",
+            height: "100%",
             justifyContent: "space-between",
             flexDirection: {
               xs: "column",
@@ -48,9 +48,10 @@ export const UserStories = () => {
               alignItems: { xs: "center", sm: "flex-start" },
               columnGap: { sm: "25px", md: "50px" },
               width: "100%",
+              height: "100%",
             }}
           >
-            <Box sx={{ width: { xs: "100%", tablet: "48%" } }}>
+            <Box sx={{ width: { xs: "100%", tablet: "48%" }, height: "100%" }}>
               <TextField
                 multiline
                 value={getValues("summary")}
@@ -70,13 +71,7 @@ export const UserStories = () => {
                   readOnly: true,
                 }}
                 sx={{
-                  height: {
-                    xs: "250px",
-                    sm: "350px",
-                    tablet: "450px",
-                    md: "500px",
-                    xl: "50vh",
-                  },
+                  height: "100%",
                   width: "100%",
                   "& .MuiInputBase-root": {
                     height: "100%",

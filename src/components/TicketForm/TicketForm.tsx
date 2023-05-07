@@ -11,8 +11,8 @@ export const TicketForm = () => {
       <Stack
         sx={{
           mb: "15px",
-          height: "inherit",
-          width: "50%",
+          width: { xs: "100%", md: "50%", },
+          height: "100%",
         }}
       >
         <Typography
@@ -33,8 +33,7 @@ export const TicketForm = () => {
             width: "100%",
             display: "flex",
             flexGrow: 1,
-            height: "inherit",
-            justifyContent: "space-between",
+            height: "100%",
             flexDirection: {
               xs: "column",
             },
@@ -62,6 +61,7 @@ export const TicketForm = () => {
           />
           <Box
             sx={{
+              height: "100%",
               display: "flex",
               flexDirection: { xs: "column", tablet: "row" },
               justifyContent: { xs: "center", tablet: "space-between" },
@@ -70,7 +70,7 @@ export const TicketForm = () => {
               width: "100%",
             }}
           >
-            <Box sx={{ width: { xs: "100%", tablet: "48%" } }}>
+            <Box sx={{ width: { xs: "100%", tablet: "48%" }, height: "100%" }}>
               <TextField
                 className="rtl-able"
                 {...register("description")}
@@ -91,13 +91,7 @@ export const TicketForm = () => {
                   },
                 }}
                 sx={{
-                  height: {
-                    xs: "250px",
-                    sm: "350px",
-                    tablet: "450px",
-                    md: "500px",
-                    xl: "50vh",
-                  },
+                  height: "100%",
                   width: "100%",
                   "& .MuiInputBase-root": {
                     height: "100%",

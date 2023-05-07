@@ -1,18 +1,43 @@
 import { Box, Button } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useContext, FC, ReactNode } from "react";
+import { useContext, FC, ReactNode, useMemo } from "react";
 import { CustomStepperContext } from "../CustomStepper";
 
 interface IStepPageProps {
   children: ReactNode[] | ReactNode;
   onNext?: () => void;
   onBack?: () => void;
+  isButtonDisable?: boolean;
 }
 
-export const StepPage: FC<IStepPageProps> = ({ onNext, onBack, children }) => {
+export const StepPage: FC<IStepPageProps> = ({
+  onNext,
+  onBack,
+  children,
+  isButtonDisable,
+}) => {
   const { currentStep, totalSteps, handleBack, handleNext, handleConfirm } =
     useContext(CustomStepperContext);
   const { t } = useTranslation();
+
+  const isLastStep = useMemo(() => currentStep === totalSteps, [currentStep, totalSteps]);
+
+  const onBeforeHandler = () => {
+    onBack?.();
+    if (!!currentStep) {
+      handleBack();
+    }
+  };
+
+  const onNextHandler = () => {
+    onNext?.();
+    if (isLastStep) {
+      handleConfirm();
+    } else {
+      handleNext();
+    }
+  };
+
   return (
     <>
       {children}
@@ -20,23 +45,15 @@ export const StepPage: FC<IStepPageProps> = ({ onNext, onBack, children }) => {
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          mt: "auto",
           gap: "15px",
           boxSizing: "border-box",
         }}
       >
         <Button
           className="rtl-able"
-          onClick={
-            currentStep === 0
-              ? () => {}
-              : () => {
-                  handleBack();
-                  onBack && onBack();
-                }
-          }
+          onClick={onBeforeHandler}
           sx={{
-            visibility: currentStep === 0 ? "hidden" : "visible",
+            visibility: !currentStep ? "hidden" : "visible",
             width: "131px",
             minHeight: "41px",
             height: "41px",
@@ -59,26 +76,23 @@ export const StepPage: FC<IStepPageProps> = ({ onNext, onBack, children }) => {
             "&:hover": {
               transition: "0.5s opacity",
               bgcolor: "#000000",
+              opacity: { xs: '1', sm: "0.7" },
+            },
+            "&:disabled": {
               opacity: "0.7",
+              color: "#fff",
+              cursor: "not-allowed",
+              pointerEvents: "auto",
             },
           }}
+          disabled={isButtonDisable}
         >
-          {t(currentStep === 0 ? "clear" : "prev")}
+          {t(!currentStep ? "clear" : "prev")}
         </Button>
 
         <Button
           className="rtl-able"
-          onClick={
-            currentStep === totalSteps
-              ? () => {
-                  handleConfirm();
-                  onNext && onNext();
-                }
-              : () => {
-                  handleNext();
-                  onNext && onNext();
-                }
-          }
+          onClick={onNextHandler}
           sx={{
             width: "131px",
             height: "41px",
@@ -93,14 +107,21 @@ export const StepPage: FC<IStepPageProps> = ({ onNext, onBack, children }) => {
             bgcolor: "#000000",
             color: "white",
             zIndex: 0,
+            transition: "0.5s all",
             "&:hover": {
-              transition: "0.5s opacity",
               bgcolor: "#000000",
+              opacity: { xs: "1", sm: "0.7" },
+            },
+            "&:disabled": {
               opacity: "0.7",
+              color: "#fff",
+              cursor: "not-allowed",
+              pointerEvents: "auto",
             },
           }}
+          disabled={isButtonDisable}
         >
-          {t(currentStep === totalSteps ? "submit" : "next")}
+          {t(isLastStep ? "submit" : "next")}
         </Button>
       </Box>
     </>
