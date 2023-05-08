@@ -42,7 +42,7 @@ export const Chatbot: FC<ChatbotProps> = ({
 
   useEffect(() => {
     const firstMessage = getValues("description");
-    messages.length === 0 &&
+    !messages.length  &&
       firstMessage &&
       handleSend({ content: firstMessage, sender: "user" });
   }, [messages.length]);
