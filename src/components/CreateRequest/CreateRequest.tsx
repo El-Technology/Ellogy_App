@@ -53,14 +53,14 @@ export const CreateRequest = () => {
   }, [chat]);
 
   const prompt = PromptTemplate.fromTemplate(`
-    The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
+     Act as an IT requirements engineer. Ask the requester one question based on his request, after each question, wait for the requester to answer.
      Current conversation:
      {chat_history}
      Human: {value}
      AI:`);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
-      Give a summary of this chat history in form only from user view "As a user I want to: "
+      Summarize the user input only in distinguished user stories each starting with "As a user, I want: ". transfer each user requirement into a separate user story
       Current conversation:
       {history}
      `);
