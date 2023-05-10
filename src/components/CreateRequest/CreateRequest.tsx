@@ -27,7 +27,7 @@ export const CreateRequest = () => {
       summary: "",
     },
   });
-  const { handleSubmit, reset, setValue, getValues } = methods;
+  const { handleSubmit, reset, setValue, getValues, watch } = methods;
   const onSubmit = (data: FormValues) => {
     console.log("res data is ", data);
   };
@@ -52,14 +52,14 @@ export const CreateRequest = () => {
   }, [chat]);
 
   const prompt = PromptTemplate.fromTemplate(`
-     Act as an IT requirements engineer. Ask the requester one question based on his request, after each question, wait for the requester to answer.
+     Act as an IT requirements engineer. Ask the requester one question based on his request, after each question, wait for the requester to answer. 
      Current conversation:
      {chat_history}
      Human: {value}
      AI:`);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
-      Summarize the user input only in distinguished user stories each starting with "As a user, I want: ". transfer each user requirement into a separate user story
+      Summarize the current conversation only in distinguished user stories each starting with "As a user, I want: ". transfer each user requirement into a separate user story. Send response only in JSON format with story and priority fields.
       Current conversation:
       {history}
      `);
@@ -80,12 +80,16 @@ export const CreateRequest = () => {
     try {
       setIsSummaryLoading(true);
       const history = await memory.loadMemoryVariables({});
-      console.log("history", history);
       const response = await userStoryChain.call({
         history: history.chat_history[0].text,
       });
-      console.log(response.text);
-      setValue("summary", response.text);
+      const formatedResponse = JSON.parse(response.text)
+        .filter((item: any) => item.priority === "high")
+        .map((elem: any) => elem.story)
+        .join("\n");
+
+      console.log(response);
+      setValue("summary", formatedResponse);
     } catch (error) {
       console.log(error);
     } finally {
@@ -145,13 +149,14 @@ export const CreateRequest = () => {
       )}
       <FormProvider {...methods}>
         <CustomStepper finalFunc={handleSubmit(onSubmit)}>
-          <StepPage>
+          <StepPage isDisabledNext={!watch("title") || !watch("description")}>
             <TicketForm />
           </StepPage>
           <StepPage
             // onBack={handleResetForm}
             onNext={handleSummary}
-            isButtonDisable={isTyping}
+            isDisabledNext={isTyping}
+            isDisabledBack={isTyping}
           >
             <Chatbot
               messages={messages}
