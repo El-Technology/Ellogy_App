@@ -30,7 +30,6 @@ export const CreateRequest = () => {
   const { handleSubmit, reset, setValue, getValues } = methods;
   const onSubmit = (data: FormValues) => {
     console.log("res data is ", data);
-    reset();
   };
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -96,8 +95,8 @@ export const CreateRequest = () => {
   };
 
   const handleSend = async (message: IMessage) => {
-    setMessageValue("");
     setMessages([...messages, message]);
+    setMessageValue("");
     try {
       setIsTyping(true);
       await processMessageToChatGpt(message);
@@ -150,7 +149,7 @@ export const CreateRequest = () => {
             <TicketForm />
           </StepPage>
           <StepPage
-            onBack={handleResetForm}
+            // onBack={handleResetForm}
             onNext={handleSummary}
             isButtonDisable={isTyping}
           >
@@ -162,11 +161,7 @@ export const CreateRequest = () => {
               isTyping={isTyping}
             />
           </StepPage>
-          <StepPage
-            onNext={() => {
-              reset();
-            }}
-          >
+          <StepPage>
             <UserStories />
           </StepPage>
         </CustomStepper>

@@ -1,7 +1,7 @@
 {
   "welcome": "Welcome to your Intelligent IT Demand",
   "summary": "As per our conversation,  I understand that the below covers your requirements",
-  "textbox": "Textbox",
+  "textbox": "Message",
   "chatIsTyping": "IT Demand is typing ...",
-  "chatbot": "Chatbot"
+  "chatbot": "Conversation"
 }

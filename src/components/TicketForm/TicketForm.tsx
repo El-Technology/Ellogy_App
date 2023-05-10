@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 export const TicketForm = () => {
-  const { register, watch } = useFormContext();
+  const { register, watch, setValue } = useFormContext();
   const { t } = useTranslation(["common", "inputs", "createTicket"]);
 
   return (
@@ -11,7 +11,7 @@ export const TicketForm = () => {
       <Stack
         sx={{
           mb: "15px",
-          width: { xs: "100%", md: "50%", },
+          width: { xs: "100%", md: "50%" },
           height: "100%",
         }}
       >
