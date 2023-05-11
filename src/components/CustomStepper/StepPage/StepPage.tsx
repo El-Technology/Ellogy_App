@@ -7,20 +7,25 @@ interface IStepPageProps {
   children: ReactNode[] | ReactNode;
   onNext?: () => void;
   onBack?: () => void;
-  isButtonDisable?: boolean;
+  isDisabledNext?: boolean;
+  isDisabledBack?: boolean;
 }
 
 export const StepPage: FC<IStepPageProps> = ({
   onNext,
   onBack,
+  isDisabledNext,
+  isDisabledBack,
   children,
-  isButtonDisable,
 }) => {
   const { currentStep, totalSteps, handleBack, handleNext, handleConfirm } =
     useContext(CustomStepperContext);
   const { t } = useTranslation();
 
-  const isLastStep = useMemo(() => currentStep === totalSteps, [currentStep, totalSteps]);
+  const isLastStep = useMemo(
+    () => currentStep === totalSteps,
+    [currentStep, totalSteps]
+  );
 
   const onBeforeHandler = () => {
     onBack?.();
@@ -76,7 +81,7 @@ export const StepPage: FC<IStepPageProps> = ({
             "&:hover": {
               transition: "0.5s opacity",
               bgcolor: "#000000",
-              opacity: { xs: '1', sm: "0.7" },
+              opacity: { xs: "1", sm: "0.7" },
             },
             "&:disabled": {
               opacity: "0.7",
@@ -85,7 +90,7 @@ export const StepPage: FC<IStepPageProps> = ({
               pointerEvents: "auto",
             },
           }}
-          disabled={isButtonDisable}
+          disabled={isDisabledBack}
         >
           {t(!currentStep ? "clear" : "prev")}
         </Button>
@@ -119,7 +124,7 @@ export const StepPage: FC<IStepPageProps> = ({
               pointerEvents: "auto",
             },
           }}
-          disabled={isButtonDisable}
+          disabled={isDisabledNext}
         >
           {t(isLastStep ? "submit" : "next")}
         </Button>

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 export const UserStories = () => {
-  const { watch, getValues } = useFormContext();
+  const { watch } = useFormContext();
   const { t } = useTranslation(["common", "inputs", "createTicket"]);
 
   return (
@@ -11,7 +11,7 @@ export const UserStories = () => {
       <Stack
         sx={{
           mb: "15px",
-          height:"100%",
+          height: "100%",
           width: "100%",
         }}
       >
@@ -54,7 +54,7 @@ export const UserStories = () => {
             <Box sx={{ width: { xs: "100%", tablet: "48%" }, height: "100%" }}>
               <TextField
                 multiline
-                value={getValues("summary")}
+                defaultValue={`${watch("summary")}`}
                 dir={
                   watch("summary") &&
                   watch("summary").match("[\u0600-\u06FF\u0750-\u077F]") //rtl
