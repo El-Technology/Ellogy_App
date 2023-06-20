@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useForm} from 'react-hook-form';
 import {
   TextField,
@@ -13,6 +13,8 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import {AuthHeader} from 'src/components/AuthHeader/AuthHeader';
 import {useNavigate} from 'react-router-dom';
+import {useDispatch} from "react-redux";
+import {addNewUser} from "../../store/user-service/asyncActions";
 
 const schema = yup.object().shape({
   firstName: yup.string().required('First Name is required'),
@@ -33,6 +35,7 @@ const schema = yup.object().shape({
 
 export const SignUp = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const {
     handleSubmit,
@@ -49,6 +52,21 @@ export const SignUp = () => {
   const redirectToLogin = () => {
     navigate('/sign-in');
   };
+
+  useEffect(() => {
+    const userData = {
+      firstName: 'John',
+      lastName: 'Doe',
+      email: 'johndoe@example.com',
+      phoneNumber: '1234567890',
+      password: 'password123',
+      organization: 'Example Org',
+      department: 'Example Department',
+    };
+
+    // @ts-ignore
+    dispatch(addNewUser(userData));
+  }, []);
 
   return (
     <>
@@ -123,7 +141,7 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.lastName || errors.department) ? 0 : 2.4}>
+                <Grid item mt={(errors.firstName || errors.organization) ? 0 : 2.4}>
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.lastName}>
@@ -181,7 +199,7 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.email || errors.password) ? 0 : 2.4}>
+                <Grid item mt={(errors.lastName || errors.department) ? 0 : 2.4}>
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.email}>
@@ -240,7 +258,7 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.lastName || errors.confirmPassword) ? 0 : 2.4}>
+                <Grid item mt={(errors.email || errors.password) ? 0 : 2.4}>
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.phoneNumber}>

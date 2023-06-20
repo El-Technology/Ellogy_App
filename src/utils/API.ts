@@ -4,7 +4,7 @@ import { VaultService } from './storage';
 const storage = new VaultService();
 
 const axiosConfig = {
-  baseURL: 'https://api-dev.elottdev.pp.ua/api/',
+  baseURL: 'http://20.21.124.185:5211/gateway',
 };
 const instance = axios.create(axiosConfig);
 
