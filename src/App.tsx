@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import {useEffect} from "react";
 import { useTranslation } from "react-i18next";
 import { Route, Routes } from "react-router-dom";
 import "./App.scss";
@@ -6,6 +6,7 @@ import { ROUTES } from "./core/constants/routes";
 import { Home } from "./pages/Home";
 import {Login} from "./pages/Login/Login";
 import {SignUp} from "./pages/SignUp/SignUp";
+import {ProtectedRoutes} from "./hoc/ProtectedRoutes";
 
 const App = () => {
   const { i18n } = useTranslation();
@@ -16,11 +17,14 @@ const App = () => {
       document.body.classList.remove("rtl");
     }
   }, [i18n.language]);
+
   return (
     <Routes>
-      <Route path={ROUTES.HOME} element={<Home />} />
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.SIGNUP} element={<SignUp />} />
+      <Route element={<ProtectedRoutes/>}>
+        <Route path={ROUTES.HOME} element={<Home />} />
+      </Route>
     </Routes>
   );
 };
