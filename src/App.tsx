@@ -4,6 +4,8 @@ import { Route, Routes } from "react-router-dom";
 import "./App.scss";
 import { ROUTES } from "./core/constants/routes";
 import { Home } from "./pages/Home";
+import {Login} from "./pages/Login/Login";
+import {SignUp} from "./pages/SignUp/SignUp";
 
 const App = () => {
   const { i18n } = useTranslation();
@@ -17,6 +19,8 @@ const App = () => {
   return (
     <Routes>
       <Route path={ROUTES.HOME} element={<Home />} />
+      <Route path={ROUTES.LOGIN} element={<Login />} />
+      <Route path={ROUTES.SIGNUP} element={<SignUp />} />
     </Routes>
   );
 };
