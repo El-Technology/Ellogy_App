@@ -1,30 +1,31 @@
-import {Dispatch} from 'redux';
-import {
-  registerUserSuccess,
-  registerUserFailure,
-  loginUserSuccess, loginUserFailure,
-} from './userSlice';
-import {IUserReducer} from './types';
+import { IUserReducer } from './types';
 import instance from '../../utils/API';
+import {VaultService} from "../../utils/storage";
+import {createAsyncThunk} from "@reduxjs/toolkit";
 
-export const addNewUser = (userData: IUserReducer) => {
-  return async (dispatch: Dispatch) => {
+const vaultService = new VaultService();
+
+export const addNewUser = createAsyncThunk(
+  'user/registerUser',
+  async (userData: IUserReducer, { rejectWithValue }) => {
     try {
       await instance.post('/auth/register', userData);
-      dispatch(registerUserSuccess());
-    } catch (error) {
-      dispatch(registerUserFailure(error));
+    } catch (error: any) {
+      return rejectWithValue(error.data);
     }
-  };
-};
+  }
+);
 
-export const loginUser = (userData: IUserReducer) => {
-  return async (dispatch: Dispatch) => {
+export const loginUser = createAsyncThunk(
+  'user/loginUser',
+  async (userData: IUserReducer, { rejectWithValue }) => {
     try {
-      const response = await instance.post('/Auth/login', userData);
-      dispatch(loginUserSuccess(response.data));
-    } catch (error) {
-      dispatch(loginUserFailure(error));
+      const response = await instance.post('/auth/login', userData);
+      vaultService.setItem('token', response.data.jwt);
+      return response.data;
+    } catch (error: any) {
+      console.log(error)
+      return rejectWithValue(error.data);
     }
-  };
-};
+  }
+);
