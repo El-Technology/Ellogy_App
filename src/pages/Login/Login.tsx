@@ -1,121 +1,223 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 import {useForm} from 'react-hook-form';
 import {TextField, Button, Typography, Grid, FormControl, FormHelperText, Box} from '@mui/material';
 import {yupResolver} from '@hookform/resolvers/yup';
-import * as yup from 'yup';
 import {AuthHeader} from 'src/components/AuthHeader/AuthHeader';
-import {useNavigate} from "react-router-dom";
-
-const schema = yup.object().shape({
-  username: yup.string().required('Username is required'),
-  password: yup.string().required('Password is required'),
-});
+import {useNavigate} from 'react-router-dom';
+import {useDispatch, useSelector} from 'react-redux';
+import {loginUser} from '../../store/user-service/asyncActions';
+import {getUser} from 'src/store/user-service/selector';
+import {loginSchema} from "../../core/helpers/yupSchemas";
+import {removeLoginError} from 'src/store/user-service/userSlice';
+import {SignInType} from "../../core/types/base";
+import {Oval} from 'react-loader-spinner';
 
 export const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userData = useSelector(getUser);
 
   const {
     handleSubmit,
     register,
     formState: {errors},
+    clearErrors
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(loginSchema),
   });
 
-  const onSubmit = () => {
-    console.log('Form submitted');
+  const handleLogin = (data: SignInType) => {
+    // @ts-ignore
+    dispatch(loginUser(data));
   };
 
   const redirectToSignUp = () => {
     navigate('/sign-up');
   };
 
+  const hideError = () => {
+    dispatch(removeLoginError());
+  };
+
+  const renderEmailInfo = () => {
+    const emailError = "User with email";
+
+    if (userData.loginError?.startsWith(emailError)) {
+      return (
+        <FormHelperText
+          sx={{
+            fontSize: '12px',
+            textAlign: 'right',
+            marginRight: '12px',
+            marginTop: '0',
+            color: "#FB0B24"
+          }}
+        >
+          Incorrect email
+        </FormHelperText>
+      )
+    } else {
+      return (
+        <FormHelperText
+          sx={{
+            fontSize: '12px',
+            textAlign: 'right',
+            marginRight: '12px',
+            marginTop: '0'
+          }}
+        >
+          {errors.email?.message}
+        </FormHelperText>
+      )
+    }
+  }
+
+  const renderPasswordInfo = () => {
+    const passwordError = "Login with this credentials was failed";
+
+    if (userData.loginError === passwordError) {
+      return (
+        <FormHelperText
+          sx={{
+            fontSize: '12px',
+            textAlign: 'right',
+            marginRight: '12px',
+            marginTop: '0',
+            color: "#FB0B24"
+          }}
+        >
+          Incorrect password
+        </FormHelperText>
+      )
+    } else if (errors.password) {
+      return (
+        <FormHelperText
+          sx={{
+            fontSize: '12px',
+            textAlign: 'right',
+            marginRight: '12px',
+            marginTop: '0',
+          }}
+        >
+          {errors.password?.message}
+        </FormHelperText>
+      )
+    } else {
+      return (
+        <Typography
+          sx={{
+            fontSize: '12px',
+            textAlign: 'right',
+            marginRight: '12px',
+            color: '#1A5EEC',
+            cursor: 'pointer',
+          }}
+        >
+          Forgot password?
+        </Typography>
+      )
+    }
+  }
+
   return (
     <>
       <AuthHeader/>
 
-      <Box sx={{display: "flex", justifyContent: "center", marginTop: "164px"}}>
-        <Grid container sx={{width: "374px", gap: "24px"}}>
-          <Grid item sx={{width: "100%", textAlign: "center"}}>
-            <Typography variant="h3" sx={{fontSize: "34px", fontWeight: "700"}}>Login</Typography>
+      <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '164px'}}>
+        <Grid container sx={{width: '374px', gap: '24px'}}>
+          <Grid item sx={{width: '100%', textAlign: 'center'}}>
+            <Typography variant="h3" sx={{fontSize: '34px', fontWeight: '700'}}>
+              Login
+            </Typography>
           </Grid>
 
           <Grid item>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(handleLogin)}>
               <Grid container direction="column">
                 <Grid item>
-                  <FormControl fullWidth error={!!errors.username}>
-                    <Typography sx={{fontSize: "12px"}}>Username</Typography>
+                  <FormControl fullWidth error={!!errors.email}>
+                    <Typography sx={{fontSize: '12px'}}>Email</Typography>
                     <TextField
-                      inputProps={{style: {padding: "10px 12px"}}}
+                      inputProps={{style: {padding: '10px 12px'}}}
                       placeholder="example@gmail.com"
                       sx={{
                         height: '44px',
-                        "& .MuiOutlinedInput-root": {
+                        '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                         },
                       }}
-                      {...register('username')}
+                      {...register('email')}
+                      onChange={() => {
+                        hideError();
+                        clearErrors('email');
+                      }}
                     />
-                    <FormHelperText
-                      sx={{
-                        fontSize: "12px",
-                        textAlign: "right",
-                        marginRight: "12px",
-                        marginTop: "0"
-                      }}>
-                      {errors.username?.message}
-                    </FormHelperText>
+                    {renderEmailInfo()}
                   </FormControl>
                 </Grid>
 
                 <Grid item mt={2.4}>
                   <FormControl fullWidth error={!!errors.password}>
-                    <Typography sx={{fontSize: "12px"}}>Password</Typography>
+                    <Typography sx={{fontSize: '12px'}}>Password</Typography>
                     <TextField
-                      inputProps={{style: {padding: "10px 12px", borderRadius: "8px"}}}
+                      inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
+                      type="password"
                       placeholder="Enter your password"
                       sx={{
                         height: '44px',
-                        "& .MuiOutlinedInput-root": {
+                        '& .MuiOutlinedInput-root': {
                           borderRadius: '8px',
                         },
                       }}
                       {...register('password')}
+                      onChange={() => {
+                        hideError();
+                        clearErrors('password');
+                      }}
                     />
-                    {errors.password ?
-                      <FormHelperText
-                        sx={{
-                          fontSize: "12px",
-                          textAlign: "right",
-                          marginRight: "12px",
-                          marginTop: "0"
-                        }}>
-                        {errors.password?.message}
-                      </FormHelperText> :
-                      <Typography
-                        sx={{
-                          fontSize: "12px",
-                          textAlign: "right",
-                          marginRight: "12px",
-                          color: '#1A5EEC',
-                          cursor: 'pointer'
-                        }}>
-                        Forgot password?
-                      </Typography>}
+                    {renderPasswordInfo()}
                   </FormControl>
                 </Grid>
               </Grid>
 
-              <Button sx={{marginTop: "24px", width: "374px", borderRadius: "8px", textTransform: "none"}} type="submit" variant="contained" color="primary">
-                Log in
-              </Button>
+              {userData.loading ? (
+                <Button
+                  sx={{marginTop: '24px', height: "44px", width: '374px', borderRadius: '8px', textTransform: 'none'}}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  <Oval
+                    height={24}
+                    width={24}
+                    color="#fff"
+                    wrapperStyle={{}}
+                    wrapperClass=""
+                    visible={true}
+                    ariaLabel='oval-loading'
+                    secondaryColor="#91B6FF"
+                    strokeWidth={5}
+                    strokeWidthSecondary={5}
+                  />
+                </Button>
+              ) : (
+                <Button
+                  sx={{marginTop: '24px', height: "44px", width: '374px', borderRadius: '8px', textTransform: 'none', fontSize: "16px", fontWeight: "700"}}
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                >
+                  Log in
+                </Button>
+              )}
             </form>
           </Grid>
 
-          <Grid item sx={{display: 'flex', gap: '8px', marginTop: "8px"}}>
+          <Grid item sx={{display: 'flex', gap: '8px', marginTop: '8px'}}>
             <Typography>Don’t have an account yet?</Typography>
-            <Typography sx={{color: '#4786FF', cursor: 'pointer'}} onClick={redirectToSignUp}>Sign up</Typography>
+            <Typography sx={{color: '#4786FF', cursor: 'pointer'}} onClick={redirectToSignUp}>
+              Sign up
+            </Typography>
           </Grid>
         </Grid>
       </Box>

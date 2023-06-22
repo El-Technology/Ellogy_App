@@ -1,8 +1,9 @@
-import {Navigate, Outlet} from "react-router-dom";
-import {ROUTES} from "../core/constants/routes";
+import { Navigate, Outlet } from "react-router-dom";
+import { ROUTES } from "../core/constants/routes";
 
 export const ProtectedRoutes = () => {
-  const isAuth = false;
+  const token = localStorage.getItem('token');
+  const isAuth = !!token;
 
-  return isAuth ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />
-}
+  return isAuth ? <Outlet /> : <Navigate to={ROUTES.LOGIN} replace />;
+};
