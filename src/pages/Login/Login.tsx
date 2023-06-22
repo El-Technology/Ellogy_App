@@ -35,6 +35,10 @@ export const Login = () => {
     navigate('/sign-up');
   };
 
+  const redirectToResetPassword = () => {
+    navigate('/reset-password');
+  };
+
   const hideError = () => {
     dispatch(removeLoginError());
   };
@@ -112,6 +116,7 @@ export const Login = () => {
             color: '#1A5EEC',
             cursor: 'pointer',
           }}
+          onClick={redirectToResetPassword}
         >
           Forgot password?
         </Typography>
