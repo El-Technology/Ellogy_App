@@ -7,6 +7,7 @@ import { Home } from "./pages/Home";
 import {Login} from "./pages/Login/Login";
 import {SignUp} from "./pages/SignUp/SignUp";
 import {ProtectedRoutes} from "./hoc/ProtectedRoutes";
+import {ResetPassword} from "./pages/ResetPassword/ResetPassword";
 
 const App = () => {
   const { i18n } = useTranslation();
@@ -22,6 +23,7 @@ const App = () => {
     <Routes>
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.SIGNUP} element={<SignUp />} />
+      <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
       <Route element={<ProtectedRoutes/>}>
         <Route path={ROUTES.HOME} element={<Home />} />
       </Route>

@@ -21,3 +21,13 @@ export const signUpSchema = yup.object().shape({
     }),
   check: yup.bool().oneOf([true], 'You must agree to the Terms of Service and Privacy Policy'),
 });
+
+export const resetPasswordSchema = yup.object().shape({
+  password: yup.string().required('Password is required'),
+  confirmPassword: yup
+    .string()
+    .required('Confirm Password is required')
+    .test('passwords-match', 'Passwords must match', function (value) {
+      return this.parent.password === value || value === undefined;
+    }),
+});

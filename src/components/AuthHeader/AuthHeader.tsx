@@ -2,12 +2,13 @@ import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { ReactComponent as Logo } from '../../assets/icons/logo-ellogy.svg';
 import { useLocation, Link } from 'react-router-dom';
+import {ROUTES} from "../../core/constants/routes";
 
 export const AuthHeader = () => {
   const location = useLocation();
 
   const renderButton = () => {
-    if (location.pathname === '/sign-in') {
+    if (location.pathname === `/${ROUTES.LOGIN}`) {
       return (
         <Button
           component={Link}
@@ -24,7 +25,7 @@ export const AuthHeader = () => {
           Sign up
         </Button>
       );
-    } else if (location.pathname === '/sign-up') {
+    } else if (location.pathname === `/${ROUTES.SIGNUP}` || location.pathname === `/${ROUTES.RESET_PASSWORD}`) {
       return (
         <Button
           component={Link}
