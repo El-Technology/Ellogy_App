@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { IUserReducer } from './types';
-import {addNewUser, loginUser} from "./asyncActions";
+import {addNewUser, forgotPasswordRequest, loginUser} from "./asyncActions";
 
 const initialState: IUserReducer = {};
 
@@ -39,7 +39,16 @@ const userSlice = createSlice({
       .addCase(loginUser.rejected, (state, action: PayloadAction<any>) => {
         state.loading = false;
         state.loginError = action.payload;
-      });
+      })
+      .addCase(forgotPasswordRequest.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(forgotPasswordRequest.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPasswordRequest.rejected, (state) => {
+        state.loading = false;
+      })
   }
 });
 

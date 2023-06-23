@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {
   TextField,
@@ -19,11 +19,15 @@ import {getUser} from "../../store/user-service/selector";
 import {removeSignUpError} from "../../store/user-service/userSlice";
 import {SignUpType} from "../../core/types/base";
 import {Oval} from "react-loader-spinner";
+import {ROUTES} from "../../core/constants/routes";
+import {SuccessSignUpModal} from "./SuccessSignUpModal";
 
 export const SignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector(getUser);
+
+  const [open, setOpen] = useState(false);
 
   const {
     handleSubmit,
@@ -36,11 +40,13 @@ export const SignUp = () => {
 
   const registerUser = (data: SignUpType) => {
     // @ts-ignore
-    dispatch(addNewUser(data));
+    dispatch(addNewUser(data)).then(() => {
+      setOpen(true);
+    });
   };
 
   const redirectToLogin = () => {
-    navigate('/sign-in');
+    navigate(ROUTES.LOGIN);
   };
 
   const hideError = () => {
@@ -402,6 +408,8 @@ export const SignUp = () => {
             <Typography sx={{color: '#4786FF', cursor: 'pointer'}} onClick={redirectToLogin}>Log in</Typography>
           </Grid>
         </Grid>
+
+        <SuccessSignUpModal isOpen={open} />
       </Box>
     </>
   );
