@@ -8,7 +8,7 @@ export const AuthHeader = () => {
   const location = useLocation();
 
   const renderButton = () => {
-    if (location.pathname === `/${ROUTES.LOGIN}`) {
+    if (location.pathname === ROUTES.LOGIN) {
       return (
         <Button
           component={Link}
@@ -25,7 +25,7 @@ export const AuthHeader = () => {
           Sign up
         </Button>
       );
-    } else if (location.pathname === `/${ROUTES.SIGNUP}` || location.pathname === `/${ROUTES.RESET_PASSWORD}`) {
+    } else if (location.pathname === ROUTES.SIGNUP || location.pathname === ROUTES.RESET_PASSWORD) {
       return (
         <Button
           component={Link}

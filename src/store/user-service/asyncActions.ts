@@ -24,7 +24,17 @@ export const loginUser = createAsyncThunk(
       vaultService.setItem('token', response.data.jwt);
       return response.data;
     } catch (error: any) {
-      console.log(error)
+      return rejectWithValue(error.data);
+    }
+  }
+);
+
+export const forgotPasswordRequest = createAsyncThunk(
+  'user/forgotPassword',
+  async (data: any, { rejectWithValue }) => {
+    try {
+      await instance.post('/auth/forgotPassword', data);
+    } catch (error: any) {
       return rejectWithValue(error.data);
     }
   }

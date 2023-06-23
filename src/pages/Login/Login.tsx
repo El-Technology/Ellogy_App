@@ -11,6 +11,7 @@ import {loginSchema} from "../../core/helpers/yupSchemas";
 import {removeLoginError} from 'src/store/user-service/userSlice';
 import {SignInType} from "../../core/types/base";
 import {Oval} from 'react-loader-spinner';
+import {ROUTES} from "../../core/constants/routes";
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -28,15 +29,17 @@ export const Login = () => {
 
   const handleLogin = (data: SignInType) => {
     // @ts-ignore
-    dispatch(loginUser(data));
+    dispatch(loginUser(data)).then(() => {
+      navigate(ROUTES.HOME);
+    });
   };
 
   const redirectToSignUp = () => {
-    navigate('/sign-up');
+    navigate(ROUTES.SIGNUP);
   };
 
   const redirectToResetPassword = () => {
-    navigate('/reset-password');
+    navigate(ROUTES.RESET_PASSWORD);
   };
 
   const hideError = () => {
