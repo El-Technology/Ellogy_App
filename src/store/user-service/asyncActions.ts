@@ -39,3 +39,14 @@ export const forgotPasswordRequest = createAsyncThunk(
     }
   }
 );
+
+export const resetPassword = createAsyncThunk(
+  'user/resetPassword',
+  async (data: { id: string; token: string; password: string }, { rejectWithValue }) => {
+    try {
+      await instance.post('/auth/resetPassword', data);
+    } catch (error: any) {
+      return rejectWithValue(error.data);
+    }
+  }
+);

@@ -1,15 +1,14 @@
 import {AuthHeader} from "../../components/AuthHeader/AuthHeader";
 import {Box, Button, Modal} from "@mui/material";
 import {ResetEmailForm} from "./components/ResetEmailForm";
-import {ResetEmailConfirmation} from "./components/ResetEmailConfirmation";
-import {ResetError} from "./components/ResetError";
-import {ResetSuccess} from "./components/ResetSuccess";
 import {ResetPasswordForm} from "./components/ResetPasswordForm";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {ROUTES} from "../../core/constants/routes";
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const redirectToLogin = () => {
     navigate(ROUTES.LOGIN);
   };
@@ -56,11 +55,7 @@ export const ResetPassword = () => {
               <span>&times;</span>
             </Button>
 
-            <ResetEmailForm />
-            {/*<ResetEmailConfirmation />*/}
-            {/*<ResetError />*/}
-            {/*<ResetPasswordForm />*/}
-            {/*<ResetSuccess />*/}
+            {location.pathname === ROUTES.CREATE_NEW_PASSWORD ? <ResetPasswordForm/> : <ResetEmailForm/>}
           </Box>
         </Modal>
       </div>

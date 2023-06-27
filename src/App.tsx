@@ -24,6 +24,7 @@ const App = () => {
       <Route path={ROUTES.LOGIN} element={<Login />} />
       <Route path={ROUTES.SIGNUP} element={<SignUp />} />
       <Route path={ROUTES.RESET_PASSWORD} element={<ResetPassword />} />
+      <Route path={ROUTES.CREATE_NEW_PASSWORD} element={<ResetPassword />} />
       <Route element={<ProtectedRoutes/>}>
         <Route path={ROUTES.HOME} element={<Home />} />
       </Route>
