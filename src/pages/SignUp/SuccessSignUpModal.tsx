@@ -11,6 +11,7 @@ type SuccessSignUpModalProps = {
 
 export const SuccessSignUpModal: FC<SuccessSignUpModalProps> = ({ isOpen }) => {
   const navigate = useNavigate();
+
   const redirectToLogin = () => {
     navigate(ROUTES.LOGIN);
   };

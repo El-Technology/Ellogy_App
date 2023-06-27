@@ -2,11 +2,12 @@ import React from "react";
 import {useNavigate} from "react-router-dom";
 import {Box, Button, Typography} from "@mui/material";
 import {ReactComponent as Success} from "../../../assets/icons/success.svg";
+import {ROUTES} from "../../../core/constants/routes";
 
 export const ResetSuccess = () => {
   const navigate = useNavigate();
   const redirectToLogin = () => {
-    navigate('/sign-in');
+    navigate(ROUTES.LOGIN);
   };
 
   return (
@@ -32,7 +33,6 @@ export const ResetSuccess = () => {
 
       <Button
         sx={{height: "44px", width: '438px', borderRadius: '8px', textTransform: 'none', fontSize: "16px", fontWeight: "700", marginTop: "24px"}}
-        type="submit"
         variant="contained"
         color="primary"
         onClick={redirectToLogin}
