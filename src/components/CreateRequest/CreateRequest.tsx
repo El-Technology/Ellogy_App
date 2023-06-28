@@ -5,7 +5,7 @@ import { TicketForm } from "../TicketForm/TicketForm";
 import { useForm, FormProvider } from "react-hook-form";
 import { IMessage } from "../Chatbot/Message/Message";
 import { StepPage } from "../CustomStepper/StepPage/StepPage";
-import { useCallback, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { LLMChain, PromptTemplate } from "langchain";
 import { ConversationSummaryMemory } from "langchain/memory";
 import { ChatOpenAI } from "langchain/chat_models/openai";
@@ -27,7 +27,7 @@ export const CreateRequest = () => {
       summary: "",
     },
   });
-  const { handleSubmit, reset, setValue, getValues, watch } = methods;
+  const { handleSubmit, setValue, getValues, watch } = methods;
   const onSubmit = (data: FormValues) => {
     console.log("res data is ", data);
   };
@@ -121,12 +121,6 @@ export const CreateRequest = () => {
     };
     setMessages((prev) => [...prev, res]);
   };
-
-  const handleResetForm = useCallback(() => {
-    reset();
-    setMessages([]);
-  }, [reset]);
-
   return (
     <>
       {isSummaryLoading && (
@@ -153,7 +147,6 @@ export const CreateRequest = () => {
             <TicketForm />
           </StepPage>
           <StepPage
-            // onBack={handleResetForm}
             onNext={handleSummary}
             isDisabledNext={isTyping}
             isDisabledBack={isTyping}

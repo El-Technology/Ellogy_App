@@ -38,21 +38,21 @@ export const Chatbot: FC<ChatbotProps> = ({
   useEffect(() => {
     chatWindowRef.current!.scrollTop = chatWindowRef.current!.scrollHeight;
     setValue("messages", messages);
-  }, [messages]);
+  }, [messages, setValue]);
 
   useEffect(() => {
     const firstMessage = getValues("description");
-    !messages.length  &&
+    !messages.length &&
       firstMessage &&
       handleSend({ content: firstMessage, sender: "user" });
-  }, [messages.length]);
+  }, [messages.length, getValues, handleSend]);
 
   return (
     <>
       <Box
         className={styles.chat}
         sx={{
-          flex: '0 1 60%',
+          flex: "0 1 60%",
           minHeight: "150px",
         }}
       >
@@ -68,12 +68,12 @@ export const Chatbot: FC<ChatbotProps> = ({
             columnGap: "5px",
             fontWeight: "400",
             "& > svg": {
-              width: "12px"
-            }
+              width: "12px",
+            },
           }}
         >
           <MessageIcon />
-          {t("chatbot", {ns: "createTicket"})}
+          {t("chatbot", { ns: "createTicket" })}
         </Box>
         <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
       </Box>

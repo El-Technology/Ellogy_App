@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useFormContext } from "react-hook-form";
 
 export const TicketForm = () => {
-  const { register, watch, setValue } = useFormContext();
+  const { register, watch } = useFormContext();
   const { t } = useTranslation(["common", "inputs", "createTicket"]);
 
   return (
