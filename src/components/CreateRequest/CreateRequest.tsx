@@ -1,23 +1,40 @@
-import {Chatbot} from "../Chatbot/Chatbot";
-import {useForm, FormProvider} from "react-hook-form";
-import {IMessage} from "../Chatbot/Message/Message";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {LLMChain, PromptTemplate} from "langchain";
-import {ConversationSummaryMemory} from "langchain/memory";
-import {ChatOpenAI} from "langchain/chat_models/openai";
-import {Box, Button, FormControl, Grid, TextField, Typography} from "@mui/material";
-import {useDispatch, useSelector} from "react-redux";
-import {getActiveTicket, getTickets, getTicketsLoader, getTicketUpdating} from "../../store/ticket-service/selector";
-import {format} from "date-fns";
-import {ReactComponent as Trash} from '../../assets/icons/trash.svg'
-import {ReactComponent as EditTicket} from '../../assets/icons/edit-ticket.svg'
-import {ReactComponent as MessageText} from '../../assets/icons/message-text.svg'
-import {ReactComponent as Add} from "../../assets/icons/add.svg";
-import {Oval} from "react-loader-spinner";
-import {createTicket, getTicketsByUserId, updateTicket} from "../../store/ticket-service/asyncActions";
-import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
-import {TicketType} from "../../store/ticket-service/types";
-import {DeleteRequestModal} from "./DeleteRequestModal";
+import { Chatbot } from "../Chatbot/Chatbot";
+import { useForm, FormProvider } from "react-hook-form";
+import { IMessage } from "../Chatbot/Message/Message";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { LLMChain, PromptTemplate } from "langchain";
+import { ConversationSummaryMemory } from "langchain/memory";
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import {
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getActiveTicket,
+  getTickets,
+  getTicketsLoader,
+  getTicketUpdating,
+} from "../../store/ticket-service/selector";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
+import { format } from "date-fns";
+import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
+import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
+import { ReactComponent as MessageText } from "../../assets/icons/message-text.svg";
+import { ReactComponent as Add } from "../../assets/icons/add.svg";
+import { Oval } from "react-loader-spinner";
+import {
+  createTicket,
+  getTicketsByUserId,
+  updateTicket,
+} from "../../store/ticket-service/asyncActions";
+import { setActiveTicket } from "../../store/ticket-service/ticketSlice";
+import { TicketType } from "../../store/ticket-service/types";
+import { DeleteRequestModal } from "./DeleteRequestModal";
 
 interface FormValues {
   title: string;
@@ -31,10 +48,8 @@ export const CreateRequest = () => {
   const updating = useSelector(getTicketUpdating);
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);
-
-  const dispatch = useDispatch();
-
-  const storedUser = localStorage.getItem('user');
+  const dispatch: any = useDispatch();
+  const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   const methods = useForm<FormValues>({
@@ -57,18 +72,18 @@ export const CreateRequest = () => {
     }
   }, [activeTicket, methods.reset]);
 
-  const {handleSubmit, reset, setValue, getValues, watch, register} = methods;
+  const { handleSubmit, reset, setValue, getValues, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
   const [messages, setMessages] = useState<IMessage[]>(getValues("messages"));
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setEditMode(false);
-  }, [activeTicket])
+  }, [activeTicket]);
 
   const chat = useMemo(() => {
     return new ChatOpenAI({
@@ -99,7 +114,7 @@ export const CreateRequest = () => {
      `);
 
   const chain = useMemo(() => {
-    return new LLMChain({llm: chat, prompt, memory});
+    return new LLMChain({ llm: chat, prompt, memory });
   }, [chat, prompt, memory]);
 
   const userStoryChain = useMemo(() => {
@@ -163,20 +178,24 @@ export const CreateRequest = () => {
 
   const activateEditMode = () => {
     setEditMode(true);
-  }
+  };
 
   const updateTicketInfo = (data: FormValues) => {
-    const {title, description} = data;
+    const { title, description } = data;
     const id = activeTicket?.id;
     // @ts-ignore
-    dispatch(updateTicket({id, title, description})).then(() => dispatch(getTicketsByUserId(user.id))).then(res => {
-      const updatedTicket = res.payload.data.find((ticket: TicketType) => ticket.id === id);
-      if (updatedTicket) {
-        dispatch(setActiveTicket(updatedTicket));
-      }
-      setEditMode(false);
-    });
-  }
+    dispatch(updateTicket({ id, title, description }))
+      .then(() => dispatch(getTicketsByUserId(user.id)))
+      .then((res: any) => {
+        const updatedTicket = res.payload.data.find(
+          (ticket: TicketType) => ticket.id === id
+        );
+        if (updatedTicket) {
+          dispatch(setActiveTicket(updatedTicket));
+        }
+        setEditMode(false);
+      });
+  };
 
   const handleCloseModal = () => {
     setIsDeleteModalOpen(false);
@@ -184,10 +203,12 @@ export const CreateRequest = () => {
 
   const createNewRequest = () => {
     // @ts-ignore
-    dispatch(createTicket(user.id)).then(() => dispatch(getTicketsByUserId(user.id))).then(res => {
-      dispatch(setActiveTicket(res.payload.data[0]));
-    });
-  }
+    dispatch(createTicket(user.id))
+      .then(() => dispatch(getTicketsByUserId(user.id)))
+      .then((res: any) => {
+        dispatch(setActiveTicket(res.payload.data[0]));
+      });
+  };
 
   return (
     <Box
@@ -214,44 +235,47 @@ export const CreateRequest = () => {
         />
       </FormProvider>
 
-      {activeTicket && (editMode ?
+      {activeTicket &&
+        (editMode ? (
           <form onSubmit={handleSubmit(updateTicketInfo)}>
             <Grid container direction="column">
               <Grid item>
                 <FormControl fullWidth>
-                  <Typography sx={{fontSize: '12px'}}>Title</Typography>
+                  <Typography sx={{ fontSize: "12px" }}>Title</Typography>
                   <TextField
-                    inputProps={{style: {padding: '10px 12px'}}}
+                    inputProps={{ style: { padding: "10px 12px" } }}
                     placeholder="Title of request"
                     sx={{
                       width: "310px",
-                      height: '44px',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '8px',
+                      height: "44px",
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px",
                       },
                     }}
-                    {...register('title')}
-                    defaultValue={activeTicket?.title || ''}
+                    {...register("title")}
+                    defaultValue={activeTicket?.title || ""}
                   />
                 </FormControl>
               </Grid>
 
               <Grid item mt={2.4}>
                 <FormControl fullWidth>
-                  <Typography sx={{fontSize: '12px'}}>Description</Typography>
+                  <Typography sx={{ fontSize: "12px" }}>Description</Typography>
                   <TextField
                     multiline
-                    inputProps={{style: {borderRadius: '8px', height: "168px"}}}
+                    inputProps={{
+                      style: { borderRadius: "8px", height: "168px" },
+                    }}
                     placeholder="Describe your request"
                     sx={{
                       width: "310px",
-                      minHeight: '168px',
-                      '& .MuiOutlinedInput-root': {
-                        borderRadius: '8px',
+                      minHeight: "168px",
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "8px",
                       },
                     }}
-                    {...register('description')}
-                    defaultValue={activeTicket?.description || ''}
+                    {...register("description")}
+                    defaultValue={activeTicket?.description || ""}
                   />
                 </FormControl>
               </Grid>
@@ -260,18 +284,18 @@ export const CreateRequest = () => {
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between"
+                justifyContent: "space-between",
               }}
             >
               <Button
                 sx={{
-                  marginTop: '24px',
+                  marginTop: "24px",
                   height: "44px",
-                  width: '133px',
-                  borderRadius: '8px',
-                  textTransform: 'none',
+                  width: "133px",
+                  borderRadius: "8px",
+                  textTransform: "none",
                   fontSize: "16px",
-                  fontWeight: "700"
+                  fontWeight: "700",
                 }}
                 variant="outlined"
                 onClick={() => setEditMode(false)}
@@ -281,7 +305,13 @@ export const CreateRequest = () => {
 
               {updating ? (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '133px', borderRadius: '8px', textTransform: 'none'}}
+                  sx={{
+                    marginTop: "24px",
+                    height: "44px",
+                    width: "133px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
@@ -293,7 +323,7 @@ export const CreateRequest = () => {
                     wrapperStyle={{}}
                     wrapperClass=""
                     visible={true}
-                    ariaLabel='oval-loading'
+                    ariaLabel="oval-loading"
                     secondaryColor="#91B6FF"
                     strokeWidth={5}
                     strokeWidthSecondary={5}
@@ -301,7 +331,15 @@ export const CreateRequest = () => {
                 </Button>
               ) : (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '133px', borderRadius: '8px', textTransform: 'none', fontSize: "16px", fontWeight: "700"}}
+                  sx={{
+                    marginTop: "24px",
+                    height: "44px",
+                    width: "133px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: "700",
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
@@ -311,56 +349,70 @@ export const CreateRequest = () => {
               )}
             </Box>
           </form>
-          :
+        ) : (
           <Box
             sx={{
               width: "310px",
               display: "flex",
               flexDirection: "column",
-              gap: "16px"
+              gap: "16px",
             }}
           >
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "space-between",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
-              <Typography sx={{fontSize: "24px", fontWeight: "700"}}>{activeTicket?.title}</Typography>
+              <Typography sx={{ fontSize: "24px", fontWeight: "700" }}>
+                {activeTicket?.title}
+              </Typography>
 
-              <Box sx={{display: "flex", gap: "16px"}}>
-                <Button sx={{minWidth: "24px", padding: "0"}} onClick={activateEditMode}>
-                  <EditTicket/>
+              <Box sx={{ display: "flex", gap: "16px" }}>
+                <Button
+                  sx={{ minWidth: "24px", padding: "0" }}
+                  onClick={activateEditMode}
+                >
+                  <EditTicket />
                 </Button>
 
-                <Button sx={{minWidth: "24px", padding: "0"}} onClick={() => setIsDeleteModalOpen(true)}>
-                  <Trash/>
+                <Button
+                  sx={{ minWidth: "24px", padding: "0" }}
+                  onClick={() => setIsDeleteModalOpen(true)}
+                >
+                  <Trash />
                 </Button>
               </Box>
             </Box>
             <Box>
-              <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
-                Created: {activeTicket?.createdDate && format(new Date(activeTicket.createdDate), 'dd/MM/yyyy')}
+              <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                Created:{" "}
+                {activeTicket?.createdDate &&
+                  format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
               </Typography>
-              {activeTicket?.updatedDate &&
-                  <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
-                      Last Modified: {activeTicket?.updatedDate ? format(new Date(activeTicket.createdDate), 'dd/MM/yyyy') : 'N/A'}
-                  </Typography>
-              }
+              {activeTicket?.updatedDate && (
+                <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                  Last Modified:{" "}
+                  {activeTicket?.updatedDate
+                    ? format(new Date(activeTicket.createdDate), "dd/MM/yyyy")
+                    : "N/A"}
+                </Typography>
+              )}
             </Box>
             <Typography>
-              <strong>Description:</strong> <br/> {activeTicket?.description}
+              <strong>Description:</strong> <br /> {activeTicket?.description}
             </Typography>
 
-            {isDeleteModalOpen &&
-                <DeleteRequestModal
-                    handleCloseModal={handleCloseModal}
-                    ticketId={activeTicket?.id}
-                    userId={user.id}
-                />}
+            {isDeleteModalOpen && (
+              <DeleteRequestModal
+                handleCloseModal={handleCloseModal}
+                ticketId={activeTicket?.id}
+                userId={user.id}
+              />
+            )}
           </Box>
-      )}
+        ))}
 
       {/*{isSummaryLoading && (*/}
       {/*  <Backdrop*/}
@@ -406,4 +458,4 @@ export const CreateRequest = () => {
       {/*</FormProvider>*/}
     </Box>
   );
-}
+};
