@@ -45,7 +45,7 @@ export const Chatbot: FC<ChatbotProps> = ({
     !messages.length &&
       firstMessage &&
       handleSend({ content: firstMessage, sender: "user" });
-  }, [messages.length]);
+  }, [messages.length, getValues, handleSend]);
 
   return (
     <Box

@@ -20,6 +20,7 @@ import {
   getTicketsLoader,
   getTicketUpdating,
 } from "../../store/ticket-service/selector";
+import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
 import { format } from "date-fns";
 import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
 import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
@@ -47,9 +48,7 @@ export const CreateRequest = () => {
   const updating = useSelector(getTicketUpdating);
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);
-
-  const dispatch = useDispatch();
-
+  const dispatch: any = useDispatch();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
@@ -187,7 +186,7 @@ export const CreateRequest = () => {
     // @ts-ignore
     dispatch(updateTicket({ id, title, description }))
       .then(() => dispatch(getTicketsByUserId(user.id)))
-      .then((res) => {
+      .then((res: any) => {
         const updatedTicket = res.payload.data.find(
           (ticket: TicketType) => ticket.id === id
         );
@@ -206,7 +205,7 @@ export const CreateRequest = () => {
     // @ts-ignore
     dispatch(createTicket(user.id))
       .then(() => dispatch(getTicketsByUserId(user.id)))
-      .then((res) => {
+      .then((res: any) => {
         dispatch(setActiveTicket(res.payload.data[0]));
       });
   };
