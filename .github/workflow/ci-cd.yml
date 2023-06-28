@@ -1,0 +1,31 @@
+name: Push Build to Azure Storage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  push-to-storage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Azure CLI
+        uses: azure/setup-azure-cli@v1
+
+      - name: Install Azure CLI extension for storage
+        run: az extension add --name storage-preview
+
+      - name: Build application
+        run: npm run build
+
+      - name: Upload build to Azure Storage
+        run: |
+          az storage blob upload-batch \
+            --account-name ${{ secrets.AZURE_STORAGE_NAME}} \
+            --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
+            --destination \$web \
+            --source build/*
