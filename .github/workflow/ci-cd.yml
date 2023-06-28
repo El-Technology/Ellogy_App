@@ -1,7 +1,9 @@
-name: Push Build to Azure Storage
-
+name: CI/CD Pipeline
 on:
   push:
+    branches:
+      - main
+  pull_request:
     branches:
       - main
 
