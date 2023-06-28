@@ -1,5 +1,11 @@
-import { Box } from "@mui/material";
-import { useState, FC, ReactNode, createContext, useMemo } from "react";
+import {
+  useState,
+  FC,
+  ReactNode,
+  createContext,
+  useMemo,
+  useCallback,
+} from "react";
 interface ICustomStepperContext {
   currentStep: number;
   totalSteps: number;
@@ -27,15 +33,16 @@ export const CustomStepper: FC<ICustomStepperProps> = ({
   const [currentStep, setCurrentStep] = useState(0);
   const totalSteps = pages.length - 1;
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setCurrentStep((curr) => curr + 1);
-  };
-  const handleBack = () => {
+  }, [setCurrentStep]);
+  const handleBack = useCallback(() => {
     setCurrentStep((curr) => curr - 1);
-  };
-  const handleConfirm = () => {
+  }, [setCurrentStep]);
+  const handleConfirm = useCallback(() => {
     finalFunc();
-  };
+  }, [finalFunc]);
+
   const contextValue = useMemo(
     () => ({
       currentStep,
