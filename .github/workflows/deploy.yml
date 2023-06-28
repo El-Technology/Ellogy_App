@@ -30,8 +30,9 @@ jobs:
 
       - name: Upload build to Azure Storage
         run: |
-          az storage blob upload-batch \
+          az storage blob upload-batch  \
             --account-name ${{ secrets.AZURE_STORAGE_NAME }}\
             --account-key ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }} \
             --destination \$web \
-            --source build
+            --source build/
+            --overwrite
