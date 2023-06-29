@@ -52,7 +52,7 @@ export const SendRequestModal: FC<SendRequestModalProps> = ({
       >
         <Box
           sx={{
-            position: "absolute" as const,
+            position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
