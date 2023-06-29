@@ -22,6 +22,7 @@ export const loginUser = createAsyncThunk(
     try {
       const response = await instance.post('/auth/login', userData);
       vaultService.setItem('token', response.data.jwt);
+      vaultService.setItem('user', response.data);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.data);
