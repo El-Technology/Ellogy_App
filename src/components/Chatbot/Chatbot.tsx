@@ -6,7 +6,7 @@ import { useFormContext } from "react-hook-form";
 import { IMessage } from "./Message/Message";
 import styles from "./Chatbot.module.scss";
 import { Box, Button } from "@mui/material";
-import { ReactComponent as MessageIcon } from "../../assets/icons/message.svg";
+import { ReactComponent as Send } from "../../assets/icons/send.svg";
 
 interface ChatbotProps {
   isTyping: boolean;
@@ -45,40 +45,34 @@ export const Chatbot: FC<ChatbotProps> = ({
     !messages.length &&
       firstMessage &&
       handleSend({ content: firstMessage, sender: "user" });
-  }, [messages.length, getValues, handleSend]);
+  }, [messages.length]);
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
       <Box
         className={styles.chat}
         sx={{
-          flex: "0 1 60%",
-          minHeight: "150px",
+          flex: "0 1 92%",
+          minHeight: "450px",
+          backgroundColor: "#EFEFEF",
         }}
       >
-        <Box
-          sx={{
-            padding: "4px",
-            border: "1px solid lightgrey",
-            borderWidth: "0 1px 1px 0",
-            width: "fit-content",
-            borderRadius: "0 0 10px 0",
-            display: "flex",
-            alignItems: "center",
-            columnGap: "5px",
-            fontWeight: "400",
-            "& > svg": {
-              width: "12px",
-            },
-          }}
-        >
-          <MessageIcon />
-          {t("chatbot", { ns: "createTicket" })}
-        </Box>
         <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
       </Box>
-      <div className={styles["chat-input__container"]}>
-        <span className="rtl-able">{t("textbox", { ns: "createTicket" })}</span>
+
+      <Box
+        sx={{
+          width: "525px",
+          marginTop: "16px",
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
         <MessageInput
           ref={inputRef}
           placeholder={t("messagePlaceholder", { ns: "inputs" }) || "red"}
@@ -87,29 +81,27 @@ export const Chatbot: FC<ChatbotProps> = ({
           value={messageValue}
           disabled={isTyping}
         />
-      </div>
-      <Button
-        sx={{
-          textTransform: "uppercase",
-          boxSizing: "border-box",
-          width: "100%",
-          backgroundColor: "#dfdfdf",
-          fontWeight: "700",
-          fontSize: "17px",
-          color: "#000",
-          "&:hover": {
-            transition: "0.5s all",
-            bgcolor: "#c5c2c2",
-            opacity: "0.7",
-          },
-        }}
-        type="button"
-        onClick={() => handleSend({ content: messageValue, sender: "user" })}
-        className={styles["chat__submit"]}
-        disabled={isTyping || !messageValue.trim()}
-      >
-        {t("submit")}
-      </Button>
-    </>
+        <Button
+          sx={{
+            textTransform: "uppercase",
+            minWidth: "44px",
+            width: "44px",
+            height: "44px",
+            borderRadius: "8px",
+            padding: "0",
+            "&.Mui-disabled": {
+              background: "#1976d2",
+            },
+          }}
+          type="button"
+          onClick={() => handleSend({ content: messageValue, sender: "user" })}
+          disabled={isTyping || !messageValue.trim()}
+          variant="contained"
+          color="primary"
+        >
+          <Send />
+        </Button>
+      </Box>
+    </Box>
   );
 };

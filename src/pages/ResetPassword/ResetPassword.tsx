@@ -17,7 +17,7 @@ export const ResetPassword = () => {
     <>
       <AuthHeader/>
 
-      <div>
+      <Box>
         <Modal
           open={true}
           onClose={redirectToLogin}
@@ -58,7 +58,7 @@ export const ResetPassword = () => {
             {location.pathname === ROUTES.CREATE_NEW_PASSWORD ? <ResetPasswordForm/> : <ResetEmailForm/>}
           </Box>
         </Modal>
-      </div>
+      </Box>
     </>
   )
 }

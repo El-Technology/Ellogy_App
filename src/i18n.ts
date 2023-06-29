@@ -11,7 +11,7 @@ i18n
       loadPath: "/locales/{{lng}}/{{ns}}.json",
     },
     defaultNS: "common",
-    fallbackLng: "ar",
+    fallbackLng: "en",
     debug: true,
     interpolation: {
       escapeValue: false, // not needed for React

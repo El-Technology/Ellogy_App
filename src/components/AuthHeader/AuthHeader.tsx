@@ -1,11 +1,21 @@
 import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { ReactComponent as Logo } from '../../assets/icons/logo-ellogy.svg';
+import { ReactComponent as Avatar } from '../../assets/icons/avatar.svg';
+import { ReactComponent as Notification } from '../../assets/icons/notification.svg';
 import { useLocation, Link } from 'react-router-dom';
 import {ROUTES} from "../../core/constants/routes";
+import {useTranslation} from "react-i18next";
 
 export const AuthHeader = () => {
   const location = useLocation();
+  const { i18n } = useTranslation();
+  const handleClick = (lang: string = "en") => {
+    i18n.changeLanguage(lang);
+  };
+
+  const storedUser = localStorage.getItem('user');
+  const user = storedUser ? JSON.parse(storedUser) : null;
 
   const renderButton = () => {
     if (location.pathname === ROUTES.LOGIN) {
@@ -44,7 +54,28 @@ export const AuthHeader = () => {
       );
     }
 
-    return null;
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px"
+        }}
+      >
+        {/*<Button sx={{minWidth: "20px"}} onClick={() => handleClick("ar")}>Ar</Button>*/}
+        {/*<Button sx={{minWidth: "20px"}} onClick={() => handleClick("en")}>En</Button>*/}
+
+        <Box sx={{marginRight: "15px"}}>
+          <Notification />
+        </Box>
+        <Avatar />
+
+        <Box>
+          <Typography>{user.firstName} {user.lastName}</Typography>
+          <Typography sx={{color: "#9FA6B3"}}>{user.email}</Typography>
+        </Box>
+      </Box>
+    )
   };
 
   return (
@@ -53,6 +84,7 @@ export const AuthHeader = () => {
         display: 'flex',
         justifyContent: 'center',
         borderBottom: '1px solid #E7E8EC',
+        background: "#FBFBFB",
         boxShadow: '0px 4px 16px rgba(40, 103, 131, 0.06)',
       }}
     >
@@ -62,7 +94,7 @@ export const AuthHeader = () => {
           justifyContent: 'space-between',
           alignItems: 'center',
           margin: '12px 0',
-          width: '80%',
+          width: '60%',
         }}
       >
         <Box sx={{ display: 'flex', gap: '10px' }}>
