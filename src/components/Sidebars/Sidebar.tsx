@@ -9,7 +9,7 @@ import { ReactComponent as Add } from "../../assets/icons/add.svg";
 import { ReactComponent as MessageQuestion } from "../../assets/icons/message-question.svg";
 import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import { useTranslation } from "react-i18next";
-import React, { useEffect, useRef } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   createTicket,
@@ -22,7 +22,7 @@ import {
 } from "../../store/ticket-service/selector";
 import { Oval } from "react-loader-spinner";
 import { format } from "date-fns";
-import { setActiveTicket } from "src/store/ticket-service/ticketSlice";
+import {setActiveTicket} from "src/store/ticket-service/ticketSlice";
 
 export const Sidebar = () => {
   const { t } = useTranslation("navigation");
@@ -36,7 +36,7 @@ export const Sidebar = () => {
 
   useEffect(() => {
     // @ts-ignore
-    dispatch(getTicketsByUserId(user.id));
+    dispatch(getTicketsByUserId({userId: user.id}));
   }, []);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export const Sidebar = () => {
   const createNewRequest = () => {
     // @ts-ignore
     dispatch(createTicket(user.id))
-      .then(() => dispatch(getTicketsByUserId(user.id)))
+      .then(() => dispatch(getTicketsByUserId({userId: user.id})))
       .then((res: any) => {
         dispatch(setActiveTicket(res.payload?.data[0]));
       });
@@ -58,6 +58,37 @@ export const Sidebar = () => {
   const handleTicketClick = (ticket: any) => {
     dispatch(setActiveTicket(ticket));
   };
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const currentPageRef = useRef<number>(1);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = async () => {
+      if (container) {
+        const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+        if (isAtBottom) {
+          const nextPage = currentPageRef.current + 1;
+          dispatch(getTicketsByUserId({ userId: user.id, currentPageNumber: nextPage }))
+            .then((action: any) => {
+              const newTickets = action.payload.data;
+              if (newTickets.length > 0) {
+                currentPageRef.current = nextPage;
+              }
+            })
+            .catch((error: any) => {
+              console.log(error)
+            });
+        }
+      }
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => {
+      container?.removeEventListener("scroll", handleScroll);
+    };
+  }, [user.id]);
 
   return (
     <Box
@@ -85,6 +116,7 @@ export const Sidebar = () => {
           display: "flex",
           flexDirection: "column",
           gap: "24px",
+          maxHeight: "80%"
         }}
       >
         {loader ? (
@@ -165,10 +197,12 @@ export const Sidebar = () => {
         />
 
         <Box
+          ref={containerRef}
           sx={{
             display: "flex",
             flexDirection: "column",
             gap: "16px",
+            overflowY: "auto"
           }}
         >
           {tickets &&
@@ -184,7 +218,7 @@ export const Sidebar = () => {
                     background: item === activeTicket ? "#ECF3FF" : "#fff",
                     borderRadius: "8px",
                     padding: "8px 12px",
-                    cursor: "pointer",
+                    cursor: "pointer"
                   }}
                   key={item.id}
                   onClick={() => handleTicketClick(item)}

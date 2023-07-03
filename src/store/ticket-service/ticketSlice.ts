@@ -15,19 +15,24 @@ const ticketSlice = createSlice({
     setActiveTicket: (state, action) => {
       state.activeTicket = action.payload;
     },
+    setTickets: (state, action) => {
+      const data = action.payload;
+      const sortedData = data.sort((a: TicketData, b: TicketData) => {
+        const dateA = a.updatedDate || a.createdDate;
+        const dateB = b.updatedDate || b.createdDate;
+        const timestampA = new Date(dateA).getTime();
+        const timestampB = new Date(dateB).getTime();
+        return timestampB - timestampA;
+      });
+
+      state.tickets = sortedData
+    },
+    appendTickets: (state, action) => {
+      state.tickets.push(...action.payload);
+    },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getTicketsByUserId.fulfilled, (state, action) => {
-        const { data } = action.payload;
-        state.tickets = data.sort((a: TicketData, b: TicketData) => {
-          const dateA = a.updatedDate || a.createdDate;
-          const dateB = b.updatedDate || b.createdDate;
-          const timestampA = new Date(dateA).getTime();
-          const timestampB = new Date(dateB).getTime();
-          return timestampB - timestampA;
-        });
-      })
       .addCase(createTicket.pending, (state) => {
         state.loading = true;
       })
@@ -58,6 +63,6 @@ const ticketSlice = createSlice({
   }
 });
 
-export const { setActiveTicket } = ticketSlice.actions;
+export const { setActiveTicket, setTickets, appendTickets } = ticketSlice.actions;
 
 export default ticketSlice.reducer;
