@@ -1,0 +1,25 @@
+.status {
+  padding: 8px 12px;
+  border-radius: 24px;
+  color: #ffffff;
+
+  &_draft {
+    background-color: #1c3666;
+  }
+
+  &_approved {
+    background-color: #01c860;
+  }
+
+  &_done {
+    background-color: #b7bcc6;
+  }
+
+  &_inprogress {
+    background-color: #1a5eec;
+  }
+
+  &_returned {
+    background-color: #f19702;
+  }
+}

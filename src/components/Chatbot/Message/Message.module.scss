@@ -8,18 +8,20 @@
   height: fit-content;
 
   &__bot {
-    border: 1px solid lightgray;
+    // border: 1px solid lightgray;
     justify-self: flex-start;
-    background-color: lightgrey;
-    box-shadow: inset 0px 2px 2px #EAECEC;
+    background-color: #ffffff;
+    color: #102142;
+    // box-shadow: inset 0px 2px 2px #eaecec;
     border-radius: 12px 12px 12px 0;
   }
 
   &__human {
     justify-self: flex-end;
     border-radius: 12px 12px 0 12px;
-    background-color: #FEF7EE;
-    border: 1px solid #F6C48F;
-    box-shadow: inset 0px 2px 2px #EAECEC;
+    background-color: #4786ff;
+    color: #ffffff;
+    // border: 1px solid #F6C48F;
+    // box-shadow: inset 0px 2px 2px #EAECEC;
   }
 }
