@@ -3,10 +3,9 @@ import React, {FC, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {ReactComponent as Error} from "../../assets/icons/error.svg";
 import {deleteTicket, getTicketsByUserId} from "../../store/ticket-service/asyncActions";
-import {TicketType} from "../../store/ticket-service/types";
 import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
 import {Oval} from "react-loader-spinner";
-import {getTicketUpdating} from "../../store/ticket-service/selector";
+import {getTickets, getTicketUpdating} from "../../store/ticket-service/selector";
 
 type DeleteRequestModalProps = {
   handleCloseModal: () => void;
@@ -17,6 +16,7 @@ type DeleteRequestModalProps = {
 export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModal, ticketId, userId}) => {
   const dispatch = useDispatch();
   const updating = useSelector(getTicketUpdating);
+  const tickets = useSelector(getTickets);
 
   const [open, setOpen] = useState<boolean>(true);
 
@@ -26,8 +26,10 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
   }
 
   const handleDelete = () => {
+    const recordsPerPage = tickets.length;
+
     // @ts-ignore
-    dispatch(deleteTicket(ticketId)).then(() => handleCloseModal()).then(() => dispatch(getTicketsByUserId({userId: userId}))).then(res => {
+    dispatch(deleteTicket(ticketId)).then(() => handleCloseModal()).then(() => dispatch(getTicketsByUserId({userId: userId, recordsPerPage}))).then(res => {
       dispatch(setActiveTicket(res.payload.data[0]));
     });
   }
