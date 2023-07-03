@@ -1,10 +1,10 @@
-import { Chatbot } from "../Chatbot/Chatbot";
-import { useForm, FormProvider } from "react-hook-form";
-import { IMessage } from "../Chatbot/Message/Message";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { LLMChain, PromptTemplate } from "langchain";
-import { ConversationSummaryMemory } from "langchain/memory";
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import {Chatbot} from "../Chatbot/Chatbot";
+import {useForm, FormProvider} from "react-hook-form";
+import {IMessage} from "../Chatbot/Message/Message";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {LLMChain, PromptTemplate} from "langchain";
+import {ConversationSummaryMemory} from "langchain/memory";
+import {ChatOpenAI} from "langchain/chat_models/openai";
 import {
   Box,
   Button,
@@ -13,28 +13,28 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useDispatch, useSelector } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {
   getActiveTicket,
   getTickets,
   getTicketsLoader,
   getTicketUpdating,
 } from "../../store/ticket-service/selector";
-import { AnyAction, ThunkDispatch } from "@reduxjs/toolkit";
-import { format } from "date-fns";
-import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
-import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
-import { ReactComponent as MessageText } from "../../assets/icons/message-text.svg";
-import { ReactComponent as Add } from "../../assets/icons/add.svg";
-import { Oval } from "react-loader-spinner";
+import {format} from "date-fns";
+import {ReactComponent as Trash} from "../../assets/icons/trash.svg";
+import {ReactComponent as EditTicket} from "../../assets/icons/edit-ticket.svg";
+import {Oval} from "react-loader-spinner";
 import {
   createTicket,
   getTicketsByUserId,
   updateTicket,
 } from "../../store/ticket-service/asyncActions";
-import { setActiveTicket } from "../../store/ticket-service/ticketSlice";
-import { TicketType } from "../../store/ticket-service/types";
-import { DeleteRequestModal } from "./DeleteRequestModal";
+import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
+import {TicketType} from "../../store/ticket-service/types";
+import {DeleteRequestModal} from "./DeleteRequestModal";
+import {SendRequestModal} from "./SendRequestModal";
+import { ReactComponent as Message} from '../../assets/icons/message-text.svg'
+import { ReactComponent as Add } from '../../assets/icons/add.svg';
 
 interface FormValues {
   title: string;
@@ -51,6 +51,7 @@ export const CreateRequest = () => {
   const dispatch: any = useDispatch();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
+  const [isLoading, setIsLoading] = useState(false);
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -72,7 +73,7 @@ export const CreateRequest = () => {
     }
   }, [activeTicket, methods.reset]);
 
-  const { handleSubmit, reset, setValue, getValues, watch, register } = methods;
+  const {handleSubmit, reset, setValue, getValues, watch, register} = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -80,6 +81,7 @@ export const CreateRequest = () => {
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isSendModalOpen, setIsSendModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     setEditMode(false);
@@ -114,7 +116,7 @@ export const CreateRequest = () => {
      `);
 
   const chain = useMemo(() => {
-    return new LLMChain({ llm: chat, prompt, memory });
+    return new LLMChain({llm: chat, prompt, memory});
   }, [chat, prompt, memory]);
 
   const userStoryChain = useMemo(() => {
@@ -183,13 +185,13 @@ export const CreateRequest = () => {
   const updateTicketInfo = (data: FormValues) => {
     const { title, description } = data;
     const id = activeTicket?.id;
+    const recordsPerPage = tickets.length;
+
     // @ts-ignore
     dispatch(updateTicket({ id, title, description }))
-      .then(() => dispatch(getTicketsByUserId(user.id)))
+      .then(() => dispatch(getTicketsByUserId({ userId: user.id, recordsPerPage })))
       .then((res: any) => {
-        const updatedTicket = res.payload.data.find(
-          (ticket: TicketType) => ticket.id === id
-        );
+        const updatedTicket = res.payload.data.find((ticket: TicketType) => ticket.id === id);
         if (updatedTicket) {
           dispatch(setActiveTicket(updatedTicket));
         }
@@ -199,14 +201,29 @@ export const CreateRequest = () => {
 
   const handleCloseModal = () => {
     setIsDeleteModalOpen(false);
+    setIsSendModalOpen(false);
   };
 
   const createNewRequest = () => {
+    setIsLoading(false);
     // @ts-ignore
+    // const defaultTicket = {
+    //   title: "New request",
+    //     description:
+    //       "We will generate a description automatically as soon as we get some information from you.\n\nYou can change the title and description at any time.",
+    //     createdDate: new Date().toISOString(),
+    //     comment: null,
+    //     id: '1',
+    //     ticketMessages: messages
+    // }
+    // dispatch(setTickets([defaultTicket]))
+    // dispatch(setActiveTicket(defaultTicket));
+    
     dispatch(createTicket(user.id))
-      .then(() => dispatch(getTicketsByUserId(user.id)))
+      .then(() => dispatch(getTicketsByUserId({userId: user.id})))
       .then((res: any) => {
         dispatch(setActiveTicket(res.payload.data[0]));
+        setIsLoading(true)
       });
   };
 
@@ -225,15 +242,57 @@ export const CreateRequest = () => {
         // justifyContent: "center"
       }}
     >
-      <FormProvider {...methods}>
-        <Chatbot
-          messages={messages}
-          messageValue={messageValue}
-          setMessageValue={setMessageValue}
-          handleSend={handleSend}
-          isTyping={isTyping}
-        />
-      </FormProvider>
+      {(tickets && !tickets.length) || !activeTicket ? 
+        (<Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%'
+        }}>
+          <Box sx={{
+            textAlign: 'center',
+            maxWidth: '473px',
+            width: '100%'
+          }}>
+            <Message style={{ 'marginBottom': '24px'}}/>
+            <Typography sx={{
+              fontSize: '20px',
+              fontWeight: 700,
+              marginBottom: '8px'
+            }}>
+              You don't have any requests yet
+            </Typography>
+            <Typography sx={{ marginBottom: "48px" }}>Tap the button “Create new request” here or in the side bar to create your first request!</Typography>
+            <Button
+              sx={{
+                height: "44px",
+                width: "251px",
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: "16px",
+                fontWeight: "700",
+                gap: "8px",
+              }}
+              variant="outlined"
+              color="primary"
+              onClick={createNewRequest}
+            >
+              <Add />
+              Create new request
+            </Button>
+          </Box>
+        </Box>) :
+      (<FormProvider {...methods}>
+          {messages && messages.length && <Chatbot
+            messages={messages}
+            messageValue={messageValue}
+            setMessageValue={setMessageValue}
+            handleSend={handleSend}
+            isTyping={isTyping}
+          />}
+        </FormProvider>)
+      }
 
       {activeTicket &&
         (editMode ? (
@@ -241,9 +300,9 @@ export const CreateRequest = () => {
             <Grid container direction="column">
               <Grid item>
                 <FormControl fullWidth>
-                  <Typography sx={{ fontSize: "12px" }}>Title</Typography>
+                  <Typography sx={{fontSize: "12px"}}>Title</Typography>
                   <TextField
-                    inputProps={{ style: { padding: "10px 12px" } }}
+                    inputProps={{style: {padding: "10px 12px"}}}
                     placeholder="Title of request"
                     sx={{
                       width: "310px",
@@ -260,11 +319,11 @@ export const CreateRequest = () => {
 
               <Grid item mt={2.4}>
                 <FormControl fullWidth>
-                  <Typography sx={{ fontSize: "12px" }}>Description</Typography>
+                  <Typography sx={{fontSize: "12px"}}>Description</Typography>
                   <TextField
                     multiline
                     inputProps={{
-                      style: { borderRadius: "8px", height: "168px" },
+                      style: {borderRadius: "8px", height: "168px"},
                     }}
                     placeholder="Describe your request"
                     sx={{
@@ -355,54 +414,62 @@ export const CreateRequest = () => {
               width: "310px",
               display: "flex",
               flexDirection: "column",
-              gap: "16px",
+              justifyContent: "space-between",
             }}
           >
             <Box
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                flexDirection: "column",
+                gap: "16px"
               }}
             >
-              <Typography sx={{ fontSize: "24px", fontWeight: "700" }}>
-                {activeTicket?.title}
-              </Typography>
-
-              <Box sx={{ display: "flex", gap: "16px" }}>
-                <Button
-                  sx={{ minWidth: "24px", padding: "0" }}
-                  onClick={activateEditMode}
-                >
-                  <EditTicket />
-                </Button>
-
-                <Button
-                  sx={{ minWidth: "24px", padding: "0" }}
-                  onClick={() => setIsDeleteModalOpen(true)}
-                >
-                  <Trash />
-                </Button>
-              </Box>
-            </Box>
-            <Box>
-              <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                Created:{" "}
-                {activeTicket?.createdDate &&
-                  format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
-              </Typography>
-              {activeTicket?.updatedDate && (
-                <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                  Last Modified:{" "}
-                  {activeTicket?.updatedDate
-                    ? format(new Date(activeTicket.createdDate), "dd/MM/yyyy")
-                    : "N/A"}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Typography sx={{fontSize: "24px", fontWeight: "700"}}>
+                  {activeTicket?.title}
                 </Typography>
-              )}
+
+                <Box sx={{display: "flex", gap: "16px"}}>
+                  <Button
+                    sx={{minWidth: "24px", padding: "0"}}
+                    onClick={activateEditMode}
+                  >
+                    <EditTicket/>
+                  </Button>
+
+                  <Button
+                    sx={{minWidth: "24px", padding: "0"}}
+                    onClick={() => setIsDeleteModalOpen(true)}
+                  >
+                    <Trash/>
+                  </Button>
+                </Box>
+              </Box>
+              <Box>
+                <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
+                  Created:{" "}
+                  {activeTicket?.createdDate &&
+                    format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
+                </Typography>
+                {activeTicket?.updatedDate && (
+                  <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
+                    Last Modified:{" "}
+                    {activeTicket?.updatedDate
+                      ? format(new Date(activeTicket.createdDate), "dd/MM/yyyy")
+                      : "N/A"}
+                  </Typography>
+                )}
+              </Box>
+              <Typography>
+                <strong>Description:</strong> <br/> {activeTicket?.description}
+              </Typography>
             </Box>
-            <Typography>
-              <strong>Description:</strong> <br /> {activeTicket?.description}
-            </Typography>
 
             {isDeleteModalOpen && (
               <DeleteRequestModal
@@ -411,9 +478,33 @@ export const CreateRequest = () => {
                 userId={user.id}
               />
             )}
+
+            {isSendModalOpen && (
+              <SendRequestModal
+                handleCloseModal={handleCloseModal}
+                ticketId={activeTicket?.id}
+                userId={user.id}
+              />
+            )}
+
+            <Button
+              sx={{
+                height: "44px",
+                width: "251px",
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: "16px",
+                fontWeight: "700",
+                gap: "8px",
+              }}
+              variant="contained"
+              color="primary"
+              onClick={() => setIsSendModalOpen(true)}
+            >
+              Send request
+            </Button>
           </Box>
         ))}
-
       {/*{isSummaryLoading && (*/}
       {/*  <Backdrop*/}
       {/*    sx={{*/}

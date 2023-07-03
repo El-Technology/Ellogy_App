@@ -4,7 +4,7 @@ import { VaultService } from './storage';
 const storage = new VaultService();
 
 const axiosConfig = {
-  baseURL: 'http://20.21.124.185:5211/gateway',
+  baseURL: 'https://backend.ellogy.ai/gateway',
 };
 const instance = axios.create(axiosConfig);
 

@@ -1,23 +1,15 @@
 import {Box, Button, Modal, Typography} from "@mui/material";
 import React, {FC, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
 import {ReactComponent as Error} from "../../assets/icons/error.svg";
-import {deleteTicket, getTicketsByUserId} from "../../store/ticket-service/asyncActions";
-import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
-import {Oval} from "react-loader-spinner";
-import {getTickets, getTicketUpdating} from "../../store/ticket-service/selector";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "src/core/constants/routes";
 
-type DeleteRequestModalProps = {
+type LogoutModalProps = {
   handleCloseModal: () => void;
-  ticketId?: string;
-  userId: string;
 }
 
-export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModal, ticketId, userId}) => {
-  const dispatch = useDispatch();
-  const updating = useSelector(getTicketUpdating);
-  const tickets = useSelector(getTickets);
-
+export const LogoutModal: FC<LogoutModalProps> = ({handleCloseModal}) => {
+  const navigate = useNavigate();
   const [open, setOpen] = useState<boolean>(true);
 
   const handleClose = () => {
@@ -25,14 +17,11 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
     setOpen(false);
   }
 
-  const handleDelete = () => {
-    const recordsPerPage = tickets.length;
-
-    // @ts-ignore
-    dispatch(deleteTicket(ticketId)).then(() => handleCloseModal()).then(() => dispatch(getTicketsByUserId({userId: userId, recordsPerPage}))).then(res => {
-      dispatch(setActiveTicket(res.payload.data[0]));
-    });
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate(ROUTES.LOGIN);
   }
+
   return (
     <Box>
       <Modal
@@ -84,9 +73,9 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
           >
             <Error/>
 
-            <Typography variant="h3" sx={{fontSize: "24px", fontWeight: "700", marginTop: "32px"}}>Delete request</Typography>
+            <Typography variant="h3" sx={{fontSize: "24px", fontWeight: "700", marginTop: "32px"}}>Log Out</Typography>
 
-            <Typography sx={{color: "#9FA6B3", marginTop: "8px", textAlign: "center"}}> You will no longer be able to access this request. Are you sure you want to do this?</Typography>
+            <Typography sx={{color: "#9FA6B3", marginTop: "8px", textAlign: "center"}}>  Are you sure you want to log out?</Typography>
 
             <Box
               sx={{
@@ -95,7 +84,6 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                 gap: "16px"
               }}
             >
-              {updating ? (
                 <Button
                   sx={{
                     height: "44px",
@@ -108,38 +96,11 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                   }}
                   variant="outlined"
                   color="error"
+                  onClick={handleLogout}
                 >
-                  <Oval
-                    height={24}
-                    width={24}
-                    color="#fff"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                    ariaLabel='oval-loading'
-                    secondaryColor="#D32F2F"
-                    strokeWidth={5}
-                    strokeWidthSecondary={5}
-                  />
+                  Yes, log out
                 </Button>
-              ) : (
-                <Button
-                  sx={{
-                    height: "44px",
-                    width: '215px',
-                    borderRadius: '8px',
-                    textTransform: 'none',
-                    fontSize: "16px",
-                    fontWeight: "700",
-                    marginTop: "24px"
-                  }}
-                  variant="outlined"
-                  color="error"
-                  onClick={handleDelete}
-                >
-                  Yes, delete
-                </Button>
-              )}
+              
 
               <Button
                 sx={{
