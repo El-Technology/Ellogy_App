@@ -1,22 +1,22 @@
 import {Box, Button, Modal, Typography} from "@mui/material";
 import React, {FC, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {ReactComponent as Error} from "../../assets/icons/error.svg";
+import {ReactComponent as Question} from "../../assets/icons/question.svg";
 import {deleteTicket, getTicketsByUserId} from "../../store/ticket-service/asyncActions";
+import {TicketType} from "../../store/ticket-service/types";
 import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
 import {Oval} from "react-loader-spinner";
-import {getTickets, getTicketUpdating} from "../../store/ticket-service/selector";
+import {getTicketUpdating} from "../../store/ticket-service/selector";
 
-type DeleteRequestModalProps = {
+type SendRequestModalProps = {
   handleCloseModal: () => void;
   ticketId?: string;
   userId: string;
 }
 
-export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModal, ticketId, userId}) => {
+export const SendRequestModal: FC<SendRequestModalProps> = ({handleCloseModal, ticketId, userId}) => {
   const dispatch = useDispatch();
   const updating = useSelector(getTicketUpdating);
-  const tickets = useSelector(getTickets);
 
   const [open, setOpen] = useState<boolean>(true);
 
@@ -25,14 +25,6 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
     setOpen(false);
   }
 
-  const handleDelete = () => {
-    const recordsPerPage = tickets.length;
-
-    // @ts-ignore
-    dispatch(deleteTicket(ticketId)).then(() => handleCloseModal()).then(() => dispatch(getTicketsByUserId({userId: userId, recordsPerPage}))).then(res => {
-      dispatch(setActiveTicket(res.payload.data[0]));
-    });
-  }
   return (
     <Box>
       <Modal
@@ -82,11 +74,11 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
               margin: "48px 0"
             }}
           >
-            <Error/>
+            <Question/>
 
-            <Typography variant="h3" sx={{fontSize: "24px", fontWeight: "700", marginTop: "32px"}}>Delete request</Typography>
+            <Typography variant="h3" sx={{fontSize: "24px", fontWeight: "700", marginTop: "32px"}}>Send request</Typography>
 
-            <Typography sx={{color: "#9FA6B3", marginTop: "8px", textAlign: "center"}}> You will no longer be able to access this request. Are you sure you want to do this?</Typography>
+            <Typography sx={{color: "#9FA6B3", marginTop: "8px", textAlign: "center"}}>Are you sure you want to send request?</Typography>
 
             <Box
               sx={{
@@ -95,7 +87,24 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                 gap: "16px"
               }}
             >
-              {updating ? (
+              <Button
+                sx={{
+                  height: "44px",
+                  width: '215px',
+                  borderRadius: '8px',
+                  textTransform: 'none',
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  marginTop: "24px"
+                }}
+                variant="outlined"
+                color="primary"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </Button>
+
+              {updating ?
                 <Button
                   sx={{
                     height: "44px",
@@ -107,7 +116,7 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                     marginTop: "24px"
                   }}
                   variant="outlined"
-                  color="error"
+                  color="primary"
                 >
                   <Oval
                     height={24}
@@ -122,7 +131,7 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                     strokeWidthSecondary={5}
                   />
                 </Button>
-              ) : (
+                :
                 <Button
                   sx={{
                     height: "44px",
@@ -133,30 +142,15 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
                     fontWeight: "700",
                     marginTop: "24px"
                   }}
-                  variant="outlined"
-                  color="error"
-                  onClick={handleDelete}
+                  variant="contained"
+                  color="primary"
+                  onClick={handleCloseModal}
                 >
-                  Yes, delete
+                  Yes, send
                 </Button>
-              )}
+              }
 
-              <Button
-                sx={{
-                  height: "44px",
-                  width: '215px',
-                  borderRadius: '8px',
-                  textTransform: 'none',
-                  fontSize: "16px",
-                  fontWeight: "700",
-                  marginTop: "24px"
-                }}
-                variant="contained"
-                color="error"
-                onClick={handleCloseModal}
-              >
-                Cancel
-              </Button>
+
             </Box>
           </Box>
         </Box>

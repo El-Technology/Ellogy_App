@@ -1,15 +1,32 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import instance from "../../utils/API";
 import { TicketData } from "./types";
+import { appendTickets, setTickets } from "./ticketSlice";
 
 export const getTicketsByUserId = createAsyncThunk(
   "tickets/getByUserId",
-  async (userId: any, { rejectWithValue }) => {
+  async (
+    {
+      userId,
+      currentPageNumber,
+      recordsPerPage,
+    }: { userId: string; currentPageNumber?: number; recordsPerPage?: number },
+    { dispatch, rejectWithValue }
+  ) => {
     try {
+      console.log(recordsPerPage);
       const response = await instance.post(`/Tickets/getTickets/${userId}`, {
-        currentPageNumber: 1,
-        recordsPerPage: 5,
+        currentPageNumber: currentPageNumber ?? 1,
+        recordsPerPage: recordsPerPage ?? 8,
       });
+
+      const { data } = response.data;
+
+      if (currentPageNumber) {
+        dispatch(appendTickets(data));
+      } else {
+        dispatch(setTickets(data));
+      }
 
       return response.data;
     } catch (error: any) {
@@ -31,6 +48,8 @@ export const createTicket = createAsyncThunk(
         createdDate: currentDate,
         status: 0,
       });
+
+      console.log("response", response);
 
       return response.data;
     } catch (error: any) {

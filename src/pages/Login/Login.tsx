@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useEffect} from 'react';
 import {useForm} from 'react-hook-form';
 import {TextField, Button, Typography, Grid, FormControl, FormHelperText, Box} from '@mui/material';
 import {yupResolver} from '@hookform/resolvers/yup';
@@ -13,6 +13,7 @@ import {SignInType} from "../../core/types/base";
 import {Oval} from 'react-loader-spinner';
 import {ROUTES} from "../../core/constants/routes";
 
+
 export const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -22,7 +23,7 @@ export const Login = () => {
     handleSubmit,
     register,
     formState: {errors},
-    clearErrors
+    clearErrors,
   } = useForm({
     resolver: yupResolver(loginSchema),
   });
@@ -146,8 +147,9 @@ export const Login = () => {
                   <FormControl fullWidth error={!!errors.email}>
                     <Typography sx={{fontSize: '12px'}}>Email</Typography>
                     <TextField
-                      inputProps={{style: {padding: '10px 12px'}}}
+                      inputProps={{style: {padding: '10px 12px' }}}
                       placeholder="example@gmail.com"
+                      autoComplete="off"
                       sx={{
                         height: '44px',
                         '& .MuiOutlinedInput-root': {
@@ -169,6 +171,7 @@ export const Login = () => {
                     <Typography sx={{fontSize: '12px'}}>Password</Typography>
                     <TextField
                       inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
+                      autoComplete="off"
                       type="password"
                       placeholder="Enter your password"
                       sx={{
