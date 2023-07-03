@@ -33,6 +33,8 @@ import {setActiveTicket} from "../../store/ticket-service/ticketSlice";
 import {TicketType} from "../../store/ticket-service/types";
 import {DeleteRequestModal} from "./DeleteRequestModal";
 import {SendRequestModal} from "./SendRequestModal";
+import { ReactComponent as Message} from '../../assets/icons/message-text.svg'
+import { ReactComponent as Add } from '../../assets/icons/add.svg';
 
 interface FormValues {
   title: string;
@@ -49,6 +51,7 @@ export const CreateRequest = () => {
   const dispatch: any = useDispatch();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
+  const [isLoading, setIsLoading] = useState(false);
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -202,11 +205,25 @@ export const CreateRequest = () => {
   };
 
   const createNewRequest = () => {
+    setIsLoading(false);
     // @ts-ignore
+    // const defaultTicket = {
+    //   title: "New request",
+    //     description:
+    //       "We will generate a description automatically as soon as we get some information from you.\n\nYou can change the title and description at any time.",
+    //     createdDate: new Date().toISOString(),
+    //     comment: null,
+    //     id: '1',
+    //     ticketMessages: messages
+    // }
+    // dispatch(setTickets([defaultTicket]))
+    // dispatch(setActiveTicket(defaultTicket));
+    
     dispatch(createTicket(user.id))
       .then(() => dispatch(getTicketsByUserId({userId: user.id})))
       .then((res: any) => {
         dispatch(setActiveTicket(res.payload.data[0]));
+        setIsLoading(true)
       });
   };
 
@@ -225,15 +242,57 @@ export const CreateRequest = () => {
         // justifyContent: "center"
       }}
     >
-      <FormProvider {...methods}>
-        <Chatbot
-          messages={messages}
-          messageValue={messageValue}
-          setMessageValue={setMessageValue}
-          handleSend={handleSend}
-          isTyping={isTyping}
-        />
-      </FormProvider>
+      {(tickets && !tickets.length) || !activeTicket ? 
+        (<Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%'
+        }}>
+          <Box sx={{
+            textAlign: 'center',
+            maxWidth: '473px',
+            width: '100%'
+          }}>
+            <Message style={{ 'marginBottom': '24px'}}/>
+            <Typography sx={{
+              fontSize: '20px',
+              fontWeight: 700,
+              marginBottom: '8px'
+            }}>
+              You don't have any requests yet
+            </Typography>
+            <Typography sx={{ marginBottom: "48px" }}>Tap the button “Create new request” here or in the side bar to create your first request!</Typography>
+            <Button
+              sx={{
+                height: "44px",
+                width: "251px",
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: "16px",
+                fontWeight: "700",
+                gap: "8px",
+              }}
+              variant="outlined"
+              color="primary"
+              onClick={createNewRequest}
+            >
+              <Add />
+              Create new request
+            </Button>
+          </Box>
+        </Box>) :
+      (<FormProvider {...methods}>
+          {messages && messages.length && <Chatbot
+            messages={messages}
+            messageValue={messageValue}
+            setMessageValue={setMessageValue}
+            handleSend={handleSend}
+            isTyping={isTyping}
+          />}
+        </FormProvider>)
+      }
 
       {activeTicket &&
         (editMode ? (

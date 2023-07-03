@@ -62,7 +62,7 @@ export const Chatbot: FC<ChatbotProps> = ({
           backgroundColor: "#EFEFEF",
         }}
       >
-        <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
+        {messages && <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} /> }
       </Box>
 
       <Box

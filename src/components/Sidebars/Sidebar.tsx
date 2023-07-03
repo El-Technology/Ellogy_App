@@ -11,6 +11,7 @@ import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import { useTranslation } from "react-i18next";
 import React, {useEffect, useRef, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
+import cx from 'classnames';
 import {
   createTicket,
   getTicketsByUserId,
@@ -23,6 +24,9 @@ import {
 import { Oval } from "react-loader-spinner";
 import { format } from "date-fns";
 import {setActiveTicket} from "src/store/ticket-service/ticketSlice";
+import { Statuses } from "src/core/enums/common";
+import styles  from './Sidebar.module.scss';
+import { DraftModal } from "./DrafModal";
 
 export const Sidebar = () => {
   const { t } = useTranslation("navigation");
@@ -30,7 +34,12 @@ export const Sidebar = () => {
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);
   const activeTicket = useSelector(getActiveTicket);
-
+  const [anotherTicket, setAnotherTicket]= useState(null);
+  const [isShowDraft, setIsShowDraft] = useState(false);
+  
+  const handleCloseModal = () => {
+    setIsShowDraft(false)
+  }
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
@@ -47,6 +56,20 @@ export const Sidebar = () => {
   }, [tickets, activeTicket]);
 
   const createNewRequest = () => {
+    if(activeTicket) {
+      setIsShowDraft(true);
+      return;
+    }
+
+    console.log('activeticket', activeTicket)
+    // const defaultTicket = {
+    //   title: "New request",
+    //     description:
+    //       "We will generate a description automatically as soon as we get some information from you.\n\nYou can change the title and description at any time.",
+    //     createdDate: new Date().toISOString(),
+    //     comment: null,
+    //     ticketMessages: [],
+    // }
     // @ts-ignore
     dispatch(createTicket(user.id))
       .then(() => dispatch(getTicketsByUserId({userId: user.id})))
@@ -56,6 +79,11 @@ export const Sidebar = () => {
   };
 
   const handleTicketClick = (ticket: any) => {
+    if(activeTicket && ticket.id !== activeTicket.id) {
+      setAnotherTicket(ticket)
+      setIsShowDraft(true);
+      return;
+    }
     dispatch(setActiveTicket(ticket));
   };
 
@@ -91,10 +119,13 @@ export const Sidebar = () => {
   }, [user.id]);
 
   return (
+    <>
+    
     <Box
       className="rtl-able"
       sx={{
-        width: "650px",
+        maxWidth: "650px",
+        width: "100%",
         height: "calc(100vh - 82px)",
         padding: "40px 24px 45px",
         display: {
@@ -211,24 +242,33 @@ export const Sidebar = () => {
                 <Box
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
+                    cursor: "pointer",
                     width: "227px",
                     height: "49px",
                     background: item === activeTicket ? "#ECF3FF" : "#fff",
                     borderRadius: "8px",
                     padding: "8px 12px",
-                    cursor: "pointer"
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
                   }}
                   key={item.id}
                   onClick={() => handleTicketClick(item)}
                 >
-                  <Typography sx={{ fontWeight: "700" }}>
-                    {item.title}
-                  </Typography>
-                  <Typography sx={{ color: "#707A8E" }}>
-                    {format(new Date(item.createdDate), "dd/MM/yyyy")}
-                  </Typography>
+                  <Box sx={{
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    
+                  }}>
+                    <Typography sx={{ fontWeight: "700" }}>
+                      {item.title}
+                    </Typography>
+                    <Typography sx={{ color: "#707A8E" }}>
+                      {format(new Date(item.createdDate), "dd/MM/yyyy")}
+                    </Typography>
+                  </Box>
+                  {item && <Box>
+                    <Typography className={cx(styles.status, styles[`status_${Statuses[item.status].toLowerCase()}`])}>{Statuses[item.status]}</Typography>
+                  </Box>}
                 </Box>
               );
             })}
@@ -253,5 +293,7 @@ export const Sidebar = () => {
         Help & Support
       </Button>
     </Box>
+      {isShowDraft && activeTicket && <DraftModal handleCloseModal={handleCloseModal} ticket={activeTicket} userId={user.id} anotherTicket={anotherTicket}/>}
+    </>
   );
 };
