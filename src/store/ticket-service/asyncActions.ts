@@ -1,7 +1,7 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import {createAsyncThunk} from "@reduxjs/toolkit";
 import instance from "../../utils/API";
-import { TicketData } from "./types";
-import { appendTickets, setTickets } from "./ticketSlice";
+import {TicketData, TicketType} from "./types";
+import {appendTickets, setTickets} from "./ticketSlice";
 
 export const getTicketsByUserId = createAsyncThunk(
   "tickets/getByUserId",
@@ -11,16 +11,15 @@ export const getTicketsByUserId = createAsyncThunk(
       currentPageNumber,
       recordsPerPage,
     }: { userId: string; currentPageNumber?: number; recordsPerPage?: number },
-    { dispatch, rejectWithValue }
+    {dispatch, rejectWithValue}
   ) => {
     try {
-      console.log(recordsPerPage);
-      const response = await instance.post(`/Tickets/getTickets/${userId}`, {
+      const response = await instance.post(`/Tickets/tickets/${userId}`, {
         currentPageNumber: currentPageNumber ?? 1,
         recordsPerPage: recordsPerPage ?? 8,
       });
 
-      const { data } = response.data;
+      const {data} = response.data;
 
       if (currentPageNumber) {
         dispatch(appendTickets(data));
@@ -37,19 +36,9 @@ export const getTicketsByUserId = createAsyncThunk(
 
 export const createTicket = createAsyncThunk(
   "tickets/createTicket",
-  async (userId, { rejectWithValue }) => {
+  async ({userId, ticket}: { userId: string, ticket: TicketType }, {rejectWithValue}) => {
     try {
-      const currentDate = new Date().toISOString();
-
-      const response = await instance.post(`/Tickets/${userId}`, {
-        title: "New request",
-        description:
-          "We will generate a description automatically as soon as we get some information from you.\n\nYou can change the title and description at any time.",
-        createdDate: currentDate,
-        status: 0,
-      });
-
-      console.log("response", response);
+      const response = await instance.post(`/Tickets/${userId}`, ticket);
 
       return response.data;
     } catch (error: any) {
@@ -60,19 +49,18 @@ export const createTicket = createAsyncThunk(
 
 export const updateTicket = createAsyncThunk(
   "tickets/updateTicket",
-  async (data: TicketData, { rejectWithValue }) => {
+  async (data: TicketType, {rejectWithValue}) => {
     try {
-      const { id, title, description } = data;
+      const {id, title, description} = data;
       const currentDate = new Date().toISOString();
 
-      const response = await instance.put("/Tickets", {
-        id,
+      const response = await instance.put(`/Tickets/${id}`, {
         title,
         description,
         comment: "",
         summary: "",
-        updatedDate: currentDate,
         status: 0,
+        messages: []
       });
 
       return response.data;
@@ -84,9 +72,37 @@ export const updateTicket = createAsyncThunk(
 
 export const deleteTicket = createAsyncThunk(
   "tickets/deleteTicket",
-  async (ticketId, { rejectWithValue }) => {
+  async (ticketId, {rejectWithValue}) => {
     try {
       const response = await instance.delete(`/Tickets/${ticketId}`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);
+
+export const searchTickets = createAsyncThunk(
+  "tickets/searchTickets",
+  async ({
+           userId,
+           ticketTitle
+         }: { userId: string, ticketTitle: string },
+         {rejectWithValue, dispatch}
+  ) => {
+    try {
+      const response = await instance.post(`/Tickets/search/${userId}`, {
+        ticketTitle,
+        pagination: {
+          currentPageNumber: 1,
+          recordsPerPage: 12
+        }
+      });
+
+      const {data} = response.data;
+
+      dispatch(setTickets(data));
+
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response.data);

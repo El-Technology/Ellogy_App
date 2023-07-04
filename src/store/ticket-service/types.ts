@@ -2,15 +2,19 @@ export interface ITicketReducer {
   loading: boolean;
   updating: boolean;
   tickets: TicketType[],
-  activeTicket?: TicketData
+  activeTicket: TicketType | null,
+  isTicketUpdate?: boolean
 }
 
 export interface TicketType {
   id: string;
-  title: string,
-  description: string,
-  createdDate: Date,
-  status: number
+  title: string;
+  description: string;
+  summary: string;
+  comment: string;
+  createdDate: string;
+  updatedDate: Date;
+  status: number;
 }
 
 export interface TicketData {
