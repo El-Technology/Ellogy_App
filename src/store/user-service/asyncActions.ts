@@ -2,6 +2,7 @@ import { IUserReducer } from './types';
 import instance from '../../utils/API';
 import {VaultService} from "../../utils/storage";
 import {createAsyncThunk} from "@reduxjs/toolkit";
+import {SignInType} from "../../core/types/base";
 
 const vaultService = new VaultService();
 
@@ -16,9 +17,9 @@ export const addNewUser = createAsyncThunk(
   }
 );
 
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<IUserReducer, SignInType>(
   'user/loginUser',
-  async (userData: IUserReducer, { rejectWithValue }) => {
+  async (userData: SignInType, { rejectWithValue }) => {
     try {
       const response = await instance.post('/auth/login', userData);
       vaultService.setItem('token', response.data.jwt);

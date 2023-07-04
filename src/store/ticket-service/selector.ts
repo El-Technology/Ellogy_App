@@ -7,3 +7,5 @@ export const getTicketUpdating = (state: RootState) => state.ticketRedux.updatin
 export const getTickets = (state: RootState) => state.ticketRedux.tickets;
 
 export const getActiveTicket = (state: RootState) => state.ticketRedux.activeTicket;
+
+export const getIsTicketUpdate = (state: RootState) => state.ticketRedux.isTicketUpdate;

@@ -1,10 +1,10 @@
-import React, {ChangeEvent, useEffect} from 'react';
+import React, {ChangeEvent, useEffect, useRef} from 'react';
 import {useForm} from 'react-hook-form';
 import {TextField, Button, Typography, Grid, FormControl, FormHelperText, Box} from '@mui/material';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {AuthHeader} from 'src/components/AuthHeader/AuthHeader';
 import {useNavigate} from 'react-router-dom';
-import {useDispatch, useSelector} from 'react-redux';
+import {useSelector} from 'react-redux';
 import {loginUser} from '../../store/user-service/asyncActions';
 import {getUser} from 'src/store/user-service/selector';
 import {loginSchema} from "../../core/helpers/yupSchemas";
@@ -12,28 +12,41 @@ import {removeLoginError} from 'src/store/user-service/userSlice';
 import {SignInType} from "../../core/types/base";
 import {Oval} from 'react-loader-spinner';
 import {ROUTES} from "../../core/constants/routes";
+import {InferType} from "yup";
+import {useAppDispatch} from "../../store/store";
 
+type LoginFormSchema = InferType<typeof loginSchema>;
 
 export const Login = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const userData = useSelector(getUser);
 
   const {
     handleSubmit,
     register,
     formState: {errors},
-    clearErrors,
-  } = useForm({
+    watch
+  } = useForm<LoginFormSchema>({
     resolver: yupResolver(loginSchema),
   });
 
-  const handleLogin = (data: SignInType) => {
-    // @ts-ignore
-    dispatch(loginUser(data)).then(() => {
-      navigate(ROUTES.HOME);
-    });
+  const handleLogin = async (data: SignInType) => {
+    try {
+      const result = await dispatch(loginUser(data)).unwrap();
+      if (result) {
+        navigate(ROUTES.HOME)
+      } else {
+        dispatch(removeLoginError());
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  useEffect(() => {
+    dispatch(removeLoginError());
+  }, [watch("email"), watch("password")])
 
   const redirectToSignUp = () => {
     navigate(ROUTES.SIGNUP);
@@ -41,10 +54,6 @@ export const Login = () => {
 
   const redirectToResetPassword = () => {
     navigate(ROUTES.RESET_PASSWORD);
-  };
-
-  const hideError = () => {
-    dispatch(removeLoginError());
   };
 
   const renderEmailInfo = () => {
@@ -147,9 +156,8 @@ export const Login = () => {
                   <FormControl fullWidth error={!!errors.email}>
                     <Typography sx={{fontSize: '12px'}}>Email</Typography>
                     <TextField
-                      inputProps={{style: {padding: '10px 12px' }}}
+                      inputProps={{style: {padding: '10px 12px'}}}
                       placeholder="example@gmail.com"
-                      autoComplete="off"
                       sx={{
                         height: '44px',
                         '& .MuiOutlinedInput-root': {
@@ -157,10 +165,6 @@ export const Login = () => {
                         },
                       }}
                       {...register('email')}
-                      onChange={() => {
-                        hideError();
-                        clearErrors('email');
-                      }}
                     />
                     {renderEmailInfo()}
                   </FormControl>
@@ -171,7 +175,7 @@ export const Login = () => {
                     <Typography sx={{fontSize: '12px'}}>Password</Typography>
                     <TextField
                       inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
-                      autoComplete="off"
+                      autoComplete="password"
                       type="password"
                       placeholder="Enter your password"
                       sx={{
@@ -181,10 +185,6 @@ export const Login = () => {
                         },
                       }}
                       {...register('password')}
-                      onChange={() => {
-                        hideError();
-                        clearErrors('password');
-                      }}
                     />
                     {renderPasswordInfo()}
                   </FormControl>
@@ -193,7 +193,13 @@ export const Login = () => {
 
               {userData.loading ? (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '374px', borderRadius: '8px', textTransform: 'none'}}
+                  sx={{
+                    marginTop: '24px',
+                    height: "44px",
+                    width: '374px',
+                    borderRadius: '8px',
+                    textTransform: 'none'
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
@@ -213,7 +219,15 @@ export const Login = () => {
                 </Button>
               ) : (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '374px', borderRadius: '8px', textTransform: 'none', fontSize: "16px", fontWeight: "700"}}
+                  sx={{
+                    marginTop: '24px',
+                    height: "44px",
+                    width: '374px',
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontSize: "16px",
+                    fontWeight: "700"
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
