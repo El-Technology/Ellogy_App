@@ -47,7 +47,7 @@ const ticketSlice = createSlice({
         const dateB = b.updatedDate || b.createdDate;
         const timestampA = new Date(dateA).getTime();
         const timestampB = new Date(dateB).getTime();
-        return timestampB - timestampA;
+        return timestampA - timestampB;
       });
 
       state.tickets = sortedData;

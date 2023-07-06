@@ -45,6 +45,7 @@ export const Chatbot: FC<ChatbotProps> = ({
       sx={{
         display: "flex",
         flexDirection: "column",
+        justifyContent: "space-between"
       }}
     >
       <Box
@@ -60,10 +61,10 @@ export const Chatbot: FC<ChatbotProps> = ({
 
       <Box
         sx={{
-          width: "525px",
           marginTop: "16px",
           display: "flex",
           justifyContent: "space-between",
+          gap: "16px"
         }}
       >
         <MessageInput

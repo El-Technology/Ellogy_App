@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useForm} from 'react-hook-form';
 import {
   TextField,
@@ -9,17 +9,23 @@ import {
   FormHelperText,
   Box,
 } from '@mui/material';
+import {Oval} from "react-loader-spinner";
 import {yupResolver} from '@hookform/resolvers/yup';
-import {AuthHeader} from 'src/components/AuthHeader/AuthHeader';
 import {useNavigate} from 'react-router-dom';
 import {useDispatch, useSelector} from "react-redux";
-import {addNewUser} from "../../store/user-service/asyncActions";
-import {signUpSchema} from "../../core/helpers/yupSchemas";
+
+// store
 import {getUser} from "../../store/user-service/selector";
-import {removeSignUpError} from "../../store/user-service/userSlice";
-import {SignUpType} from "../../core/types/base";
-import {Oval} from "react-loader-spinner";
+import {addNewUser, loginUser} from "../../store/user-service/asyncActions";
+import {removeLoginError, removeSignUpError} from "../../store/user-service/userSlice";
+
+// core
+import {signUpSchema} from "../../core/helpers/yupSchemas";
+import {SignInType, SignUpType} from "../../core/types/base";
 import {ROUTES} from "../../core/constants/routes";
+
+// components
+import {Header} from 'src/components/Header/Header';
 import {SuccessSignUpModal} from "./SuccessSignUpModal";
 
 export const SignUp = () => {
@@ -33,29 +39,34 @@ export const SignUp = () => {
     handleSubmit,
     register,
     formState: {errors},
-    clearErrors
+    watch
   } = useForm({
     resolver: yupResolver(signUpSchema),
   });
 
-  const registerUser = (data: SignUpType) => {
-    // @ts-ignore
-    dispatch(addNewUser(data)).then(() => {
-      setOpen(true);
-    });
+  useEffect(() => {
+    dispatch(removeSignUpError());
+  }, [watch("email")]);
+
+  const registerUser = async (data: SignUpType) => {
+    try {
+      // @ts-ignore
+      await dispatch(addNewUser(data)).unwrap();
+      if (!userData.signUpError) {
+        setOpen(true);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const redirectToLogin = () => {
     navigate(ROUTES.LOGIN);
   };
 
-  const hideError = () => {
-    dispatch(removeSignUpError());
-  };
-
   return (
     <>
-      <AuthHeader/>
+      <Header/>
 
       <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '164px'}}>
         <Grid container sx={{width: '574px', gap: '24px'}}>
@@ -83,10 +94,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('firstName')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('firstName');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -114,10 +121,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('organization')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('organization');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -149,10 +152,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('lastName')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('lastName');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -180,10 +179,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('department')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('department');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -215,10 +210,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('email')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('email');
-                          }}
                         />
                         {userData.signUpError ?
                           <FormHelperText
@@ -243,7 +234,6 @@ export const SignUp = () => {
                             {errors.email?.message}
                           </FormHelperText>
                         }
-
                       </FormControl>
                     </Grid>
 
@@ -261,10 +251,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('password')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('password');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -296,10 +282,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('phoneNumber')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('phoneNumber');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -328,10 +310,6 @@ export const SignUp = () => {
                             },
                           }}
                           {...register('confirmPassword')}
-                          onChange={() => {
-                            hideError();
-                            clearErrors('confirmPassword');
-                          }}
                         />
                         <FormHelperText
                           sx={{
@@ -355,14 +333,11 @@ export const SignUp = () => {
                         type="checkbox"
                         style={{margin: "0"}}
                         {...register('check')}
-                        onChange={() => {
-                          hideError();
-                          clearErrors('check');
-                        }}
                       />
 
                       <Typography sx={{fontSize: '12px', marginLeft: '8px'}}>
-                        I agree to the <span style={{color: '#4786FF'}}>Terms of Service</span> and <span style={{color: '#4786FF'}}>Privacy Policy</span>
+                        I agree to the <span style={{color: '#4786FF'}}>Terms of Service</span> and <span
+                        style={{color: '#4786FF'}}>Privacy Policy</span>
                       </Typography>
                     </Box>
                     <FormHelperText sx={{marginLeft: "0px"}}>{errors.check?.message}</FormHelperText>
@@ -392,7 +367,15 @@ export const SignUp = () => {
                 </Button>
               ) : (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '574px', borderRadius: '8px', textTransform: 'none', fontSize: "16px", fontWeight: "700"}}
+                  sx={{
+                    marginTop: '24px',
+                    height: "44px",
+                    width: '574px',
+                    borderRadius: '8px',
+                    textTransform: 'none',
+                    fontSize: "16px",
+                    fontWeight: "700"
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
@@ -409,7 +392,7 @@ export const SignUp = () => {
           </Grid>
         </Grid>
 
-        <SuccessSignUpModal isOpen={open} />
+        <SuccessSignUpModal isOpen={open}/>
       </Box>
     </>
   );

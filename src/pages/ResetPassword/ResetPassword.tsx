@@ -1,4 +1,4 @@
-import {AuthHeader} from "../../components/AuthHeader/AuthHeader";
+import {Header} from "../../components/Header/Header";
 import {Box, Button, Modal} from "@mui/material";
 import {ResetEmailForm} from "./components/ResetEmailForm";
 import {ResetPasswordForm} from "./components/ResetPasswordForm";
@@ -15,7 +15,7 @@ export const ResetPassword = () => {
 
   return (
     <>
-      <AuthHeader/>
+      <Header/>
 
       <Box>
         <Modal

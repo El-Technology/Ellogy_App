@@ -59,7 +59,7 @@ export const ResetEmailForm = () => {
       return <ResetError email={email} setIsEmailWrong={setIsEmailWrong}/>
     }
     if (isEmailSent) {
-      return <ResetEmailConfirmation email={email} resetRequest={resetRequest}/>
+      return <ResetEmailConfirmation email={email} resetRequest={resetRequest} />
     }
   }
 

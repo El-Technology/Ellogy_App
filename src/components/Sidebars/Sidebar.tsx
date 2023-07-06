@@ -82,7 +82,6 @@ export const Sidebar = () => {
       }
 
       if (isTicketUpdate) {
-        console.log("2");
         setIsShowDraft(true);
         setIsCreating(true);
         return;
@@ -152,9 +151,8 @@ export const Sidebar = () => {
       <Box
         className="rtl-able"
         sx={{
-          width: "35%",
           height: "calc(100vh - 82px)",
-          padding: "40px 24px 45px",
+          padding: "40px 24px 45px 0",
           display: {
             xs: "none",
             sm: "flex",
@@ -165,7 +163,6 @@ export const Sidebar = () => {
           alignItems: "end",
           justifyContent: "space-between",
           backgroundColor: "#FBFBFB",
-          boxShadow: "0px 8px 24px 0px rgba(40, 103, 131, 0.08)",
           boxSizing: "border-box",
         }}
       >
@@ -289,7 +286,15 @@ export const Sidebar = () => {
                         justifyContent: "space-between",
                       }}
                     >
-                      <Typography sx={{ fontWeight: "700" }}>
+                      <Typography
+                        sx={{
+                          fontWeight: "700",
+                          whiteSpace: "nowrap",
+                          textOverflow: "ellipsis",
+                          overflow: "hidden",
+                          maxWidth: "135px",
+                        }}
+                      >
                         {item.title}
                       </Typography>
                       <Typography sx={{ color: "#707A8E" }}>

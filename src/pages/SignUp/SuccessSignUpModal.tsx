@@ -1,4 +1,3 @@
-import {AuthHeader} from "../../components/AuthHeader/AuthHeader";
 import {Box, Button, Modal, Typography} from "@mui/material";
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "../../core/constants/routes";

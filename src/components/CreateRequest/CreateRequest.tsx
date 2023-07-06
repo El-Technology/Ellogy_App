@@ -252,7 +252,6 @@ export const CreateRequest = () => {
   return (
     <Box
       sx={{
-        width: "100%",
         height: "100%",
         background: "#fff",
         padding: "24px",
@@ -260,6 +259,7 @@ export const CreateRequest = () => {
         display: "flex",
         gap: "24px",
         boxShadow: "0px 8px 24px 0px rgba(40, 103, 131, 0.08)",
+        overflow: "hidden",
       }}
     >
       {(tickets && !tickets.length) || !activeTicket ? (
@@ -328,101 +328,71 @@ export const CreateRequest = () => {
         </FormProvider>
       )}
 
-      {activeTicket &&
-        (editMode ? (
-          <form onSubmit={handleSubmit(updateTicketInfo)}>
-            <Grid container direction="column">
-              <Grid item>
-                <FormControl fullWidth>
-                  <Typography sx={{ fontSize: "12px" }}>Title</Typography>
-                  <TextField
-                    inputProps={{ style: { padding: "10px 12px" } }}
-                    placeholder="Title of request"
-                    sx={{
-                      width: "310px",
-                      height: "44px",
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "8px",
-                      },
-                    }}
-                    {...register("title")}
-                    defaultValue={activeTicket?.title || ""}
-                  />
-                </FormControl>
-              </Grid>
-
-              <Grid item mt={2.4}>
-                <FormControl fullWidth>
-                  <Typography sx={{ fontSize: "12px" }}>Description</Typography>
-                  <TextField
-                    multiline
-                    inputProps={{
-                      style: { borderRadius: "8px", height: "168px" },
-                    }}
-                    placeholder="Describe your request"
-                    sx={{
-                      width: "310px",
-                      minHeight: "168px",
-                      "& .MuiOutlinedInput-root": {
-                        borderRadius: "8px",
-                      },
-                    }}
-                    {...register("description")}
-                    defaultValue={activeTicket?.description || ""}
-                  />
-                </FormControl>
-              </Grid>
-            </Grid>
-
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-              }}
+      <Box
+        sx={{
+          display: "flex",
+          width: "100%",
+        }}
+      >
+        {activeTicket ? (
+          editMode ? (
+            <form
+              style={{ width: "100%" }}
+              onSubmit={handleSubmit(updateTicketInfo)}
             >
-              <Button
-                sx={{
-                  marginTop: "24px",
-                  height: "44px",
-                  width: "133px",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  fontSize: "16px",
-                  fontWeight: "700",
-                }}
-                variant="outlined"
-                onClick={() => setEditMode(false)}
-              >
-                Cancel
-              </Button>
+              <Grid container direction="column">
+                <Grid item>
+                  <FormControl fullWidth>
+                    <Typography sx={{ fontSize: "12px" }}>Title</Typography>
+                    <TextField
+                      inputProps={{ style: { padding: "10px 12px" } }}
+                      placeholder="Title of request"
+                      sx={{
+                        height: "44px",
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      {...register("title")}
+                      defaultValue={activeTicket?.title || ""}
+                    />
+                  </FormControl>
+                </Grid>
 
-              {updating ? (
-                <Button
-                  sx={{
-                    marginTop: "24px",
-                    height: "44px",
-                    width: "133px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                  }}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                >
-                  <Oval
-                    height={24}
-                    width={24}
-                    color="#fff"
-                    wrapperStyle={{}}
-                    wrapperClass=""
-                    visible={true}
-                    ariaLabel="oval-loading"
-                    secondaryColor="#91B6FF"
-                    strokeWidth={5}
-                    strokeWidthSecondary={5}
-                  />
-                </Button>
-              ) : (
+                <Grid item mt={2.4}>
+                  <FormControl fullWidth>
+                    <Typography sx={{ fontSize: "12px" }}>
+                      Description
+                    </Typography>
+                    <TextField
+                      multiline
+                      inputProps={{
+                        style: {
+                          borderRadius: "8px",
+                          height: "168px",
+                          overflow: "auto",
+                        },
+                      }}
+                      placeholder="Describe your request"
+                      sx={{
+                        minHeight: "168px",
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
+                        },
+                      }}
+                      {...register("description")}
+                      defaultValue={activeTicket?.description || ""}
+                    />
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Button
                   sx={{
                     marginTop: "24px",
@@ -433,134 +403,226 @@ export const CreateRequest = () => {
                     fontSize: "16px",
                     fontWeight: "700",
                   }}
-                  type="submit"
-                  variant="contained"
-                  color="primary"
+                  variant="outlined"
+                  onClick={() => setEditMode(false)}
                 >
-                  Save
+                  Cancel
                 </Button>
-              )}
-            </Box>
-          </form>
-        ) : (
-          <Box
-            sx={{
-              width: "310px",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-            }}
-          >
+
+                {updating ? (
+                  <Button
+                    sx={{
+                      marginTop: "24px",
+                      height: "44px",
+                      width: "133px",
+                      borderRadius: "8px",
+                      textTransform: "none",
+                    }}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >
+                    <Oval
+                      height={24}
+                      width={24}
+                      color="#fff"
+                      wrapperStyle={{}}
+                      wrapperClass=""
+                      visible={true}
+                      ariaLabel="oval-loading"
+                      secondaryColor="#91B6FF"
+                      strokeWidth={5}
+                      strokeWidthSecondary={5}
+                    />
+                  </Button>
+                ) : (
+                  <Button
+                    sx={{
+                      marginTop: "24px",
+                      height: "44px",
+                      width: "133px",
+                      borderRadius: "8px",
+                      textTransform: "none",
+                      fontSize: "16px",
+                      fontWeight: "700",
+                    }}
+                    type="submit"
+                    variant="contained"
+                    color="primary"
+                  >
+                    Save
+                  </Button>
+                )}
+              </Box>
+            </form>
+          ) : (
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "16px",
+                justifyContent: "space-between",
               }}
             >
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
+                  flexDirection: "column",
+                  gap: "16px",
                 }}
               >
-                <Typography sx={{ fontSize: "24px", fontWeight: "700" }}>
-                  {activeTicket?.title}
-                </Typography>
-
-                <Box sx={{ display: "flex", gap: "16px" }}>
-                  <Button
-                    sx={{ minWidth: "24px", padding: "0" }}
-                    onClick={activateEditMode}
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      fontSize: "24px",
+                      fontWeight: "700",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                      maxWidth: "250px",
+                    }}
                   >
-                    <EditTicket />
-                  </Button>
-
-                  <Button
-                    sx={{ minWidth: "24px", padding: "0" }}
-                    onClick={() => setIsDeleteModalOpen(true)}
-                  >
-                    <Trash />
-                  </Button>
-                </Box>
-              </Box>
-              <Box>
-                <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                  Created:{" "}
-                  {activeTicket?.createdDate &&
-                    format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
-                </Typography>
-                {activeTicket?.updatedDate && (
-                  <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                    Last Modified:
-                    {activeTicket?.updatedDate
-                      ? format(new Date(activeTicket.createdDate), "dd/MM/yyyy")
-                      : "N/A"}
+                    {activeTicket?.title}
                   </Typography>
-                )}
+
+                  <Box sx={{ display: "flex", gap: "16px" }}>
+                    <Button
+                      sx={{ minWidth: "24px", padding: "0" }}
+                      onClick={activateEditMode}
+                    >
+                      <EditTicket />
+                    </Button>
+
+                    <Button
+                      sx={{ minWidth: "24px", padding: "0" }}
+                      onClick={() => setIsDeleteModalOpen(true)}
+                    >
+                      <Trash />
+                    </Button>
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                    Created:{" "}
+                    {activeTicket?.createdDate &&
+                      format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
+                  </Typography>
+                  {activeTicket?.updatedDate && (
+                    <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                      Last Modified:{" "}
+                      {activeTicket?.updatedDate
+                        ? format(
+                            new Date(activeTicket.createdDate),
+                            "dd/MM/yyyy"
+                          )
+                        : "N/A"}
+                    </Typography>
+                  )}
+                </Box>
+                <Typography
+                  sx={{
+                    display: "-webkit-box",
+                    " -webkit-line-clamp": 10,
+                    "-webkit-box-orient": "vertical",
+                  }}
+                >
+                  <strong>Description:</strong> <br />
+                  {activeTicket?.description}
+                </Typography>
+                <Typography
+                  sx={{
+                    display: "-webkit-box",
+                    " -webkit-line-clamp": 10,
+                    "-webkit-box-orient": "vertical",
+                  }}
+                >
+                  <strong>Summary:</strong> <br /> {activeTicket?.summary}
+                </Typography>
               </Box>
-              <Typography>
-                <strong>Description:</strong> <br /> {activeTicket?.description}
-              </Typography>
-              <Typography>
-                <strong>Summary:</strong> <br /> {activeTicket?.summary}
-              </Typography>
+
+              {isDeleteModalOpen && (
+                <DeleteRequestModal
+                  handleCloseModal={handleCloseModal}
+                  ticketId={activeTicket?.id}
+                  userId={user.id}
+                />
+              )}
+
+              {isSendModalOpen && (
+                <SendRequestModal
+                  handleCloseModal={handleCloseModal}
+                  ticketId={activeTicket?.id}
+                  userId={user.id}
+                />
+              )}
+
+              <Button
+                sx={{
+                  height: "44px",
+                  width: "251px",
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  gap: "8px",
+                  marginTop: "auto",
+                }}
+                variant="outlined"
+                color="primary"
+                disabled={isSummaryLoading}
+                onClick={() => handleSummary()}
+              >
+                Generate Summary
+              </Button>
+              <Button
+                sx={{
+                  height: "44px",
+                  width: "251px",
+                  borderRadius: "8px",
+                  textTransform: "none",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  gap: "8px",
+                  marginTop: "16px",
+                }}
+                variant="contained"
+                color="primary"
+                onClick={() => setIsSendModalOpen(true)}
+              >
+                Send request
+              </Button>
             </Box>
-
-            {isDeleteModalOpen && (
-              <DeleteRequestModal
-                handleCloseModal={handleCloseModal}
-                ticketId={activeTicket?.id}
-                userId={user.id}
-              />
-            )}
-
-            {isSendModalOpen && (
-              <SendRequestModal
-                handleCloseModal={handleCloseModal}
-                ticketId={activeTicket?.id}
-                userId={user.id}
-              />
-            )}
-
-            <Button
-              sx={{
-                height: "44px",
-                width: "251px",
-                borderRadius: "8px",
-                textTransform: "none",
-                fontSize: "16px",
-                fontWeight: "700",
-                gap: "8px",
-                marginTop: "auto",
-              }}
-              variant="outlined"
-              disabled={isSummaryLoading}
-              color="primary"
-              onClick={() => handleSummary()}
-            >
-              Generate Summary
-            </Button>
-            <Button
-              sx={{
-                height: "44px",
-                width: "251px",
-                borderRadius: "8px",
-                textTransform: "none",
-                fontSize: "16px",
-                fontWeight: "700",
-                gap: "8px",
-                marginTop: "16px",
-              }}
-              variant="contained"
-              color="primary"
-              onClick={() => setIsSendModalOpen(true)}
-            >
-              Send request
-            </Button>
+          )
+        ) : (
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Oval
+              height={24}
+              width={24}
+              color="#fff"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+              ariaLabel="oval-loading"
+              secondaryColor="#91B6FF"
+              strokeWidth={5}
+              strokeWidthSecondary={5}
+            />
           </Box>
-        ))}
+        )}
+      </Box>
     </Box>
   );
 };
