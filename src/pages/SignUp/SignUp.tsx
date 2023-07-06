@@ -81,13 +81,13 @@ export const SignUp = () => {
 
   useEffect(() => {
     const userData = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'johndoe@example.com',
-      phoneNumber: '1234567890',
-      password: 'password123',
-      organization: 'Example Org',
-      department: 'Example Department',
+      firstName: "John",
+      lastName: "Doe",
+      email: "johndoe@example.com",
+      phoneNumber: "1234567890",
+      password: "password123",
+      organization: "Example Org",
+      department: "Example Department",
     };
 
     // @ts-ignore

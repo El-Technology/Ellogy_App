@@ -14,8 +14,6 @@ export const MainPageLayout = ({ children }: { children: ReactNode }) => {
           justifyContent: "center",
         }}
       >
-        <Sidebar />
-
         <Box
           sx={{
             width: "calc((100% - 1370px) / 2)",
