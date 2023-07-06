@@ -58,7 +58,6 @@ export const DraftModal: FC<DraftModalProps> = ({
       }
 
       if (isTicketUpdate) {
-        console.log(ticket);
         dispatch(updateTicket(ticket)).then(() => {
           handleClose();
           dispatch(setIsTicketUpdate(false));

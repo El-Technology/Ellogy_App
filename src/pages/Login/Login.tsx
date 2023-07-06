@@ -2,7 +2,7 @@ import React, {ChangeEvent, useEffect, useRef} from 'react';
 import {useForm} from 'react-hook-form';
 import {TextField, Button, Typography, Grid, FormControl, FormHelperText, Box} from '@mui/material';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {AuthHeader} from 'src/components/AuthHeader/AuthHeader';
+import {Header} from 'src/components/Header/Header';
 import {useNavigate} from 'react-router-dom';
 import {useSelector} from 'react-redux';
 import {loginUser} from '../../store/user-service/asyncActions';
@@ -139,7 +139,7 @@ export const Login = () => {
 
   return (
     <>
-      <AuthHeader/>
+      <Header/>
 
       <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '164px'}}>
         <Grid container sx={{width: '374px', gap: '24px'}}>

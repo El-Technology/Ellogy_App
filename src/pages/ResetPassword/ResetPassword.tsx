@@ -4,7 +4,6 @@ import { ResetEmailForm } from "./components/ResetEmailForm";
 import { ResetPasswordForm } from "./components/ResetPasswordForm";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ROUTES } from "../../core/constants/routes";
-import React from "react";
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
