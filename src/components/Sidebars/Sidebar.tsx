@@ -5,43 +5,50 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import {ReactComponent as Add} from "../../assets/icons/add.svg";
-import {ReactComponent as MessageQuestion} from "../../assets/icons/message-question.svg";
-import {ReactComponent as Search} from "../../assets/icons/search.svg";
-import {useTranslation} from "react-i18next";
-import React, {useEffect, useRef, useState} from "react";
-import {useSelector} from "react-redux";
-import cx from 'classnames';
-import {getTicketsByUserId, searchTickets} from "../../store/ticket-service/asyncActions";
+import { ReactComponent as Add } from "../../assets/icons/add.svg";
+import { ReactComponent as MessageQuestion } from "../../assets/icons/message-question.svg";
+import { ReactComponent as Search } from "../../assets/icons/search.svg";
+import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
+import { useSelector } from "react-redux";
+import cx from "classnames";
 import {
-  getActiveTicket, getIsTicketUpdate,
+  getTicketsByUserId,
+  searchTickets,
+} from "../../store/ticket-service/asyncActions";
+import {
+  getActiveTicket,
+  getIsTicketUpdate,
   getTickets,
   getTicketsLoader,
 } from "../../store/ticket-service/selector";
-import {Oval} from "react-loader-spinner";
-import {format} from "date-fns";
-import {addLocalTicket, setActiveTicket} from "src/store/ticket-service/ticketSlice";
-import {Statuses} from "src/core/enums/common";
-import styles from './Sidebar.module.scss';
-import {DraftModal} from "./DrafModal";
-import {useAppDispatch} from "../../store/store";
+import { Oval } from "react-loader-spinner";
+import { format } from "date-fns";
+import {
+  addLocalTicket,
+  setActiveTicket,
+} from "src/store/ticket-service/ticketSlice";
+import { Statuses } from "src/core/enums/common";
+import styles from "./Sidebar.module.scss";
+import { DraftModal } from "./DrafModal";
+import { useAppDispatch } from "../../store/store";
 import useDebounce from "../../core/hooks/useDebounce";
 
 export const Sidebar = () => {
-  const {t} = useTranslation("navigation");
+  const { t } = useTranslation("navigation");
   const dispatch: any = useAppDispatch();
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);
   const activeTicket = useSelector(getActiveTicket);
-  const isTicketUpdate = useSelector(getIsTicketUpdate)
+  const isTicketUpdate = useSelector(getIsTicketUpdate);
   const [isShowDraft, setIsShowDraft] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const handleCloseModal = () => {
-    setIsShowDraft(false)
-  }
+    setIsShowDraft(false);
+  };
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
@@ -49,11 +56,15 @@ export const Sidebar = () => {
   useEffect(() => {
     const recordsPerPage = tickets.length;
     if (debouncedSearchQuery.length)
-      dispatch(searchTickets({userId: user.id, ticketTitle: debouncedSearchQuery}));
+      dispatch(
+        searchTickets({ userId: user.id, ticketTitle: debouncedSearchQuery })
+      );
   }, [debouncedSearchQuery]);
 
   useEffect(() => {
-    dispatch(getTicketsByUserId({userId: user.id}));
+    dispatch(getTicketsByUserId({ userId: user.id })).then((data: any) => {
+      console.log(data);
+    });
   }, []);
 
   useEffect(() => {
@@ -71,32 +82,30 @@ export const Sidebar = () => {
       }
 
       if (isTicketUpdate) {
-        console.log("2")
+        console.log("2");
         setIsShowDraft(true);
         setIsCreating(true);
         return;
       }
-
-      const defaultTicket = {
-        title: "New request",
-        description:
-          "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
-        createdDate: new Date().toISOString(),
-        comment: null,
-        messages: [],
-        status: 0
-      }
-      dispatch(addLocalTicket(defaultTicket))
-      dispatch(setActiveTicket(defaultTicket));
     }
-  }
+    const defaultTicket = {
+      title: "New request",
+      description:
+        "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
+      createdDate: new Date().toISOString(),
+      comment: null,
+      messages: [],
+      status: 0,
+    };
+    dispatch(addLocalTicket(defaultTicket));
+    dispatch(setActiveTicket(defaultTicket));
+  };
 
   const handleTicketClick = (ticket: any) => {
     if (isTicketUpdate) {
       setIsShowDraft(true);
       setIsCreating(false);
-    } else
-      dispatch(setActiveTicket(ticket));
+    } else dispatch(setActiveTicket(ticket));
   };
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -105,16 +114,20 @@ export const Sidebar = () => {
   useEffect(() => {
     const container = containerRef.current;
     if (!debouncedSearchQuery.length) {
-      dispatch(getTicketsByUserId({userId: user.id}));
+      dispatch(getTicketsByUserId({ userId: user.id }));
     }
 
     const handleScroll = async () => {
       if (container && !debouncedSearchQuery.length) {
-        const isAtBottom = container.scrollHeight - container.scrollTop === container.clientHeight;
+        const isAtBottom =
+          container.scrollHeight - container.scrollTop ===
+          container.clientHeight;
         if (isAtBottom) {
           const nextPage = currentPageRef.current + 1;
-          console.log(nextPage)
-          dispatch(getTicketsByUserId({userId: user.id, currentPageNumber: nextPage}))
+          console.log(nextPage);
+          dispatch(
+            getTicketsByUserId({ userId: user.id, currentPageNumber: nextPage })
+          )
             .then((action: any) => {
               const newTickets = action.payload.data;
               if (newTickets.length > 0) {
@@ -122,7 +135,7 @@ export const Sidebar = () => {
               } else currentPageRef.current = 1;
             })
             .catch((error: any) => {
-              console.log(error)
+              console.log(error);
             });
         }
       }
@@ -161,7 +174,7 @@ export const Sidebar = () => {
             display: "flex",
             flexDirection: "column",
             gap: "24px",
-            maxHeight: "80%"
+            maxHeight: "80%",
           }}
         >
           {loader ? (
@@ -206,7 +219,7 @@ export const Sidebar = () => {
               color="primary"
               onClick={createLocalTicket}
             >
-              <Add/>
+              <Add />
               Create new request
             </Button>
           )}
@@ -215,7 +228,7 @@ export const Sidebar = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search/>
+                  <Search />
                 </InputAdornment>
               ),
               style: {
@@ -233,8 +246,8 @@ export const Sidebar = () => {
               fontWeight: "700",
               gap: "8px",
 
-              "& fieldset": {border: "none"},
-              "& input::placeholder": {color: "#8790A0", opacity: 1},
+              "& fieldset": { border: "none" },
+              "& input::placeholder": { color: "#8790A0", opacity: 1 },
             }}
             placeholder="Search"
             variant="outlined"
@@ -249,7 +262,7 @@ export const Sidebar = () => {
               display: "flex",
               flexDirection: "column",
               gap: "16px",
-              overflowY: "auto"
+              overflowY: "auto",
             }}
           >
             {tickets &&
@@ -264,27 +277,39 @@ export const Sidebar = () => {
                       background: item === activeTicket ? "#ECF3FF" : "#fff",
                       borderRadius: "8px",
                       padding: "8px 12px",
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
+                      justifyContent: "space-between",
+                      alignItems: "center",
                     }}
                     key={JSON.stringify(item) + index}
                     onClick={() => handleTicketClick(item)}
                   >
-                    <Box sx={{
-                      flexDirection: "column",
-                      justifyContent: "space-between",
-
-                    }}>
-                      <Typography sx={{fontWeight: "700"}}>
+                    <Box
+                      sx={{
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Typography sx={{ fontWeight: "700" }}>
                         {item.title}
                       </Typography>
-                      <Typography sx={{color: "#707A8E"}}>
+                      <Typography sx={{ color: "#707A8E" }}>
                         {format(new Date(item.createdDate), "dd/MM/yyyy")}
                       </Typography>
                     </Box>
-                    {item && <Box>
-                        <Typography className={cx(styles.status, styles[`status_${Statuses[item.status].toLowerCase()}`])}>{Statuses[item.status]}</Typography>
-                    </Box>}
+                    {item && (
+                      <Box>
+                        <Typography
+                          className={cx(
+                            styles.status,
+                            styles[
+                              `status_${Statuses[item.status].toLowerCase()}`
+                            ]
+                          )}
+                        >
+                          {Statuses[item.status]}
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
                 );
               })}
@@ -305,16 +330,18 @@ export const Sidebar = () => {
           variant="outlined"
           color="primary"
         >
-          <MessageQuestion/>
+          <MessageQuestion />
           Help & Support
         </Button>
       </Box>
-      {isShowDraft && activeTicket && <DraftModal
+      {isShowDraft && activeTicket && (
+        <DraftModal
           handleCloseModal={handleCloseModal}
           ticket={activeTicket}
           userId={user.id}
           isCreating={isCreating}
-      />}
+        />
+      )}
     </>
   );
 };

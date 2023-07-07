@@ -1,15 +1,23 @@
 import { FC, memo, useMemo } from "react";
-import cx from 'classnames';
+import cx from "classnames";
 import styles from "./Message.module.scss";
 export interface IMessage {
   content: string;
   sender: string;
+  sendTime: string;
 }
 interface IMessageProps {
   model: IMessage;
 }
 export const Message: FC<IMessageProps> = memo(({ model }) => {
-  const messageClasses = useMemo(() => model.sender === 'user'? styles['message__human']: styles['message__bot'] , [model.sender]);
+  const messageClasses = useMemo(
+    () =>
+      model.sender === "user"
+        ? styles["message__human"]
+        : styles["message__bot"],
+    [model.sender]
+  );
+  console.log(model);
 
   return (
     <div

@@ -9,16 +9,16 @@ interface IMessagesListProps {
 }
 export const MessageList = forwardRef<HTMLDivElement, IMessagesListProps>(
   ({ list, isTyping }, ref) => {
-    const { t } = useTranslation('createTicket');
+    const { t } = useTranslation();
     return (
       <>
         <div className={styles.messages_list} ref={ref}>
           {list.map((message, i) => (
             <Message model={message} key={i} />
           ))}
-        <div className={styles["chat-typing"]}>
-          {isTyping && t("chatIsTyping")}
-        </div>
+          <div className={styles["chat-typing"]}>
+            {isTyping && t("chatIsTyping")} {/* Bad translate*/}
+          </div>
         </div>
       </>
     );

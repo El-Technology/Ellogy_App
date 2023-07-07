@@ -1,9 +1,11 @@
+import { IMessage } from "src/components/Chatbot/Message/Message";
+
 export interface ITicketReducer {
   loading: boolean;
   updating: boolean;
-  tickets: TicketType[],
-  activeTicket: TicketType | null,
-  isTicketUpdate?: boolean
+  tickets: TicketType[];
+  activeTicket: TicketType | null;
+  isTicketUpdate?: boolean;
 }
 
 export interface TicketType {
@@ -11,6 +13,7 @@ export interface TicketType {
   title: string;
   description: string;
   summary: string;
+  messages: IMessage[];
   comment: string;
   createdDate: string;
   updatedDate: Date;
@@ -22,6 +25,7 @@ export interface TicketData {
   title: string;
   description: string;
   summary: string;
+  messages: IMessage[];
   comment: string;
   createdDate: string;
   updatedDate: Date;
