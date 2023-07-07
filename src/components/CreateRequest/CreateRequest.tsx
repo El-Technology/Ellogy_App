@@ -1,7 +1,7 @@
 import { Chatbot } from "../Chatbot/Chatbot";
 import { useForm, FormProvider } from "react-hook-form";
 import { IMessage } from "../Chatbot/Message/Message";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { LLMChain, PromptTemplate } from "langchain";
 import { ConversationSummaryMemory } from "langchain/memory";
 import { ChatOpenAI } from "langchain/chat_models/openai";
