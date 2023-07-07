@@ -1,6 +1,6 @@
 import { KeyboardEvent, forwardRef } from "react";
 import { IMessage } from "../Message/Message";
-import cx from 'classnames';
+import cx from "classnames";
 import styles from "./MessageInput.module.scss";
 interface IMessageInputProps {
   placeholder?: string;
@@ -13,7 +13,11 @@ export const MessageInput = forwardRef<HTMLInputElement, IMessageInputProps>(
   ({ onSend, placeholder = "", disabled = false, value, setValue }, ref) => {
     const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
       if (event.key === "Enter" && value.trim()) {
-        onSend({ content: value.trim(), sender: "user" });
+        onSend({
+          content: value.trim(),
+          sender: "user",
+          sendTime: new Date().toISOString(),
+        });
         setValue("");
       }
     };
@@ -22,7 +26,7 @@ export const MessageInput = forwardRef<HTMLInputElement, IMessageInputProps>(
       <input
         ref={ref}
         placeholder={placeholder}
-        className={cx(styles.message_input, 'rtl-able')}
+        className={cx(styles.message_input, "rtl-able")}
         disabled={disabled}
         onKeyDown={handleKeyDown}
         onChange={(e) => setValue(e.target.value)}

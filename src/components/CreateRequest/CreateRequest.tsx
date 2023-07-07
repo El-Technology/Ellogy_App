@@ -1,7 +1,7 @@
 import { Chatbot } from "../Chatbot/Chatbot";
 import { useForm, FormProvider } from "react-hook-form";
 import { IMessage } from "../Chatbot/Message/Message";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { LLMChain, PromptTemplate } from "langchain";
 import { ConversationSummaryMemory } from "langchain/memory";
 import { ChatOpenAI } from "langchain/chat_models/openai";
@@ -73,17 +73,17 @@ export const CreateRequest = () => {
       methods.reset({
         title: activeTicket.title || "",
         description: activeTicket.description || "",
-        messages: [],
-        summary: "",
+        messages: activeTicket?.messages || [],
+        summary: activeTicket.summary || "",
       });
     }
   }, [activeTicket, methods.reset]);
 
-  const { handleSubmit, reset, setValue, getValues, watch, register } = methods;
+  const { handleSubmit, reset, setValue, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
-  const [messages, setMessages] = useState<IMessage[]>(getValues("messages"));
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
@@ -91,6 +91,7 @@ export const CreateRequest = () => {
 
   useEffect(() => {
     setEditMode(false);
+    activeTicket?.messages && setMessages(activeTicket.messages);
   }, [activeTicket]);
 
   const chat = useMemo(() => {
@@ -140,23 +141,27 @@ export const CreateRequest = () => {
       const response = await userStoryChain.call({
         history: history.chat_history[0].text,
       });
-      const formatedResponse = JSON.parse(response.text)
-        .filter((item: any) => item.priority === "high")
-        .map((elem: any) => elem.story)
-        .join("\n");
+      console.log(response.text);
 
-      console.log(response);
-      setValue("summary", formatedResponse);
+      // const formatedResponse = JSON.parse(response.text)
+      //   .filter((item: any) => item.priority === "high")
+      //   .map((elem: any) => elem.story)
+      //   .join("\n");
+
+      if (activeTicket) {
+        const id = activeTicket.id;
+        //   dispatch(updateLocalTicket({ id, summary: formatedResponse }));
+      }
     } catch (error) {
       console.log(error);
     } finally {
-      console.log("resolved");
       setIsSummaryLoading(false);
     }
   };
 
   const handleSend = async (message: IMessage) => {
     setMessages([...messages, message]);
+
     setMessageValue("");
     try {
       setIsTyping(true);
@@ -175,6 +180,7 @@ export const CreateRequest = () => {
     const res: IMessage = {
       content: response.text,
       sender: "chatGPT",
+      sendTime: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, res]);
   };
@@ -189,11 +195,11 @@ export const CreateRequest = () => {
   };
 
   const updateTicketInfo = (data: FormValues) => {
-    const { title, description } = data;
+    const { title, description, summary } = data;
 
     if (activeTicket) {
       const id = activeTicket.id;
-      dispatch(updateLocalTicket({ id, title, description }));
+      dispatch(updateLocalTicket({ id, title, description, summary }));
       dispatch(setIsTicketUpdate(true));
     }
   };
@@ -208,37 +214,39 @@ export const CreateRequest = () => {
       }
     }
   }, [tickets]);
+  useEffect(() => {
+    if (
+      activeTicket?.id &&
+      JSON.stringify(activeTicket.messages) !== JSON.stringify(messages)
+    ) {
+      dispatch(updateLocalTicket({ id: activeTicket.id, messages }));
+      dispatch(setIsTicketUpdate(true));
+    }
+    console.log(activeTicket);
+  }, [messages]);
 
   const handleCloseModal = () => {
     setIsDeleteModalOpen(false);
     setIsSendModalOpen(false);
   };
 
-  //   const createLocalRequest = () => {
-  //     setIsLoading(false);
-  //     const defaultTicket = {
-  //       title: "New request",
-  //       description:
-  //         "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
-  //       createdDate: new Date().toISOString(),
-  //       comment: null,
-  //       messages: [],
-  //     };
-  //     dispatch(addLocalTicket(defaultTicket));
-  //     dispatch(setActiveTicket(defaultTicket));
-  //   };
-
-  const createLocalTicket = () => {
-    const defaultTicket = {
+  const createLocalTicket = async () => {
+    const defaultTicket: Partial<TicketType> = {
       title: "New request",
       description:
         "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
       createdDate: new Date().toISOString(),
-      comment: null,
+      comment: "Here will be generated summary",
       messages: [],
+
+      status: 0,
     };
-    dispatch(addLocalTicket(defaultTicket));
-    dispatch(setActiveTicket(defaultTicket));
+    dispatch(createTicket({ userId: user.id, ticket: defaultTicket })).then(
+      (data: any) => {
+        dispatch(addLocalTicket(data.payload));
+        dispatch(setActiveTicket(data.payload));
+      }
+    );
   };
 
   return (
@@ -307,13 +315,15 @@ export const CreateRequest = () => {
       ) : (
         <FormProvider {...methods}>
           {
-            <Chatbot
-              messages={messages}
-              messageValue={messageValue}
-              setMessageValue={setMessageValue}
-              handleSend={handleSend}
-              isTyping={isTyping}
-            />
+            <>
+              <Chatbot
+                messages={messages}
+                messageValue={messageValue}
+                setMessageValue={setMessageValue}
+                handleSend={handleSend}
+                isTyping={isTyping}
+              />
+            </>
           }
         </FormProvider>
       )}
@@ -483,7 +493,7 @@ export const CreateRequest = () => {
                 </Typography>
                 {activeTicket?.updatedDate && (
                   <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                    Last Modified:{" "}
+                    Last Modified:
                     {activeTicket?.updatedDate
                       ? format(new Date(activeTicket.createdDate), "dd/MM/yyyy")
                       : "N/A"}
@@ -492,6 +502,9 @@ export const CreateRequest = () => {
               </Box>
               <Typography>
                 <strong>Description:</strong> <br /> {activeTicket?.description}
+              </Typography>
+              <Typography>
+                <strong>Summary:</strong> <br /> {activeTicket?.summary}
               </Typography>
             </Box>
 
@@ -520,6 +533,25 @@ export const CreateRequest = () => {
                 fontSize: "16px",
                 fontWeight: "700",
                 gap: "8px",
+                marginTop: "auto",
+              }}
+              variant="outlined"
+              disabled={isSummaryLoading}
+              color="primary"
+              onClick={() => handleSummary()}
+            >
+              Generate Summary
+            </Button>
+            <Button
+              sx={{
+                height: "44px",
+                width: "251px",
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: "16px",
+                fontWeight: "700",
+                gap: "8px",
+                marginTop: "16px",
               }}
               variant="contained"
               color="primary"
@@ -529,48 +561,6 @@ export const CreateRequest = () => {
             </Button>
           </Box>
         ))}
-      {/*{isSummaryLoading && (*/}
-      {/*  <Backdrop*/}
-      {/*    sx={{*/}
-      {/*      zIndex: "2",*/}
-      {/*      display: "flex",*/}
-      {/*      alignItems: "center",*/}
-      {/*      justifyContent: "center",*/}
-      {/*    }}*/}
-      {/*    open={isSummaryLoading}*/}
-      {/*  >*/}
-      {/*    <CircularProgress*/}
-      {/*      sx={{*/}
-      {/*        position: "absolute",*/}
-      {/*        color: "#fff",*/}
-      {/*      }}*/}
-      {/*    />*/}
-      {/*  </Backdrop>*/}
-      {/*)}*/}
-      {/*<FormProvider {...methods}>*/}
-      {/*  <CustomStepper finalFunc={handleSubmit(onSubmit)}>*/}
-      {/*    <StepPage isDisabledNext={!watch("title") || !watch("description")}>*/}
-      {/*      <TicketForm />*/}
-      {/*    </StepPage>*/}
-      {/*    <StepPage*/}
-      {/*      // onBack={handleResetForm}*/}
-      {/*      onNext={handleSummary}*/}
-      {/*      isDisabledNext={isTyping}*/}
-      {/*      isDisabledBack={isTyping}*/}
-      {/*    >*/}
-      {/*      <Chatbot*/}
-      {/*        messages={messages}*/}
-      {/*        messageValue={messageValue}*/}
-      {/*        setMessageValue={setMessageValue}*/}
-      {/*        handleSend={handleSend}*/}
-      {/*        isTyping={isTyping}*/}
-      {/*      />*/}
-      {/*    </StepPage>*/}
-      {/*    <StepPage>*/}
-      {/*      <UserStories />*/}
-      {/*    </StepPage>*/}
-      {/*  </CustomStepper>*/}
-      {/*</FormProvider>*/}
     </Box>
   );
 };

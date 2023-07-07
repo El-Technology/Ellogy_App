@@ -1,17 +1,17 @@
-import {createSlice} from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import {
   createTicket,
   deleteTicket,
   getTicketsByUserId,
   updateTicket,
 } from "./asyncActions";
-import {ITicketReducer, TicketData} from "./types";
+import { ITicketReducer, TicketData } from "./types";
 
 const initialState: ITicketReducer = {
   loading: false,
   updating: false,
   tickets: [],
-  activeTicket: null
+  activeTicket: null,
 };
 
 const ticketSlice = createSlice({
@@ -22,13 +22,15 @@ const ticketSlice = createSlice({
       state.activeTicket = action.payload;
     },
     addLocalTicket: (state, action) => {
-      state.tickets.unshift(action.payload)
+      state.tickets.unshift(action.payload);
     },
     removeLocalTicket: (state) => {
       state.tickets.shift();
     },
     updateLocalTicket: (state, action) => {
-      const ticketIndex = state.tickets.findIndex(ticket => ticket.id === action.payload.id);
+      const ticketIndex = state.tickets.findIndex(
+        (ticket) => ticket.id === action.payload.id
+      );
       if (ticketIndex !== -1) {
         const existingTicket = state.tickets[ticketIndex];
         const updatedTicket = { ...existingTicket, ...action.payload };
@@ -93,7 +95,7 @@ export const {
   addLocalTicket,
   removeLocalTicket,
   updateLocalTicket,
-  setIsTicketUpdate
+  setIsTicketUpdate,
 } = ticketSlice.actions;
 
 export default ticketSlice.reducer;
