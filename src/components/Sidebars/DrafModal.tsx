@@ -1,12 +1,25 @@
-import {Box, Button, Modal, Typography} from "@mui/material";
-import React, {FC, useState} from "react";
-import {ReactComponent as Error} from "../../assets/icons/error.svg";
-import {useSelector} from "react-redux";
-import {createTicket, getTicketsByUserId, updateTicket} from "src/store/ticket-service/asyncActions";
-import {TicketType} from "src/store/ticket-service/types";
-import {addLocalTicket, removeLocalTicket, setActiveTicket, setIsTicketUpdate} from "src/store/ticket-service/ticketSlice";
-import {useAppDispatch} from "../../store/store";
-import {getActiveTicket, getIsTicketUpdate, getTickets} from "../../store/ticket-service/selector";
+import { Box, Button, Modal, Typography } from "@mui/material";
+import React, { FC, useState } from "react";
+import { ReactComponent as Error } from "../../assets/icons/error.svg";
+import { useSelector } from "react-redux";
+import {
+  createTicket,
+  getTicketsByUserId,
+  updateTicket,
+} from "src/store/ticket-service/asyncActions";
+import { TicketType } from "src/store/ticket-service/types";
+import {
+  addLocalTicket,
+  removeLocalTicket,
+  setActiveTicket,
+  setIsTicketUpdate,
+} from "src/store/ticket-service/ticketSlice";
+import { useAppDispatch } from "../../store/store";
+import {
+  getActiveTicket,
+  getIsTicketUpdate,
+  getTickets,
+} from "../../store/ticket-service/selector";
 
 type DraftModalProps = {
   handleCloseModal: () => void;
@@ -15,12 +28,17 @@ type DraftModalProps = {
   isCreating?: boolean;
 };
 
-export const DraftModal: FC<DraftModalProps> = ({handleCloseModal, ticket, userId, isCreating}) => {
+export const DraftModal: FC<DraftModalProps> = ({
+  handleCloseModal,
+  ticket,
+  userId,
+  isCreating,
+}) => {
   const [open, setOpen] = useState<boolean>(true);
   const dispatch: any = useAppDispatch();
   const tickets = useSelector(getTickets);
   const activeTicket = useSelector(getActiveTicket);
-  const isTicketUpdate = useSelector(getIsTicketUpdate)
+  const isTicketUpdate = useSelector(getIsTicketUpdate);
 
   const handleClose = () => {
     handleCloseModal();
@@ -30,19 +48,20 @@ export const DraftModal: FC<DraftModalProps> = ({handleCloseModal, ticket, userI
   const handleSave = () => {
     if (activeTicket) {
       if (!activeTicket.id) {
-        dispatch(createTicket({userId, ticket})).then(() => dispatch(getTicketsByUserId({userId}))).then((res: any) => {
-          dispatch(setActiveTicket(res?.payload?.data[0]));
-          isCreating && createNewLocalTicket();
-          handleClose();
-        })
+        dispatch(createTicket({ userId, ticket }))
+          .then(() => dispatch(getTicketsByUserId({ userId })))
+          .then((res: any) => {
+            dispatch(setActiveTicket(res?.payload?.data[0]));
+            isCreating && createNewLocalTicket();
+            handleClose();
+          });
       }
 
       if (isTicketUpdate) {
-        console.log(ticket)
         dispatch(updateTicket(ticket)).then(() => {
           handleClose();
           dispatch(setIsTicketUpdate(false));
-        })
+        });
       }
     }
   };
@@ -54,12 +73,12 @@ export const DraftModal: FC<DraftModalProps> = ({handleCloseModal, ticket, userI
         "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
       createdDate: new Date().toISOString(),
       comment: null,
-      messages: [],
-      status: 0
-    }
-    dispatch(addLocalTicket(defaultTicket))
+      message: [],
+      status: 0,
+    };
+    dispatch(addLocalTicket(defaultTicket));
     dispatch(setActiveTicket(defaultTicket));
-  }
+  };
 
   const handleDelete = () => {
     if (activeTicket) {
@@ -72,14 +91,14 @@ export const DraftModal: FC<DraftModalProps> = ({handleCloseModal, ticket, userI
       if (isTicketUpdate) {
         const recordsPerPage = tickets.length;
 
-        dispatch(getTicketsByUserId({userId, recordsPerPage})).then(() => {
+        dispatch(getTicketsByUserId({ userId, recordsPerPage })).then(() => {
           handleClose();
           dispatch(setIsTicketUpdate(false));
           isCreating && createNewLocalTicket();
-        })
+        });
       }
     }
-  }
+  };
 
   return (
     <Box>
@@ -130,17 +149,17 @@ export const DraftModal: FC<DraftModalProps> = ({handleCloseModal, ticket, userI
               margin: "48px 0",
             }}
           >
-            <Error/>
+            <Error />
 
             <Typography
               variant="h3"
-              sx={{fontSize: "24px", fontWeight: "700", marginTop: "32px"}}
+              sx={{ fontSize: "24px", fontWeight: "700", marginTop: "32px" }}
             >
               Draft status
             </Typography>
 
             <Typography
-              sx={{color: "#9FA6B3", marginTop: "8px", textAlign: "center"}}
+              sx={{ color: "#9FA6B3", marginTop: "8px", textAlign: "center" }}
             >
               {" "}
               Are you sure you want to save draft ticket?

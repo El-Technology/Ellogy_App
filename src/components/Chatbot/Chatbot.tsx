@@ -24,7 +24,7 @@ export const Chatbot: FC<ChatbotProps> = ({
   handleSend,
 }) => {
   const { setValue, getValues } = useFormContext();
-  const { t } = useTranslation(["common", "inputs", "createTicket"]);
+  const { t } = useTranslation();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
@@ -32,7 +32,7 @@ export const Chatbot: FC<ChatbotProps> = ({
   const isMobile = useMemo(() => window.innerWidth < 500, []);
 
   useEffect(() => {
-    !isTyping && !isMobile && inputRef.current!.focus();
+    !isTyping && !isMobile && inputRef.current?.focus();
   }, [isTyping, isMobile]);
 
   useEffect(() => {
@@ -40,18 +40,12 @@ export const Chatbot: FC<ChatbotProps> = ({
     setValue("messages", messages);
   }, [messages, setValue]);
 
-  useEffect(() => {
-    const firstMessage = getValues("description");
-    !messages.length &&
-      firstMessage &&
-      handleSend({ content: firstMessage, sender: "user" });
-  }, [messages.length, getValues, handleSend]);
-
   return (
     <Box
       sx={{
         display: "flex",
         flexDirection: "column",
+        justifyContent: "space-between"
       }}
     >
       <Box
@@ -62,20 +56,20 @@ export const Chatbot: FC<ChatbotProps> = ({
           backgroundColor: "#EFEFEF",
         }}
       >
-        {messages && <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} /> }
+        <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
       </Box>
 
       <Box
         sx={{
-          width: "525px",
           marginTop: "16px",
           display: "flex",
           justifyContent: "space-between",
+          gap: "16px"
         }}
       >
         <MessageInput
           ref={inputRef}
-          placeholder={t("messagePlaceholder", { ns: "inputs" }) || "red"}
+          placeholder={t("messagePlaceholder") || "red"} // bad translate
           onSend={handleSend}
           setValue={setMessageValue}
           value={messageValue}
@@ -94,7 +88,13 @@ export const Chatbot: FC<ChatbotProps> = ({
             },
           }}
           type="button"
-          onClick={() => handleSend({ content: messageValue, sender: "user" })}
+          onClick={() =>
+            handleSend({
+              content: messageValue,
+              sender: "user",
+              sendTime: new Date().toISOString(),
+            })
+          }
           disabled={isTyping || !messageValue.trim()}
           variant="contained"
           color="primary"
