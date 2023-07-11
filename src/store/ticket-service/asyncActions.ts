@@ -54,15 +54,15 @@ export const updateTicket = createAsyncThunk(
   "tickets/updateTicket",
   async (data: TicketType, { rejectWithValue }) => {
     try {
-      const { id, title, description, messages } = data;
-      const currentDate = new Date().toISOString();
+      const { id, title, description, messages, summary, comment, status } =
+        data;
 
       const response = await instance.put(`/Tickets/${id}`, {
         title,
         description,
-        comment: "",
-        summary: "",
-        status: 0,
+        comment,
+        summary,
+        status,
         messages,
       });
 

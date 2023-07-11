@@ -1,20 +1,27 @@
-import React, {useState} from 'react';
-import {Box, Button, Divider, Menu, MenuItem, Typography} from '@mui/material';
-import {useLocation, Link,} from 'react-router-dom';
-import {useTranslation} from "react-i18next";
-import {LogoutModal} from './LogoutModal';
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Divider,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
+import { useLocation, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { LogoutModal } from "./LogoutModal";
 
 // assets
-import {ReactComponent as Logo} from '../../assets/icons/logo-ellogy.svg';
-import {ReactComponent as Avatar} from '../../assets/icons/avatar.svg';
-import {ReactComponent as Notification} from '../../assets/icons/notification.svg';
-import {ReactComponent as ArrowDown} from '../../assets/icons/arrow-down.svg';
-import {ReactComponent as Settings} from '../../assets/icons/setting-2.svg';
-import {ReactComponent as Logout} from '../../assets/icons/logout.svg';
-import {ReactComponent as Profile} from '../../assets/icons/profile-settings.svg'
+import { ReactComponent as Logo } from "../../assets/icons/logo-ellogy.svg";
+import { ReactComponent as Avatar } from "../../assets/icons/avatar.svg";
+import { ReactComponent as Notification } from "../../assets/icons/notification.svg";
+import { ReactComponent as ArrowDown } from "../../assets/icons/arrow-down.svg";
+import { ReactComponent as Settings } from "../../assets/icons/setting-2.svg";
+import { ReactComponent as Logout } from "../../assets/icons/logout.svg";
+import { ReactComponent as Profile } from "../../assets/icons/profile-settings.svg";
 
 // core
-import {ROUTES} from "../../core/constants/routes";
+import { ROUTES } from "../../core/constants/routes";
 
 export const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -28,33 +35,33 @@ export const Header = () => {
     setAnchorEl(null);
   };
   const location = useLocation();
-  const {i18n} = useTranslation();
+  const { i18n } = useTranslation();
 
-  const handleClick = (lang: string = "en") => {
+  const handleChangeLang = (lang: string = "en") => {
     i18n.changeLanguage(lang);
   };
 
-  const storedUser = localStorage.getItem('user');
+  const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   const logout = () => {
     setIsLogoutModalOpen(true);
-    setAnchorEl(null)
-  }
+    setAnchorEl(null);
+  };
 
   const handleCloseModal = () => {
-    setIsLogoutModalOpen(false)
-  }
+    setIsLogoutModalOpen(false);
+  };
 
   const goToProfile = () => {
-    console.log('goToProfile')
+    console.log("goToProfile");
     // navigate()
-  }
+  };
 
   const goToSettings = () => {
-    console.log('settings')
-    // navigate() 
-  }
+    console.log("settings");
+    // navigate()
+  };
 
   const renderButton = () => {
     if (location.pathname === ROUTES.LOGIN) {
@@ -63,29 +70,33 @@ export const Header = () => {
           component={Link}
           to="/sign-up"
           sx={{
-            width: '150px',
-            height: '45px',
-            border: '1px solid #4786FF',
-            borderRadius: '8px',
-            textTransform: 'none',
-            fontWeight: '700',
+            width: "150px",
+            height: "45px",
+            border: "1px solid #4786FF",
+            borderRadius: "8px",
+            textTransform: "none",
+            fontWeight: "700",
           }}
         >
           Sign up
         </Button>
       );
-    } else if (location.pathname === ROUTES.SIGNUP || location.pathname === ROUTES.RESET_PASSWORD || location.pathname === ROUTES.CREATE_NEW_PASSWORD) {
+    } else if (
+      location.pathname === ROUTES.SIGNUP ||
+      location.pathname === ROUTES.RESET_PASSWORD ||
+      location.pathname === ROUTES.CREATE_NEW_PASSWORD
+    ) {
       return (
         <Button
           component={Link}
           to="/sign-in"
           sx={{
-            width: '150px',
-            height: '45px',
-            border: '1px solid #4786FF',
-            borderRadius: '8px',
-            textTransform: 'none',
-            fontWeight: '700',
+            width: "150px",
+            height: "45px",
+            border: "1px solid #4786FF",
+            borderRadius: "8px",
+            textTransform: "none",
+            fontWeight: "700",
           }}
         >
           Log in
@@ -101,14 +112,15 @@ export const Header = () => {
           gap: "12px",
         }}
       >
-        <Box sx={{
-          marginRight: "15px",
-          padding: "10px",
-          background: "#F3F4F5",
-          borderRadius: "50%"
-        }}
+        <Box
+          sx={{
+            marginRight: "15px",
+            padding: "10px",
+            background: "#F3F4F5",
+            borderRadius: "50%",
+          }}
         >
-          <Notification/>
+          <Notification />
         </Box>
 
         <Box
@@ -116,7 +128,7 @@ export const Header = () => {
             display: "flex",
             alignItems: "center",
             width: "212px",
-            gap: "12px"
+            gap: "12px",
           }}
         >
           <Avatar />
@@ -126,61 +138,70 @@ export const Header = () => {
               padding: "0",
               display: "flex",
               justifyContent: "space-between",
-              gap: "12px"
+              gap: "12px",
             }}
             onClick={handleClickOnMenu}
           >
-            <Box sx={{
-              textTransform: 'none',
-              maxWidth: '128px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'baseline'
-            }}>
-              <Typography sx={{fontSize: "14px"}}>{user.firstName} {user.lastName}</Typography>
-              <Typography sx={{
-                color: "#9FA6B3",
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                fontSize: "14px"
-              }}>
+            <Box
+              sx={{
+                textTransform: "none",
+                maxWidth: "128px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "baseline",
+              }}
+            >
+              <Typography sx={{ fontSize: "14px" }}>
+                {user.firstName} {user.lastName}
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#9FA6B3",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  fontSize: "14px",
+                }}
+              >
                 {user.email}
               </Typography>
             </Box>
-            <ArrowDown style={{rotate: anchorEl ? '180deg' : '0deg'}}/>
+            <ArrowDown style={{ rotate: anchorEl ? "180deg" : "0deg" }} />
           </Button>
-
 
           <Menu
             PaperProps={{
               style: {
                 width: 212,
-                marginTop: "12px"
+                marginTop: "12px",
               },
             }}
             anchorEl={anchorEl}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
             open={open}
             onClose={handleClose}
           >
             <MenuItem onClick={goToProfile}>
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <Profile/>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <Profile />
                 <Typography>Profile</Typography>
               </Box>
             </MenuItem>
             <MenuItem onClick={goToSettings}>
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <Settings/>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <Settings />
                 <Typography>Settings</Typography>
               </Box>
             </MenuItem>
@@ -190,69 +211,71 @@ export const Header = () => {
                 borderColor: "#F3F4F5",
               }}
             />
-            <MenuItem
-              onClick={logout}
-            >
-              <Box sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <Logout/>
-                <Typography sx={{color: '#FB0B24'}}>Log Out</Typography>
+            <MenuItem onClick={logout}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                }}
+              >
+                <Logout />
+                <Typography sx={{ color: "#FB0B24" }}>Log Out</Typography>
               </Box>
             </MenuItem>
           </Menu>
         </Box>
       </Box>
-    )
-  }
+    );
+  };
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        borderBottom: '1px solid #E7E8EC',
+        display: "flex",
+        justifyContent: "center",
+        borderBottom: "1px solid #E7E8EC",
         background: "#FBFBFB",
-        boxShadow: '0px 4px 16px rgba(40, 103, 131, 0.06)',
+        boxShadow: "0px 4px 16px rgba(40, 103, 131, 0.06)",
       }}
     >
       <Box
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '12px 30px',
-          maxWidth: '1370px',
-          width: '100%'
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          padding: "12px 30px",
+          maxWidth: "1370px",
+          width: "100%",
         }}
       >
-        <Box sx={{display: 'flex', gap: '10px'}}>
-          <Logo/>
+        <Box sx={{ display: "flex", gap: "10px" }}>
+          <Logo />
 
-          <Box sx={{display: 'flex', flexDirection: 'column'}}>
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Typography
               sx={{
-                background: 'linear-gradient(90deg, #4786FF 0%, #3164C8 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                color: '#000000',
-                fontSize: '28px',
-                fontWeight: '700',
+                background: "linear-gradient(90deg, #4786FF 0%, #3164C8 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                color: "#000000",
+                fontSize: "28px",
+                fontWeight: "700",
               }}
             >
               Ellogy
             </Typography>
 
-            <Typography sx={{color: '#102142', fontSize: '10px'}}>Semantic Automation</Typography>
+            <Typography sx={{ color: "#102142", fontSize: "10px" }}>
+              Semantic Automation
+            </Typography>
           </Box>
         </Box>
 
         {renderButton()}
       </Box>
-      {isLogoutModalOpen && <LogoutModal handleCloseModal={handleCloseModal}/>}
+      {isLogoutModalOpen && <LogoutModal handleCloseModal={handleCloseModal} />}
     </Box>
   );
 };

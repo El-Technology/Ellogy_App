@@ -73,7 +73,7 @@ export const DraftModal: FC<DraftModalProps> = ({
         "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
       createdDate: new Date().toISOString(),
       comment: null,
-      message: [],
+      messages: [],
       status: 0,
     };
     dispatch(addLocalTicket(defaultTicket));
@@ -161,7 +161,6 @@ export const DraftModal: FC<DraftModalProps> = ({
             <Typography
               sx={{ color: "#9FA6B3", marginTop: "8px", textAlign: "center" }}
             >
-              {" "}
               Are you sure you want to save draft ticket?
             </Typography>
 

@@ -7,6 +7,7 @@ import createTicket from "locales/en/createTicket.json";
 declare module "react-i18next" {
   interface CustomTypeOptions {
     defaultNS: "common";
+    lang: "en";
     resources: {
       common: typeof common;
       inputs: typeof inputs;
