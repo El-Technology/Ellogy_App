@@ -92,6 +92,18 @@ export const CreateRequest = () => {
     }
   }, [activeTicket]);
 
+  useEffect(() => {
+    if (messages.length) {
+      memory.clear();
+      const inputMessages = messages.filter((_, index) => !(index % 2)).map(value => value.content);
+      const outputMessages = messages.filter((_, index) => index % 2).map(value => value.content);
+
+      for (let i = 0; i < (messages.length / 2); i++) {
+        memory.saveContext({input: inputMessages[i]}, {output: outputMessages[i]});
+      }
+    }
+  }, [activeTicket]);
+
   const { handleSubmit, reset, setValue, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
@@ -116,7 +128,7 @@ export const CreateRequest = () => {
       temperature: 0,
       openAIApiKey: process.env.REACT_APP_OPENAI_SECRET_KEY,
     });
-  }, []);
+  }, [activeTicket, messages]);
 
   const memory = useMemo(() => {
     return new ConversationSummaryMemory({
