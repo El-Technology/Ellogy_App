@@ -2,13 +2,14 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createTicket,
   deleteTicket,
-  getTicketsByUserId,
+  getTicketsByUserId, searchTickets,
   updateTicket,
 } from "./asyncActions";
 import { ITicketReducer, TicketData } from "./types";
 
 const initialState: ITicketReducer = {
   loading: false,
+  loadingMore: false,
   updating: false,
   tickets: [],
   activeTicket: null,
@@ -58,6 +59,18 @@ const ticketSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getTicketsByUserId.pending, (state) => {
+        state.loadingMore = true;
+      })
+      .addCase(getTicketsByUserId.fulfilled, (state) => {
+        state.loadingMore = false;
+      })
+      .addCase(searchTickets.pending, (state) => {
+        state.loadingMore = true;
+      })
+      .addCase(searchTickets.fulfilled, (state) => {
+        state.loadingMore = false;
+      })
       .addCase(createTicket.pending, (state) => {
         state.loading = true;
       })
