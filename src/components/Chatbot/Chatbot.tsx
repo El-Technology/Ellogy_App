@@ -5,8 +5,7 @@ import { useRef, useEffect, useMemo, FC } from "react";
 import { useFormContext } from "react-hook-form";
 import { IMessage } from "./Message/Message";
 import styles from "./Chatbot.module.scss";
-import { Box, Button } from "@mui/material";
-import { ReactComponent as Send } from "../../assets/icons/send.svg";
+import { Box } from "@mui/material";
 
 interface ChatbotProps {
   isTyping: boolean;
@@ -45,7 +44,7 @@ export const Chatbot: FC<ChatbotProps> = ({
       sx={{
         display: "flex",
         flexDirection: "column",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
       }}
     >
       <Box
@@ -64,7 +63,7 @@ export const Chatbot: FC<ChatbotProps> = ({
           marginTop: "16px",
           display: "flex",
           justifyContent: "space-between",
-          gap: "16px"
+          gap: "16px",
         }}
       >
         <MessageInput
@@ -75,32 +74,6 @@ export const Chatbot: FC<ChatbotProps> = ({
           value={messageValue}
           disabled={isTyping}
         />
-        <Button
-          sx={{
-            textTransform: "uppercase",
-            minWidth: "44px",
-            width: "44px",
-            height: "44px",
-            borderRadius: "8px",
-            padding: "0",
-            "&.Mui-disabled": {
-              background: "#1976d2",
-            },
-          }}
-          type="button"
-          onClick={() =>
-            handleSend({
-              content: messageValue,
-              sender: "user",
-              sendTime: new Date().toISOString(),
-            })
-          }
-          disabled={isTyping || !messageValue.trim()}
-          variant="contained"
-          color="primary"
-        >
-          <Send />
-        </Button>
       </Box>
     </Box>
   );

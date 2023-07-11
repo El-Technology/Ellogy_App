@@ -10,6 +10,8 @@ import { ReactComponent as MessageQuestion } from "../../assets/icons/message-qu
 import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import { useTranslation } from "react-i18next";
 import { useEffect, useRef, useState } from "react";
+import { TicketType } from "src/store/ticket-service/types";
+import { createTicket } from "../../store/ticket-service/asyncActions";
 import { useSelector } from "react-redux";
 import cx from "classnames";
 import {
@@ -87,17 +89,20 @@ export const Sidebar = () => {
         return;
       }
     }
-    const defaultTicket = {
+    const defaultTicket: Partial<TicketType> = {
       title: "New request",
-      description:
-        "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
+      description: "",
       createdDate: new Date().toISOString(),
-      comment: null,
+      comment: "",
       messages: [],
       status: 0,
     };
-    dispatch(addLocalTicket(defaultTicket));
-    dispatch(setActiveTicket(defaultTicket));
+    dispatch(createTicket({ userId: user.id, ticket: defaultTicket })).then(
+      (data: any) => {
+        dispatch(addLocalTicket(data.payload));
+        dispatch(setActiveTicket(data.payload));
+      }
+    );
   };
 
   const handleTicketClick = (ticket: any) => {
@@ -307,7 +312,10 @@ export const Sidebar = () => {
                           className={cx(
                             styles.status,
                             styles[
-                              `status_${Statuses[item.status].toLowerCase()}`
+                              `status_${Statuses[item.status]
+                                .split(" ")
+                                .join("")
+                                .toLowerCase()}`
                             ]
                           )}
                         >

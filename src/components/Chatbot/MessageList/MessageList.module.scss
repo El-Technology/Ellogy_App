@@ -1,9 +1,10 @@
 .messages_list {
   position: relative;
-  display: grid;
+  display: flex;
   gap: 16px;
   flex-direction: column;
   overflow: auto;
+  min-height: 705px;
   padding: 20px 20px 0;
 }
 

@@ -1,6 +1,6 @@
 export enum Statuses {
   Draft,
-  InProgress,
+  "In Progress",
   Approved,
   Returned,
   Done,

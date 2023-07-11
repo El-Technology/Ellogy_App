@@ -67,24 +67,31 @@ export const CreateRequest = () => {
       summary: "",
     },
   });
+  const placeholderMessage =
+    "We will generate a summary automatically as soon as we get some information from you. You can change the title and summary at any time.";
 
   useEffect(() => {
     if (activeTicket) {
       methods.reset({
         title: activeTicket.title || "",
         description: activeTicket.description || "",
-        messages: activeTicket?.messages || [],
+        messages:
+          [...activeTicket?.messages].sort(
+            (a, b: IMessage) =>
+              new Date(a.sendTime).getTime() - new Date(b.sendTime).getTime()
+          ) || [],
         summary: activeTicket.summary || "",
       });
     }
-  }, [activeTicket, methods.reset]);
+  }, [activeTicket]);
 
-  const { handleSubmit, reset, setValue, register } = methods;
+  const { handleSubmit, reset, setValue, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [isSummaryLoading, setIsSummaryLoading] = useState<boolean>(false);
+  const [isSummaryUpdated, setIsSummaryUpdated] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState<boolean>(false);
@@ -117,7 +124,7 @@ export const CreateRequest = () => {
      AI:`);
 
   const userStoryPrompt = PromptTemplate.fromTemplate(`
-      Summarize the current conversation only in distinguished user stories each starting with "As a user, I want: ". transfer each user requirement into a separate user story. Send response only in JSON format with story and priority fields.
+      Summarize the current conversation only in distinguished user stories each starting with "As a user, I want: ". transfer each user requirement into a separate user story. Send response only in JSON format it should always be an array of objects with story and priority fields.
       Current conversation:
       {history}
      `);
@@ -137,31 +144,32 @@ export const CreateRequest = () => {
   const handleSummary = async () => {
     try {
       setIsSummaryLoading(true);
+
       const history = await memory.loadMemoryVariables({});
       const response = await userStoryChain.call({
         history: history.chat_history[0].text,
       });
-      console.log(response.text);
 
-      // const formatedResponse = JSON.parse(response.text)
+      const formattedResponse = response.text;
       //   .filter((item: any) => item.priority === "high")
       //   .map((elem: any) => elem.story)
       //   .join("\n");
 
       if (activeTicket) {
         const id = activeTicket.id;
-        //   dispatch(updateLocalTicket({ id, summary: formatedResponse }));
+        console.log(formattedResponse);
+        dispatch(updateLocalTicket({ id, description: formattedResponse }));
       }
     } catch (error) {
       console.log(error);
     } finally {
       setIsSummaryLoading(false);
+      setIsSummaryUpdated(true);
     }
   };
 
   const handleSend = async (message: IMessage) => {
     setMessages([...messages, message]);
-
     setMessageValue("");
     try {
       setIsTyping(true);
@@ -170,6 +178,8 @@ export const CreateRequest = () => {
       console.log(error);
     } finally {
       setIsTyping(false);
+      dispatch(setIsTicketUpdate(true));
+      setIsSummaryUpdated(false);
     }
   };
 
@@ -200,7 +210,6 @@ export const CreateRequest = () => {
     if (activeTicket) {
       const id = activeTicket.id;
       dispatch(updateLocalTicket({ id, title, description, summary }));
-      dispatch(setIsTicketUpdate(true));
     }
   };
 
@@ -215,12 +224,8 @@ export const CreateRequest = () => {
     }
   }, [tickets]);
   useEffect(() => {
-    if (
-      activeTicket?.id &&
-      JSON.stringify(activeTicket.messages) !== JSON.stringify(messages)
-    ) {
+    if (activeTicket?.id) {
       dispatch(updateLocalTicket({ id: activeTicket.id, messages }));
-      dispatch(setIsTicketUpdate(true));
     }
     console.log(activeTicket);
   }, [messages]);
@@ -233,12 +238,10 @@ export const CreateRequest = () => {
   const createLocalTicket = async () => {
     const defaultTicket: Partial<TicketType> = {
       title: "New request",
-      description:
-        "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
+      description: "",
       createdDate: new Date().toISOString(),
-      comment: "Here will be generated summary",
+      comment: "",
       messages: [],
-
       status: 0,
     };
     dispatch(createTicket({ userId: user.id, ticket: defaultTicket })).then(
@@ -337,10 +340,14 @@ export const CreateRequest = () => {
         {activeTicket ? (
           editMode ? (
             <form
-              style={{ width: "100%" }}
+              style={{
+                width: "100%",
+                display: "grid",
+                gridTemplateRows: "auto 1fr",
+              }}
               onSubmit={handleSubmit(updateTicketInfo)}
             >
-              <Grid container direction="column">
+              <Grid container direction="column" maxHeight={705} height={705}>
                 <Grid item>
                   <FormControl fullWidth>
                     <Typography sx={{ fontSize: "12px" }}>Title</Typography>
@@ -362,20 +369,18 @@ export const CreateRequest = () => {
                 <Grid item mt={2.4}>
                   <FormControl fullWidth>
                     <Typography sx={{ fontSize: "12px" }}>
-                      Description
+                      Summary (Description in code)
                     </Typography>
                     <TextField
                       multiline
                       inputProps={{
                         style: {
-                          borderRadius: "8px",
-                          height: "168px",
                           overflow: "auto",
+                          maxHeight: "570px",
                         },
                       }}
-                      placeholder="Describe your request"
+                      placeholder={placeholderMessage}
                       sx={{
-                        minHeight: "168px",
                         "& .MuiOutlinedInput-root": {
                           borderRadius: "8px",
                         },
@@ -391,11 +396,12 @@ export const CreateRequest = () => {
                 sx={{
                   display: "flex",
                   justifyContent: "space-between",
+                  marginTop: "auto",
                 }}
               >
                 <Button
                   sx={{
-                    marginTop: "24px",
+                    marginTop: "16px",
                     height: "44px",
                     width: "133px",
                     borderRadius: "8px",
@@ -412,7 +418,7 @@ export const CreateRequest = () => {
                 {updating ? (
                   <Button
                     sx={{
-                      marginTop: "24px",
+                      marginTop: "16px",
                       height: "44px",
                       width: "133px",
                       borderRadius: "8px",
@@ -438,7 +444,7 @@ export const CreateRequest = () => {
                 ) : (
                   <Button
                     sx={{
-                      marginTop: "24px",
+                      marginTop: "16px",
                       height: "44px",
                       width: "133px",
                       borderRadius: "8px",
@@ -449,6 +455,10 @@ export const CreateRequest = () => {
                     type="submit"
                     variant="contained"
                     color="primary"
+                    onClick={() => {
+                      dispatch(setIsTicketUpdate(true));
+                      setIsSummaryUpdated(true);
+                    }}
                   >
                     Save
                   </Button>
@@ -508,7 +518,7 @@ export const CreateRequest = () => {
                 </Box>
                 <Box>
                   <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                    Created:{" "}
+                    Created:
                     {activeTicket?.createdDate &&
                       format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
                   </Typography>
@@ -531,17 +541,33 @@ export const CreateRequest = () => {
                     "-webkit-box-orient": "vertical",
                   }}
                 >
-                  <strong>Description:</strong> <br />
-                  {activeTicket?.description}
-                </Typography>
-                <Typography
-                  sx={{
-                    display: "-webkit-box",
-                    " -webkit-line-clamp": 10,
-                    "-webkit-box-orient": "vertical",
-                  }}
-                >
-                  <strong>Summary:</strong> <br /> {activeTicket?.summary}
+                  <strong> Summary (Description in code)</strong> <br /> <br />
+                  {isSummaryLoading ? (
+                    <Box
+                      sx={{
+                        width: "100%",
+                        height: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <Oval
+                        height={24}
+                        width={24}
+                        color="#fff"
+                        wrapperStyle={{}}
+                        wrapperClass=""
+                        visible={true}
+                        ariaLabel="oval-loading"
+                        secondaryColor="#4786ff"
+                        strokeWidth={5}
+                        strokeWidthSecondary={5}
+                      />
+                    </Box>
+                  ) : (
+                    activeTicket?.description || placeholderMessage
+                  )}
                 </Typography>
               </Box>
 
@@ -556,7 +582,7 @@ export const CreateRequest = () => {
               {isSendModalOpen && (
                 <SendRequestModal
                   handleCloseModal={handleCloseModal}
-                  ticketId={activeTicket?.id}
+                  ticket={activeTicket}
                   userId={user.id}
                 />
               )}
@@ -574,7 +600,7 @@ export const CreateRequest = () => {
                 }}
                 variant="outlined"
                 color="primary"
-                disabled={isSummaryLoading}
+                disabled={isSummaryLoading || messages.length === 0 || isTyping}
                 onClick={() => handleSummary()}
               >
                 Generate Summary
@@ -592,6 +618,9 @@ export const CreateRequest = () => {
                 }}
                 variant="contained"
                 color="primary"
+                disabled={
+                  !watch("description") || isSummaryLoading || !isSummaryUpdated
+                }
                 onClick={() => setIsSendModalOpen(true)}
               >
                 Send request
