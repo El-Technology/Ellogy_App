@@ -23,7 +23,9 @@ export const Chatbot: FC<ChatbotProps> = ({
   handleSend,
 }) => {
   const { setValue, getValues } = useFormContext();
-  const { t } = useTranslation();
+  const { t } = useTranslation("inputs", {
+    useSuspense: false,
+  });
 
   const inputRef = useRef<HTMLInputElement>(null);
   const chatWindowRef = useRef<HTMLDivElement>(null);
