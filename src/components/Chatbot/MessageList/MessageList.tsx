@@ -10,7 +10,10 @@ interface IMessagesListProps {
 
 export const MessageList = forwardRef<HTMLDivElement, IMessagesListProps>(
   ({ list, isTyping }, ref) => {
-    const { t } = useTranslation();
+    const { t } = useTranslation(["createTicket"], {
+      useSuspense: false,
+    });
+
     const welcomeMessage: IMessage = {
       content: t("welcome"),
       sender: "chatGPT",
