@@ -2,6 +2,7 @@ import { IMessage } from "src/components/Chatbot/Message/Message";
 
 export interface ITicketReducer {
   loading: boolean;
+  loadingMore: boolean;
   updating: boolean;
   tickets: TicketType[];
   activeTicket: TicketType | null;

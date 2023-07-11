@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { createRef, useState } from "react";
 import {
   Box,
   Button,
   Divider,
   Menu,
   MenuItem,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { useLocation, Link } from "react-router-dom";
@@ -22,6 +23,7 @@ import { ReactComponent as Profile } from "../../assets/icons/profile-settings.s
 
 // core
 import { ROUTES } from "../../core/constants/routes";
+import useTooltip from "../../core/hooks/useTooltip";
 
 export const Header = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -62,6 +64,14 @@ export const Header = () => {
     console.log("settings");
     // navigate()
   };
+
+  const firstNameRef = createRef<HTMLDivElement>();
+  const lastNameRef = createRef<HTMLDivElement>();
+  const emailRef = createRef<HTMLDivElement>();
+
+  const isFirstNameTooltipVisiable = useTooltip(firstNameRef);
+  const isLastNameTooltipVisiable = useTooltip(lastNameRef);
+  const isEmailTooltipVisiable = useTooltip(emailRef);
 
   const renderButton = () => {
     if (location.pathname === ROUTES.LOGIN) {
@@ -118,6 +128,7 @@ export const Header = () => {
             padding: "10px",
             background: "#F3F4F5",
             borderRadius: "50%",
+            cursor: "pointer",
           }}
         >
           <Notification />
@@ -151,19 +162,109 @@ export const Header = () => {
                 alignItems: "baseline",
               }}
             >
-              <Typography sx={{ fontSize: "14px" }}>
-                {user.firstName} {user.lastName}
-              </Typography>
-              <Typography
-                sx={{
-                  color: "#9FA6B3",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  fontSize: "14px",
+              <Tooltip
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#f5f5f9",
+                      color: "rgba(0, 0, 0, 0.87)",
+                      fontSize: "12px",
+                      maxWidth: "500px",
+                      whiteSpace: "nowrap",
+                      height: "12px",
+                      border: "1px solid #dadde9",
+                      "& .MuiTooltip-popper": { margin: 0 },
+                    },
+                  },
                 }}
+                PopperProps={{
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, -19],
+                      },
+                    },
+                  ],
+                }}
+                title={
+                  isFirstNameTooltipVisiable || isLastNameTooltipVisiable
+                    ? `${user.firstName} ${user.lastName}`
+                    : null
+                }
+                placement="top-start"
               >
-                {user.email}
-              </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: "2px",
+                  }}
+                >
+                  <Typography
+                    ref={firstNameRef}
+                    sx={{
+                      fontSize: "14px",
+                      maxWidth: "80px",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {user.firstName}
+                  </Typography>
+                  <Typography
+                    ref={lastNameRef}
+                    sx={{
+                      fontSize: "14px",
+                      maxWidth: "54px",
+                      textOverflow: "ellipsis",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {user.lastName}
+                  </Typography>
+                </Box>
+              </Tooltip>
+
+              <Tooltip
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: "#f5f5f9",
+                      color: "rgba(0, 0, 0, 0.87)",
+                      fontSize: "12px",
+                      maxWidth: "500px",
+                      whiteSpace: "nowrap",
+                      border: "1px solid #dadde9",
+                      "& .MuiTooltip-popper": { margin: 0 },
+                    },
+                  },
+                }}
+                PopperProps={{
+                  modifiers: [
+                    {
+                      name: "offset",
+                      options: {
+                        offset: [0, -15],
+                      },
+                    },
+                  ],
+                }}
+                title={isEmailTooltipVisiable ? user.email : null}
+                placement="bottom-start"
+              >
+                <Typography
+                  ref={emailRef}
+                  sx={{
+                    color: "#9FA6B3",
+                    maxWidth: "136px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    fontSize: "14px",
+                  }}
+                >
+                  {user.email}
+                </Typography>
+              </Tooltip>
             </Box>
             <ArrowDown style={{ rotate: anchorEl ? "180deg" : "0deg" }} />
           </Button>
