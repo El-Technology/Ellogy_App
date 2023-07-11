@@ -42,7 +42,10 @@ export const Message: FC<IMessageProps> = memo(({ model }) => {
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   return (
-    <Box className={cx(styles.messageWrapper, messageWrapperClasses)}>
+    <Box
+      className={cx(styles.messageWrapper, messageWrapperClasses)}
+      sx={{ alignSelf: model.sender === "user" ? "flex-end" : "flex-start" }}
+    >
       {model.sender === "chatGPT" && <EllogyAvatar />}
 
       <Box className={cx(styles.messageWrapper__info, messageWrapperInfo)}>
