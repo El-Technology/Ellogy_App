@@ -5,10 +5,11 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import {useForm, FormProvider} from "react-hook-form";
-import {LLMChain, PromptTemplate} from "langchain";
-import {ConversationSummaryMemory} from "langchain/memory";
-import {ChatOpenAI} from "langchain/chat_models/openai";
+import { useForm, FormProvider } from "react-hook-form";
+import { LLMChain } from "langchain/chains";
+import { PromptTemplate } from "langchain/prompts";
+import { ConversationSummaryMemory } from "langchain/memory";
+import { ChatOpenAI } from "langchain/chat_models/openai";
 import {
   Box,
   Button,
@@ -18,39 +19,39 @@ import {
   Tooltip,
   Typography,
 } from "@mui/material";
-import {format} from "date-fns";
-import {Oval} from "react-loader-spinner";
-import {toast, ToastContainer} from "react-toastify";
+import { format } from "date-fns";
+import { Oval } from "react-loader-spinner";
+import { toast, ToastContainer } from "react-toastify";
 
 // store
-import {useDispatch, useSelector} from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getActiveTicket,
   getTickets,
   getTicketUpdating,
 } from "../../store/ticket-service/selector";
-import {createTicket} from "../../store/ticket-service/asyncActions";
+import { createTicket } from "../../store/ticket-service/asyncActions";
 import {
   addLocalTicket,
   setActiveTicket,
   setIsTicketUpdate,
   updateLocalTicket,
 } from "../../store/ticket-service/ticketSlice";
-import {TicketType} from "../../store/ticket-service/types";
+import { TicketType } from "../../store/ticket-service/types";
 
 // components
-import {Chatbot} from "../Chatbot/Chatbot";
-import {DeleteRequestModal} from "./DeleteRequestModal";
-import {SendRequestModal} from "./SendRequestModal";
+import { Chatbot } from "../Chatbot/Chatbot";
+import { DeleteRequestModal } from "./DeleteRequestModal";
+import { SendRequestModal } from "./SendRequestModal";
 
 // assets
-import {ReactComponent as Trash} from "../../assets/icons/trash.svg";
-import {ReactComponent as EditTicket} from "../../assets/icons/edit-ticket.svg";
-import {ReactComponent as Message} from "../../assets/icons/message-text.svg";
-import {ReactComponent as Add} from "../../assets/icons/add.svg";
+import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
+import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
+import { ReactComponent as Message } from "../../assets/icons/message-text.svg";
+import { ReactComponent as Add } from "../../assets/icons/add.svg";
 
 import useTooltip from "src/core/hooks/useTooltip";
-import {IMessage} from "../Chatbot/Message/Message";
+import { IMessage } from "../Chatbot/Message/Message";
 
 interface FormValues {
   title: string;
@@ -94,18 +95,25 @@ export const CreateRequest = () => {
   }, [activeTicket]);
 
   useEffect(() => {
-    if (messages.length) {
+    if (messages.length !== 0) {
       memory.clear();
-      const inputMessages = messages.filter((_, index) => !(index % 2)).map(value => value.content);
-      const outputMessages = messages.filter((_, index) => index % 2).map(value => value.content);
+      const inputMessages = messages
+        .filter((_, index) => !(index % 2))
+        .map((value) => value.content);
+      const outputMessages = messages
+        .filter((_, index) => index % 2)
+        .map((value) => value.content);
 
-      for (let i = 0; i < (messages.length / 2); i++) {
-        memory.saveContext({input: inputMessages[i]}, {output: outputMessages[i]});
+      for (let i = 0; i < messages.length / 2; i++) {
+        memory.saveContext(
+          { input: inputMessages[i] },
+          { output: outputMessages[i] }
+        );
       }
     }
   }, [activeTicket]);
 
-  const {handleSubmit, reset, setValue, watch, register} = methods;
+  const { handleSubmit, reset, setValue, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -153,7 +161,7 @@ export const CreateRequest = () => {
      `);
 
   const chain = useMemo(() => {
-    return new LLMChain({llm: chat, prompt, memory});
+    return new LLMChain({ llm: chat, prompt, memory });
   }, [chat, prompt, memory]);
 
   const userStoryChain = useMemo(() => {
@@ -173,15 +181,16 @@ export const CreateRequest = () => {
         history: history.chat_history[0].text,
       });
 
-      const formattedResponse = response.text;
-      //   .filter((item: any) => item.priority === "high")
-      //   .map((elem: any) => elem.story)
-      //   .join("\n");
+      // NOT consistent JSON response;
+      const formattedResponse = JSON.parse(response.text)
+        .filter((item: any) => item.priority === "high")
+        .map((elem: any) => elem.story)
+        .join("\n");
 
       if (activeTicket) {
         const id = activeTicket.id;
-        console.log(formattedResponse);
-        dispatch(updateLocalTicket({id, description: formattedResponse}));
+        console.log(history);
+        dispatch(updateLocalTicket({ id, description: formattedResponse }));
       }
     } catch (error) {
       console.log(error);
@@ -228,11 +237,11 @@ export const CreateRequest = () => {
   };
 
   const updateTicketInfo = (data: FormValues) => {
-    const {title, description, summary} = data;
+    const { title, description, summary } = data;
 
     if (activeTicket) {
       const id = activeTicket.id;
-      dispatch(updateLocalTicket({id, title, description, summary}));
+      dispatch(updateLocalTicket({ id, title, description, summary }));
     }
   };
 
@@ -249,7 +258,7 @@ export const CreateRequest = () => {
 
   useEffect(() => {
     if (activeTicket?.id) {
-      dispatch(updateLocalTicket({id: activeTicket.id, messages}));
+      dispatch(updateLocalTicket({ id: activeTicket.id, messages }));
     }
   }, [messages]);
 
@@ -267,7 +276,7 @@ export const CreateRequest = () => {
       messages: [],
       status: 0,
     };
-    dispatch(createTicket({userId: user.id, ticket: defaultTicket})).then(
+    dispatch(createTicket({ userId: user.id, ticket: defaultTicket })).then(
       (data: any) => {
         dispatch(addLocalTicket(data.payload));
         dispatch(setActiveTicket(data.payload));
@@ -275,32 +284,35 @@ export const CreateRequest = () => {
     );
   };
 
-  const successEditNotify = () => toast.success(
-    (
+  const successEditNotify = () =>
+    toast.success(
       <div>
-        <Typography fontWeight="700" color="#102142">Success</Typography>
-        <Typography whiteSpace="nowrap" color="#404D68">Your changes were successfully saved.</Typography>
-      </div>
-    ),
-    {
-      autoClose: 1500,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "light",
-      style: {
-        borderLeft: "8px solid #01C860",
-        width: "fit-content"
-      },
-    }
-  );
+        <Typography fontWeight="700" color="#102142">
+          Success
+        </Typography>
+        <Typography whiteSpace="nowrap" color="#404D68">
+          Your changes were successfully saved.
+        </Typography>
+      </div>,
+      {
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        style: {
+          borderLeft: "8px solid #01C860",
+          width: "fit-content",
+        },
+      }
+    );
 
   const saveTicketChanges = () => {
     successEditNotify();
     dispatch(setIsTicketUpdate(true));
     setIsSummaryUpdated(true);
-  }
+  };
 
   return (
     <Box
@@ -332,7 +344,7 @@ export const CreateRequest = () => {
               width: "100%",
             }}
           >
-            <Message style={{marginBottom: "24px"}}/>
+            <Message style={{ marginBottom: "24px" }} />
             <Typography
               sx={{
                 fontSize: "20px",
@@ -342,7 +354,7 @@ export const CreateRequest = () => {
             >
               You don't have any requests yet
             </Typography>
-            <Typography sx={{marginBottom: "48px"}}>
+            <Typography sx={{ marginBottom: "48px" }}>
               Tap the button “Create new request” here or in the side bar to
               create your first request!
             </Typography>
@@ -360,7 +372,7 @@ export const CreateRequest = () => {
               color="primary"
               onClick={createLocalTicket}
             >
-              <Add/>
+              <Add />
               Create new request
             </Button>
           </Box>
@@ -386,14 +398,14 @@ export const CreateRequest = () => {
           sx={{
             display: "flex",
             width: "100%",
-            position: "relative"
+            position: "relative",
           }}
         >
           <ToastContainer
             style={{
               position: "absolute",
               top: "-27px",
-              right: "20px"
+              right: "20px",
             }}
           />
 
@@ -416,9 +428,9 @@ export const CreateRequest = () => {
                 >
                   <Grid item marginBottom={"20px"}>
                     <FormControl fullWidth>
-                      <Typography sx={{fontSize: "12px"}}>Title</Typography>
+                      <Typography sx={{ fontSize: "12px" }}>Title</Typography>
                       <TextField
-                        inputProps={{style: {padding: "10px 12px"}}}
+                        inputProps={{ style: { padding: "10px 12px" } }}
                         placeholder="Title of request"
                         sx={{
                           height: "44px",
@@ -434,7 +446,7 @@ export const CreateRequest = () => {
 
                   <Grid item>
                     <FormControl fullWidth>
-                      <Typography sx={{fontSize: "12px"}}>
+                      <Typography sx={{ fontSize: "12px" }}>
                         Summary (Description in code){" "}
                       </Typography>
                       <TextField
@@ -570,7 +582,7 @@ export const CreateRequest = () => {
                               fontSize: "12px",
                               maxWidth: 250,
                               border: "1px solid #dadde9",
-                              "& .MuiTooltip-popper": {margin: 0},
+                              "& .MuiTooltip-popper": { margin: 0 },
                             },
                           },
                         }}
@@ -603,24 +615,24 @@ export const CreateRequest = () => {
                       </Tooltip>
                     </Box>
 
-                    <Box sx={{display: "flex", gap: "16px"}}>
+                    <Box sx={{ display: "flex", gap: "16px" }}>
                       <Button
-                        sx={{minWidth: "24px", padding: "0"}}
+                        sx={{ minWidth: "24px", padding: "0" }}
                         onClick={activateEditMode}
                       >
-                        <EditTicket/>
+                        <EditTicket />
                       </Button>
 
                       <Button
-                        sx={{minWidth: "24px", padding: "0"}}
+                        sx={{ minWidth: "24px", padding: "0" }}
                         onClick={() => setIsDeleteModalOpen(true)}
                       >
-                        <Trash/>
+                        <Trash />
                       </Button>
                     </Box>
                   </Box>
                   <Box>
-                    <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
+                    <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
                       Created:
                       {activeTicket?.createdDate &&
                         format(
@@ -629,13 +641,13 @@ export const CreateRequest = () => {
                         )}
                     </Typography>
                     {activeTicket?.updatedDate && (
-                      <Typography sx={{color: "#707A8E", fontSize: "12px"}}>
+                      <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
                         Last Modified:
                         {activeTicket?.updatedDate
                           ? format(
-                            new Date(activeTicket.createdDate),
-                            "dd/MM/yyyy"
-                          )
+                              new Date(activeTicket.createdDate),
+                              "dd/MM/yyyy"
+                            )
                           : "N/A"}
                       </Typography>
                     )}
@@ -650,16 +662,16 @@ export const CreateRequest = () => {
                       >
                         Summary (Description in code)
                       </Typography>{" "}
-                      <br/> <br/>
-                      <Typography
-                        sx={{
-                          maxHeight: "450px",
-                          wordWrap: "break-word",
-                          paddingRight: "10px",
-                          overflow: "auto",
-                        }}
-                      >
-                        {isSummaryLoading ? (
+                      <br /> <br />
+                      {isSummaryLoading ? (
+                        <Typography
+                          sx={{
+                            maxHeight: "450px",
+                            wordWrap: "break-word",
+                            paddingRight: "10px",
+                            overflow: "auto",
+                          }}
+                        >
                           <Box
                             sx={{
                               width: "100%",
@@ -682,10 +694,10 @@ export const CreateRequest = () => {
                               strokeWidthSecondary={5}
                             />
                           </Box>
-                        ) : (
-                          activeTicket?.description || placeholderMessage
-                        )}
-                      </Typography>
+                        </Typography>
+                      ) : (
+                        activeTicket?.description || placeholderMessage
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -722,7 +734,7 @@ export const CreateRequest = () => {
                   disabled={
                     isSummaryLoading || messages.length === 0 || isTyping
                   }
-                  onClick={() => handleSummary()}
+                  onClick={handleSummary}
                 >
                   Generate Summary
                 </Button>
@@ -781,5 +793,4 @@ export const CreateRequest = () => {
       )}
     </Box>
   );
-}
-
+};
