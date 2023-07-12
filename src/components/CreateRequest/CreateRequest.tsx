@@ -664,6 +664,29 @@ export const CreateRequest = () => {
                       </Typography>{" "}
                       <br /> <br />
                       {isSummaryLoading ? (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Oval
+                            height={24}
+                            width={24}
+                            color="#fff"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                            visible={true}
+                            ariaLabel="oval-loading"
+                            secondaryColor="#4786ff"
+                            strokeWidth={5}
+                            strokeWidthSecondary={5}
+                          />
+                        </Box>
+                      ) : (
                         <Typography
                           sx={{
                             maxHeight: "450px",
@@ -672,31 +695,8 @@ export const CreateRequest = () => {
                             overflow: "auto",
                           }}
                         >
-                          <Box
-                            sx={{
-                              width: "100%",
-                              height: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Oval
-                              height={24}
-                              width={24}
-                              color="#fff"
-                              wrapperStyle={{}}
-                              wrapperClass=""
-                              visible={true}
-                              ariaLabel="oval-loading"
-                              secondaryColor="#4786ff"
-                              strokeWidth={5}
-                              strokeWidthSecondary={5}
-                            />
-                          </Box>
+                          {activeTicket?.description || placeholderMessage}
                         </Typography>
-                      ) : (
-                        activeTicket?.description || placeholderMessage
                       )}
                     </Box>
                   </Box>
