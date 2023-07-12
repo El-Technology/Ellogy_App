@@ -1,7 +1,11 @@
-import { Chatbot } from "../Chatbot/Chatbot";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { IMessage } from "../Chatbot/Message/Message";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { LLMChain, PromptTemplate } from "langchain";
 import { ConversationSummaryMemory } from "langchain/memory";
 import { ChatOpenAI } from "langchain/chat_models/openai";
@@ -11,36 +15,41 @@ import {
   FormControl,
   Grid,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
+import { format } from "date-fns";
+import { Oval } from "react-loader-spinner";
+
+// store
 import { useDispatch, useSelector } from "react-redux";
 import {
   getActiveTicket,
   getTickets,
-  getTicketsLoader,
   getTicketUpdating,
 } from "../../store/ticket-service/selector";
-import { format } from "date-fns";
-import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
-import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
-import { Oval } from "react-loader-spinner";
-import {
-  createTicket,
-  getTicketsByUserId,
-  updateTicket,
-} from "../../store/ticket-service/asyncActions";
+import { createTicket } from "../../store/ticket-service/asyncActions";
 import {
   addLocalTicket,
   setActiveTicket,
   setIsTicketUpdate,
-  setTickets,
   updateLocalTicket,
 } from "../../store/ticket-service/ticketSlice";
 import { TicketType } from "../../store/ticket-service/types";
+
+// components
+import { Chatbot } from "../Chatbot/Chatbot";
 import { DeleteRequestModal } from "./DeleteRequestModal";
 import { SendRequestModal } from "./SendRequestModal";
+
+// assets
+import { ReactComponent as Trash } from "../../assets/icons/trash.svg";
+import { ReactComponent as EditTicket } from "../../assets/icons/edit-ticket.svg";
 import { ReactComponent as Message } from "../../assets/icons/message-text.svg";
 import { ReactComponent as Add } from "../../assets/icons/add.svg";
+
+import useTooltip from "src/core/hooks/useTooltip";
+import { IMessage } from "../Chatbot/Message/Message";
 
 interface FormValues {
   title: string;
@@ -53,11 +62,9 @@ export const CreateRequest = () => {
   const activeTicket = useSelector(getActiveTicket);
   const updating = useSelector(getTicketUpdating);
   const tickets = useSelector(getTickets);
-  const loader = useSelector(getTicketsLoader);
   const dispatch: any = useDispatch();
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
-  const [isLoading, setIsLoading] = useState(false);
 
   const methods = useForm<FormValues>({
     defaultValues: {
@@ -95,6 +102,9 @@ export const CreateRequest = () => {
   const [editMode, setEditMode] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isSendModalOpen, setIsSendModalOpen] = useState<boolean>(false);
+
+  const titleRef = createRef<HTMLDivElement>();
+  const isTooltipVisible = useTooltip(titleRef);
 
   useEffect(() => {
     setEditMode(false);
@@ -223,11 +233,11 @@ export const CreateRequest = () => {
       }
     }
   }, [tickets]);
+
   useEffect(() => {
     if (activeTicket?.id) {
       dispatch(updateLocalTicket({ id: activeTicket.id, messages }));
     }
-    console.log(activeTicket);
   }, [messages]);
 
   const handleCloseModal = () => {
@@ -331,117 +341,83 @@ export const CreateRequest = () => {
         </FormProvider>
       )}
 
-      <Box
-        sx={{
-          display: "flex",
-          width: "100%",
-        }}
-      >
-        {activeTicket ? (
-          editMode ? (
-            <form
-              style={{
-                width: "100%",
-                display: "grid",
-                gridTemplateRows: "auto 1fr",
-              }}
-              onSubmit={handleSubmit(updateTicketInfo)}
-            >
-              <Grid container direction="column" maxHeight={705} height={705}>
-                <Grid item>
-                  <FormControl fullWidth>
-                    <Typography sx={{ fontSize: "12px" }}>Title</Typography>
-                    <TextField
-                      inputProps={{ style: { padding: "10px 12px" } }}
-                      placeholder="Title of request"
-                      sx={{
-                        height: "44px",
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "8px",
-                        },
-                      }}
-                      {...register("title")}
-                      defaultValue={activeTicket?.title || ""}
-                    />
-                  </FormControl>
-                </Grid>
-
-                <Grid item mt={2.4}>
-                  <FormControl fullWidth>
-                    <Typography sx={{ fontSize: "12px" }}>
-                      Summary (Description in code)
-                    </Typography>
-                    <TextField
-                      multiline
-                      inputProps={{
-                        style: {
-                          overflow: "auto",
-                          maxHeight: "570px",
-                        },
-                      }}
-                      placeholder={placeholderMessage}
-                      sx={{
-                        "& .MuiOutlinedInput-root": {
-                          borderRadius: "8px",
-                        },
-                      }}
-                      {...register("description")}
-                      defaultValue={activeTicket?.description || ""}
-                    />
-                  </FormControl>
-                </Grid>
-              </Grid>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginTop: "auto",
+      {tickets.length ? (
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+          }}
+        >
+          {activeTicket ? (
+            editMode ? (
+              <form
+                style={{
+                  width: "100%",
+                  display: "grid",
+                  gridTemplateRows: "auto 1fr",
                 }}
+                onSubmit={handleSubmit(updateTicketInfo)}
               >
-                <Button
-                  sx={{
-                    marginTop: "16px",
-                    height: "44px",
-                    width: "133px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "700",
-                  }}
-                  variant="outlined"
-                  onClick={() => setEditMode(false)}
+                <Grid
+                  container
+                  direction="column"
+                  maxHeight={705}
+                  height={705}
+                  gridTemplateRows="1fr auto"
                 >
-                  Cancel
-                </Button>
+                  <Grid item marginBottom={"20px"}>
+                    <FormControl fullWidth>
+                      <Typography sx={{ fontSize: "12px" }}>Title</Typography>
+                      <TextField
+                        inputProps={{ style: { padding: "10px 12px" } }}
+                        placeholder="Title of request"
+                        sx={{
+                          height: "44px",
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "8px",
+                          },
+                        }}
+                        {...register("title")}
+                        defaultValue={activeTicket?.title || ""}
+                      />
+                    </FormControl>
+                  </Grid>
 
-                {updating ? (
-                  <Button
-                    sx={{
-                      marginTop: "16px",
-                      height: "44px",
-                      width: "133px",
-                      borderRadius: "8px",
-                      textTransform: "none",
-                    }}
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                  >
-                    <Oval
-                      height={24}
-                      width={24}
-                      color="#fff"
-                      wrapperStyle={{}}
-                      wrapperClass=""
-                      visible={true}
-                      ariaLabel="oval-loading"
-                      secondaryColor="#91B6FF"
-                      strokeWidth={5}
-                      strokeWidthSecondary={5}
-                    />
-                  </Button>
-                ) : (
+                  <Grid item>
+                    <FormControl fullWidth>
+                      <Typography sx={{ fontSize: "12px" }}>
+                        Summary (Description in code){" "}
+                      </Typography>
+                      <TextField
+                        multiline
+                        inputProps={{
+                          style: {
+                            borderRadius: "8px",
+                            maxHeight: "572px",
+                            overflow: "auto",
+                          },
+                        }}
+                        placeholder={placeholderMessage}
+                        sx={{
+                          minHeight: "168px",
+                          "& .MuiOutlinedInput-root": {
+                            borderRadius: "8px",
+                          },
+                        }}
+                        {...register("description")}
+                        defaultValue={activeTicket?.description || ""}
+                      />
+                    </FormControl>
+                  </Grid>
+                </Grid>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "auto",
+                  }}
+                >
                   <Button
                     sx={{
                       marginTop: "16px",
@@ -460,97 +436,21 @@ export const CreateRequest = () => {
                       setIsSummaryUpdated(true);
                     }}
                   >
-                    Save
+                    Cancel
                   </Button>
-                )}
-              </Box>
-            </form>
-          ) : (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "16px",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: "24px",
-                      fontWeight: "700",
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                      maxWidth: "250px",
-                    }}
-                  >
-                    {activeTicket?.title}
-                  </Typography>
 
-                  <Box sx={{ display: "flex", gap: "16px" }}>
+                  {updating ? (
                     <Button
-                      sx={{ minWidth: "24px", padding: "0" }}
-                      onClick={activateEditMode}
-                    >
-                      <EditTicket />
-                    </Button>
-
-                    <Button
-                      sx={{ minWidth: "24px", padding: "0" }}
-                      onClick={() => setIsDeleteModalOpen(true)}
-                    >
-                      <Trash />
-                    </Button>
-                  </Box>
-                </Box>
-                <Box>
-                  <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                    Created:
-                    {activeTicket?.createdDate &&
-                      format(new Date(activeTicket.createdDate), "dd/MM/yyyy")}
-                  </Typography>
-                  {activeTicket?.updatedDate && (
-                    <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
-                      Last Modified:{" "}
-                      {activeTicket?.updatedDate
-                        ? format(
-                            new Date(activeTicket.createdDate),
-                            "dd/MM/yyyy"
-                          )
-                        : "N/A"}
-                    </Typography>
-                  )}
-                </Box>
-                <Typography
-                  sx={{
-                    display: "-webkit-box",
-                    " -webkit-line-clamp": 10,
-                    "-webkit-box-orient": "vertical",
-                  }}
-                >
-                  <strong> Summary (Description in code)</strong> <br /> <br />
-                  {isSummaryLoading ? (
-                    <Box
                       sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
+                        marginTop: "16px",
+                        height: "44px",
+                        width: "133px",
+                        borderRadius: "8px",
+                        textTransform: "none",
                       }}
+                      type="submit"
+                      variant="contained"
+                      color="primary"
                     >
                       <Oval
                         height={24}
@@ -560,98 +460,277 @@ export const CreateRequest = () => {
                         wrapperClass=""
                         visible={true}
                         ariaLabel="oval-loading"
-                        secondaryColor="#4786ff"
+                        secondaryColor="#91B6FF"
                         strokeWidth={5}
                         strokeWidthSecondary={5}
                       />
-                    </Box>
+                    </Button>
                   ) : (
-                    activeTicket?.description || placeholderMessage
+                    <Button
+                      sx={{
+                        marginTop: "16px",
+                        height: "44px",
+                        width: "133px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                      }}
+                      type="submit"
+                      variant="contained"
+                      color="primary"
+                      onClick={() => {
+                        dispatch(setIsTicketUpdate(true));
+                        setIsSummaryUpdated(true);
+                      }}
+                    >
+                      Save
+                    </Button>
                   )}
-                </Typography>
+                </Box>
+              </form>
+            ) : (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  width: "100%",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Box>
+                      <Tooltip
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: "#f5f5f9",
+                              color: "rgba(0, 0, 0, 0.87)",
+                              fontSize: "12px",
+                              maxWidth: 250,
+                              border: "1px solid #dadde9",
+                              "& .MuiTooltip-popper": { margin: 0 },
+                            },
+                          },
+                        }}
+                        PopperProps={{
+                          modifiers: [
+                            {
+                              name: "offset",
+                              options: {
+                                offset: [0, -15],
+                              },
+                            },
+                          ],
+                        }}
+                        title={isTooltipVisible ? activeTicket?.title : null}
+                        placement="top"
+                      >
+                        <Typography
+                          ref={titleRef}
+                          sx={{
+                            fontSize: "24px",
+                            fontWeight: "700",
+                            whiteSpace: "nowrap",
+                            textOverflow: "ellipsis",
+                            overflow: "hidden",
+                            maxWidth: "250px",
+                          }}
+                        >
+                          {activeTicket?.title}
+                        </Typography>
+                      </Tooltip>
+                    </Box>
+
+                    <Box sx={{ display: "flex", gap: "16px" }}>
+                      <Button
+                        sx={{ minWidth: "24px", padding: "0" }}
+                        onClick={activateEditMode}
+                      >
+                        <EditTicket />
+                      </Button>
+
+                      <Button
+                        sx={{ minWidth: "24px", padding: "0" }}
+                        onClick={() => setIsDeleteModalOpen(true)}
+                      >
+                        <Trash />
+                      </Button>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                      Created:
+                      {activeTicket?.createdDate &&
+                        format(
+                          new Date(activeTicket.createdDate),
+                          "dd/MM/yyyy"
+                        )}
+                    </Typography>
+                    {activeTicket?.updatedDate && (
+                      <Typography sx={{ color: "#707A8E", fontSize: "12px" }}>
+                        Last Modified:
+                        {activeTicket?.updatedDate
+                          ? format(
+                              new Date(activeTicket.createdDate),
+                              "dd/MM/yyyy"
+                            )
+                          : "N/A"}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box>
+                    <Box>
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                        }}
+                      >
+                        Summary (Description in code)
+                      </Typography>{" "}
+                      <br /> <br />
+                      <Typography
+                        sx={{
+                          maxHeight: "450px",
+                          wordWrap: "break-word",
+                          paddingRight: "10px",
+                          overflow: "auto",
+                        }}
+                      >
+                        {isSummaryLoading ? (
+                          <Box
+                            sx={{
+                              width: "100%",
+                              height: "100%",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Oval
+                              height={24}
+                              width={24}
+                              color="#fff"
+                              wrapperStyle={{}}
+                              wrapperClass=""
+                              visible={true}
+                              ariaLabel="oval-loading"
+                              secondaryColor="#4786ff"
+                              strokeWidth={5}
+                              strokeWidthSecondary={5}
+                            />
+                          </Box>
+                        ) : (
+                          activeTicket?.description || placeholderMessage
+                        )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Box>
+
+                {isDeleteModalOpen && (
+                  <DeleteRequestModal
+                    handleCloseModal={handleCloseModal}
+                    ticketId={activeTicket?.id}
+                    userId={user.id}
+                  />
+                )}
+
+                {isSendModalOpen && (
+                  <SendRequestModal
+                    handleCloseModal={handleCloseModal}
+                    ticket={activeTicket}
+                    userId={user.id}
+                  />
+                )}
+
+                <Button
+                  sx={{
+                    height: "44px",
+                    width: "251px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: "700",
+                    gap: "8px",
+                    marginTop: "auto",
+                  }}
+                  variant="outlined"
+                  color="primary"
+                  disabled={
+                    isSummaryLoading || messages.length === 0 || isTyping
+                  }
+                  onClick={() => handleSummary()}
+                >
+                  Generate Summary
+                </Button>
+                <Button
+                  sx={{
+                    height: "44px",
+                    width: "251px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                    fontSize: "16px",
+                    fontWeight: "700",
+                    gap: "8px",
+                    marginTop: "16px",
+                  }}
+                  variant="contained"
+                  color="primary"
+                  disabled={
+                    !watch("description") ||
+                    isSummaryLoading ||
+                    !isSummaryUpdated ||
+                    isTyping
+                  }
+                  onClick={() => setIsSendModalOpen(true)}
+                >
+                  Send request
+                </Button>
               </Box>
-
-              {isDeleteModalOpen && (
-                <DeleteRequestModal
-                  handleCloseModal={handleCloseModal}
-                  ticketId={activeTicket?.id}
-                  userId={user.id}
-                />
-              )}
-
-              {isSendModalOpen && (
-                <SendRequestModal
-                  handleCloseModal={handleCloseModal}
-                  ticket={activeTicket}
-                  userId={user.id}
-                />
-              )}
-
-              <Button
-                sx={{
-                  height: "44px",
-                  width: "251px",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  fontSize: "16px",
-                  fontWeight: "700",
-                  gap: "8px",
-                  marginTop: "auto",
-                }}
-                variant="outlined"
-                color="primary"
-                disabled={isSummaryLoading || messages.length === 0 || isTyping}
-                onClick={() => handleSummary()}
-              >
-                Generate Summary
-              </Button>
-              <Button
-                sx={{
-                  height: "44px",
-                  width: "251px",
-                  borderRadius: "8px",
-                  textTransform: "none",
-                  fontSize: "16px",
-                  fontWeight: "700",
-                  gap: "8px",
-                  marginTop: "16px",
-                }}
-                variant="contained"
-                color="primary"
-                disabled={
-                  !watch("description") || isSummaryLoading || !isSummaryUpdated
-                }
-                onClick={() => setIsSendModalOpen(true)}
-              >
-                Send request
-              </Button>
+            )
+          ) : (
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Oval
+                height={24}
+                width={24}
+                color="#fff"
+                wrapperStyle={{}}
+                wrapperClass=""
+                visible={true}
+                ariaLabel="oval-loading"
+                secondaryColor="#91B6FF"
+                strokeWidth={5}
+                strokeWidthSecondary={5}
+              />
             </Box>
-          )
-        ) : (
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Oval
-              height={24}
-              width={24}
-              color="#fff"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible={true}
-              ariaLabel="oval-loading"
-              secondaryColor="#91B6FF"
-              strokeWidth={5}
-              strokeWidthSecondary={5}
-            />
-          </Box>
-        )}
-      </Box>
+          )}
+        </Box>
+      ) : (
+        ""
+      )}
     </Box>
   );
 };

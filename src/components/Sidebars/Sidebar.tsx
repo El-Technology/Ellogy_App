@@ -1,19 +1,10 @@
-import {
-  Box,
-  Button,
-  InputAdornment,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { ReactComponent as Add } from "../../assets/icons/add.svg";
-import { ReactComponent as MessageQuestion } from "../../assets/icons/message-question.svg";
-import { ReactComponent as Search } from "../../assets/icons/search.svg";
+import React, { useEffect, useRef, useState } from "react";
+import { Box, Button, InputAdornment, TextField } from "@mui/material";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
-import { TicketType } from "src/store/ticket-service/types";
-import { createTicket } from "../../store/ticket-service/asyncActions";
 import { useSelector } from "react-redux";
-import cx from "classnames";
+import { Oval } from "react-loader-spinner";
+
+// store
 import {
   getTicketsByUserId,
   searchTickets,
@@ -23,29 +14,42 @@ import {
   getIsTicketUpdate,
   getTickets,
   getTicketsLoader,
+  getTicketsLoadingMore,
 } from "../../store/ticket-service/selector";
-import { Oval } from "react-loader-spinner";
-import { format } from "date-fns";
+import { TicketType } from "src/store/ticket-service/types";
+import { createTicket } from "../../store/ticket-service/asyncActions";
 import {
   addLocalTicket,
   setActiveTicket,
-} from "src/store/ticket-service/ticketSlice";
-import { Statuses } from "src/core/enums/common";
-import styles from "./Sidebar.module.scss";
-import { DraftModal } from "./DrafModal";
+} from "../../store/ticket-service/ticketSlice";
 import { useAppDispatch } from "../../store/store";
+
+// components
+import { DraftModal } from "./DrafModal";
+import { SidebarTicket } from "./SidebarTicket";
+
+// assets
+import { ReactComponent as Add } from "../../assets/icons/add.svg";
+import { ReactComponent as MessageQuestion } from "../../assets/icons/message-question.svg";
+import { ReactComponent as Search } from "../../assets/icons/search.svg";
+
+// styles
 import useDebounce from "../../core/hooks/useDebounce";
 
 export const Sidebar = () => {
   const { t } = useTranslation("navigation");
-  const dispatch: any = useAppDispatch();
+  const dispatch = useAppDispatch();
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);
   const activeTicket = useSelector(getActiveTicket);
   const isTicketUpdate = useSelector(getIsTicketUpdate);
+  const loadingMore = useSelector(getTicketsLoadingMore);
+
   const [isShowDraft, setIsShowDraft] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isTicketsEnds, setIsTicketsEnds] = useState(false);
+
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
   const handleCloseModal = () => {
@@ -56,17 +60,21 @@ export const Sidebar = () => {
   const user = storedUser ? JSON.parse(storedUser) : null;
 
   useEffect(() => {
-    const recordsPerPage = tickets.length;
+    setIsTicketsEnds(false);
+
     if (debouncedSearchQuery.length)
       dispatch(
         searchTickets({ userId: user.id, ticketTitle: debouncedSearchQuery })
       );
+    currentPageRef.current = 1;
+    const container = containerRef.current;
+    if (container) {
+      container.scrollTop = 0;
+    }
   }, [debouncedSearchQuery]);
 
   useEffect(() => {
-    dispatch(getTicketsByUserId({ userId: user.id })).then((data: any) => {
-      console.log(data);
-    });
+    dispatch(getTicketsByUserId({ userId: user.id }));
   }, []);
 
   useEffect(() => {
@@ -105,7 +113,7 @@ export const Sidebar = () => {
     );
   };
 
-  const handleTicketClick = (ticket: any) => {
+  const handleTicketClick = (ticket: TicketType) => {
     if (isTicketUpdate) {
       setIsShowDraft(true);
       setIsCreating(false);
@@ -119,28 +127,56 @@ export const Sidebar = () => {
     const container = containerRef.current;
     if (!debouncedSearchQuery.length) {
       dispatch(getTicketsByUserId({ userId: user.id }));
+      currentPageRef.current = 1;
+      if (container) {
+        container.scrollTop = 0;
+      }
     }
 
     const handleScroll = async () => {
-      if (container && !debouncedSearchQuery.length) {
+      if (container) {
         const isAtBottom =
-          container.scrollHeight - container.scrollTop ===
+          Math.floor(container.scrollHeight - container.scrollTop) ===
           container.clientHeight;
         if (isAtBottom) {
-          const nextPage = currentPageRef.current + 1;
-          console.log(nextPage);
-          dispatch(
-            getTicketsByUserId({ userId: user.id, currentPageNumber: nextPage })
-          )
-            .then((action: any) => {
-              const newTickets = action.payload.data;
-              if (newTickets.length > 0) {
-                currentPageRef.current = nextPage;
-              } else currentPageRef.current = 1;
-            })
-            .catch((error: any) => {
-              console.log(error);
-            });
+          if (!debouncedSearchQuery.length) {
+            const nextPage = currentPageRef.current + 1;
+            dispatch(
+              getTicketsByUserId({
+                userId: user.id,
+                currentPageNumber: nextPage,
+              })
+            )
+              .then((action: any) => {
+                const newTickets = action.payload.data;
+                if (newTickets.length > 0) {
+                  currentPageRef.current = nextPage;
+                } else setIsTicketsEnds(true);
+              })
+              .catch((error: any) => {
+                console.log(error);
+              });
+          }
+
+          if (debouncedSearchQuery.length) {
+            const nextPage = currentPageRef.current + 1;
+            dispatch(
+              searchTickets({
+                userId: user.id,
+                ticketTitle: debouncedSearchQuery,
+                currentPageNumber: nextPage,
+              })
+            )
+              .then((action: any) => {
+                const newTickets = action.payload.data;
+                if (newTickets.length > 0) {
+                  currentPageRef.current = nextPage;
+                } else setIsTicketsEnds(true);
+              })
+              .catch((error: any) => {
+                console.log(error);
+              });
+          }
         }
       }
     };
@@ -149,7 +185,7 @@ export const Sidebar = () => {
     return () => {
       container?.removeEventListener("scroll", handleScroll);
     };
-  }, [user.id, debouncedSearchQuery]);
+  }, [debouncedSearchQuery]);
 
   return (
     <>
@@ -268,66 +304,33 @@ export const Sidebar = () => {
             }}
           >
             {tickets &&
-              tickets.map((item: any, index) => {
-                return (
-                  <Box
-                    sx={{
-                      display: "flex",
-                      cursor: "pointer",
-                      width: "227px",
-                      height: "49px",
-                      background: item === activeTicket ? "#ECF3FF" : "#fff",
-                      borderRadius: "8px",
-                      padding: "8px 12px",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                    key={JSON.stringify(item) + index}
-                    onClick={() => handleTicketClick(item)}
-                  >
-                    <Box
-                      sx={{
-                        flexDirection: "column",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          fontWeight: "700",
-                          whiteSpace: "nowrap",
-                          textOverflow: "ellipsis",
-                          overflow: "hidden",
-                          maxWidth: "135px",
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                      <Typography sx={{ color: "#707A8E" }}>
-                        {format(new Date(item.createdDate), "dd/MM/yyyy")}
-                      </Typography>
-                    </Box>
-                    {item && (
-                      <Box>
-                        <Typography
-                          className={cx(
-                            styles.status,
-                            styles[
-                              `status_${Statuses[item.status]
-                                .split(" ")
-                                .join("")
-                                .toLowerCase()}`
-                            ]
-                          )}
-                        >
-                          {Statuses[item.status]}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
-                );
-              })}
+              tickets.map((ticket: TicketType, index) => (
+                <SidebarTicket
+                  key={JSON.stringify(ticket) + index}
+                  ticket={ticket}
+                  handleTicketClick={handleTicketClick}
+                  activeTicket={activeTicket}
+                />
+              ))}
           </Box>
         </Box>
+
+        {loadingMore && !isTicketsEnds && (
+          <Oval
+            height={24}
+            width={24}
+            color="#fff"
+            wrapperStyle={{
+              alignSelf: "center",
+            }}
+            wrapperClass=""
+            visible={true}
+            ariaLabel="oval-loading"
+            secondaryColor="#91B6FF"
+            strokeWidth={5}
+            strokeWidthSecondary={5}
+          />
+        )}
 
         <Button
           sx={{
