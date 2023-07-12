@@ -558,26 +558,32 @@ export const CreateRequest = () => {
                       />
                     </Button>
                   ) : (
-                    <Button
-                      sx={{
-                        marginTop: "16px",
-                        height: "44px",
-                        width: "133px",
-                        borderRadius: "8px",
-                        textTransform: "none",
-                        fontSize: "16px",
-                        fontWeight: "700",
-                      }}
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                        dispatch(setIsTicketUpdate(true));
-                        setIsSummaryUpdated(true);
-                      }}
-                    >
-                      Save
-                    </Button>
+                    <>
+                      <Button
+                        sx={{
+                          marginTop: "16px",
+                          height: "44px",
+                          width: "133px",
+                          borderRadius: "8px",
+                          textTransform: "none",
+                          fontSize: "16px",
+                          fontWeight: "700",
+                        }}
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={() => {
+                          successNotify(
+                            "Success",
+                            "Your changes were successfully saved"
+                          );
+                          dispatch(setIsTicketUpdate(true));
+                          setIsSummaryUpdated(true);
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </>
                   )}
                 </Box>
               </form>
