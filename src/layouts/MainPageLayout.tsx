@@ -65,6 +65,7 @@ export const MainPageLayout = ({children}: { children: ReactNode }) => {
             height: "calc(100vh - 82px)",
             display: "flex",
             justifyContent: "center",
+            backgroundColor: "#efefef"
           }}
         >
         </Box>
