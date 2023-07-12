@@ -9,6 +9,7 @@ import {
   FormHelperText,
   Box,
 } from '@mui/material';
+import InputMask from 'react-input-mask';
 import {Oval} from "react-loader-spinner";
 import {yupResolver} from '@hookform/resolvers/yup';
 import {useNavigate} from 'react-router-dom';
@@ -39,10 +40,24 @@ export const SignUp = () => {
     handleSubmit,
     register,
     formState: {errors},
-    watch
+    watch,
+    resetField
   } = useForm({
     resolver: yupResolver(signUpSchema),
   });
+
+  const stringHasWhitespaceAtTheBeginning = /^\s/;
+
+  useEffect(() => {
+    const subscription = watch((value, { name, type }) => {
+        if (name) {
+          if (stringHasWhitespaceAtTheBeginning.test(String(value[name]))) {
+            resetField(name);
+          }
+        }
+    })
+    return () => subscription.unsubscribe()
+  }, [watch]);
 
   useEffect(() => {
     dispatch(removeSignUpError());
@@ -273,7 +288,14 @@ export const SignUp = () => {
                       <FormControl fullWidth error={!!errors.phoneNumber}>
                         <Typography sx={{fontSize: '12px'}}>Phone Number</Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          InputProps={{
+                            // @ts-ignore
+                            inputComponent: InputMask,
+                            inputProps: {
+                              mask: '+999 99 999 99 99',
+                              style: {padding: '10px 12px'}
+                            },
+                          }}
                           placeholder="+000 00 000 00 00"
                           sx={{
                             height: '44px',
