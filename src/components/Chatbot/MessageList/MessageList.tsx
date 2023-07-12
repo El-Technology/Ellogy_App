@@ -21,22 +21,20 @@ export const MessageList = forwardRef<HTMLDivElement, IMessagesListProps>(
     };
 
     return (
-      <>
+      <div className={styles.messages_list} ref={ref}>
         {list.length !== 0 ? (
-          <div className={styles.messages_list} ref={ref}>
+          <>
             {list.map((message, i) => (
               <Message model={message} key={i} />
             ))}
             <div className={styles["chat-typing"]}>
-              {isTyping && t("chatIsTyping")} {/* Bad translate*/}
+              {isTyping && t("chatIsTyping")}
             </div>
-          </div>
+          </>
         ) : (
-          <div className={styles.messages_list} ref={ref}>
-            <Message model={welcomeMessage} />
-          </div>
+          <Message model={welcomeMessage} />
         )}
-      </>
+      </div>
     );
   }
 );

@@ -2,7 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import {
   createTicket,
   deleteTicket,
-  getTicketsByUserId, searchTickets,
+  getTicketsByUserId,
+  searchTickets,
   updateTicket,
 } from "./asyncActions";
 import { ITicketReducer, TicketData } from "./types";
@@ -27,6 +28,10 @@ const ticketSlice = createSlice({
     },
     removeLocalTicket: (state) => {
       state.tickets.shift();
+    },
+    resetTickets: (state) => {
+      state.tickets = initialState.tickets;
+      state.activeTicket = initialState.activeTicket;
     },
     updateLocalTicket: (state, action) => {
       const ticketIndex = state.tickets.findIndex(
@@ -106,6 +111,7 @@ export const {
   setTickets,
   appendTickets,
   addLocalTicket,
+  resetTickets,
   removeLocalTicket,
   updateLocalTicket,
   setIsTicketUpdate,
