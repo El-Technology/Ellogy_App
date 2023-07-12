@@ -25,7 +25,7 @@
 
 .message {
   display: flex;
-  padding: 12px;
+  padding: 15px;
   font-size: 14px;
   line-height: 16px;
   height: fit-content;
@@ -33,7 +33,6 @@
   &__bot {
     justify-self: flex-start;
     background-color: #ffffff;
-    padding-right: 11px;
     color: #102142;
     border-radius: 0 12px 12px 12px;
   }
