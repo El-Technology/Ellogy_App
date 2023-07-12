@@ -3,6 +3,7 @@
   flex-direction: column;
   border: 1px solid lightgrey;
   border-radius: 10px;
+  min-height: 705px;
   overflow: hidden;
 
   &__title {
@@ -13,9 +14,9 @@
 }
 
 .chat-input__container {
-  background-color: #EFEFEF;
+  background-color: #efefef;
   margin-top: 25px;
-  padding: 15px;
+  padding: 12px;
   box-sizing: border-box;
   border: 1px solid lightgrey;
   border-radius: 10px;
@@ -23,7 +24,6 @@
   flex-direction: column;
   gap: 10px;
   margin-bottom: 25px;
-
   span {
     font-size: 14px;
   }

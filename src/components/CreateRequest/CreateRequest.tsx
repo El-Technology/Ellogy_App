@@ -6,7 +6,8 @@ import React, {
   useState,
 } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import { LLMChain, PromptTemplate } from "langchain";
+import { LLMChain } from "langchain/chains";
+import { PromptTemplate } from "langchain/prompts";
 import { ConversationSummaryMemory } from "langchain/memory";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import {
@@ -20,6 +21,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { Oval } from "react-loader-spinner";
+import { toast, ToastContainer } from "react-toastify";
 
 // store
 import { useDispatch, useSelector } from "react-redux";
@@ -93,13 +95,20 @@ export const CreateRequest = () => {
   }, [activeTicket]);
 
   useEffect(() => {
-    if (messages.length) {
+    if (messages.length !== 0) {
       memory.clear();
-      const inputMessages = messages.filter((_, index) => !(index % 2)).map(value => value.content);
-      const outputMessages = messages.filter((_, index) => index % 2).map(value => value.content);
+      const inputMessages = messages
+        .filter((_, index) => !(index % 2))
+        .map((value) => value.content);
+      const outputMessages = messages
+        .filter((_, index) => index % 2)
+        .map((value) => value.content);
 
-      for (let i = 0; i < (messages.length / 2); i++) {
-        memory.saveContext({input: inputMessages[i]}, {output: outputMessages[i]});
+      for (let i = 0; i < messages.length / 2; i++) {
+        memory.saveContext(
+          { input: inputMessages[i] },
+          { output: outputMessages[i] }
+        );
       }
     }
   }, [activeTicket]);
@@ -172,14 +181,15 @@ export const CreateRequest = () => {
         history: history.chat_history[0].text,
       });
 
-      const formattedResponse = response.text;
-      //   .filter((item: any) => item.priority === "high")
-      //   .map((elem: any) => elem.story)
-      //   .join("\n");
+      // NOT consistent JSON response;
+      const formattedResponse = JSON.parse(response.text)
+        .filter((item: any) => item.priority === "high")
+        .map((elem: any) => elem.story)
+        .join("\n");
 
       if (activeTicket) {
         const id = activeTicket.id;
-        console.log(formattedResponse);
+        console.log(history);
         dispatch(updateLocalTicket({ id, description: formattedResponse }));
       }
     } catch (error) {
@@ -274,6 +284,36 @@ export const CreateRequest = () => {
     );
   };
 
+  const successEditNotify = () =>
+    toast.success(
+      <div>
+        <Typography fontWeight="700" color="#102142">
+          Success
+        </Typography>
+        <Typography whiteSpace="nowrap" color="#404D68">
+          Your changes were successfully saved.
+        </Typography>
+      </div>,
+      {
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        style: {
+          borderLeft: "8px solid #01C860",
+          width: "fit-content",
+        },
+      }
+    );
+
+  const saveTicketChanges = () => {
+    successEditNotify();
+    dispatch(setIsTicketUpdate(true));
+    setIsSummaryUpdated(true);
+  };
+
   return (
     <Box
       sx={{
@@ -358,8 +398,17 @@ export const CreateRequest = () => {
           sx={{
             display: "flex",
             width: "100%",
+            position: "relative",
           }}
         >
+          <ToastContainer
+            style={{
+              position: "absolute",
+              top: "-27px",
+              right: "20px",
+            }}
+          />
+
           {activeTicket ? (
             editMode ? (
               <form
@@ -478,26 +527,25 @@ export const CreateRequest = () => {
                       />
                     </Button>
                   ) : (
-                    <Button
-                      sx={{
-                        marginTop: "16px",
-                        height: "44px",
-                        width: "133px",
-                        borderRadius: "8px",
-                        textTransform: "none",
-                        fontSize: "16px",
-                        fontWeight: "700",
-                      }}
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      onClick={() => {
-                        dispatch(setIsTicketUpdate(true));
-                        setIsSummaryUpdated(true);
-                      }}
-                    >
-                      Save
-                    </Button>
+                    <>
+                      <Button
+                        sx={{
+                          marginTop: "16px",
+                          height: "44px",
+                          width: "133px",
+                          borderRadius: "8px",
+                          textTransform: "none",
+                          fontSize: "16px",
+                          fontWeight: "700",
+                        }}
+                        type="submit"
+                        variant="contained"
+                        color="primary"
+                        onClick={saveTicketChanges}
+                      >
+                        Save
+                      </Button>
+                    </>
                   )}
                 </Box>
               </form>
@@ -615,41 +663,41 @@ export const CreateRequest = () => {
                         Summary (Description in code)
                       </Typography>{" "}
                       <br /> <br />
-                      <Typography
-                        sx={{
-                          maxHeight: "450px",
-                          wordWrap: "break-word",
-                          paddingRight: "10px",
-                          overflow: "auto",
-                        }}
-                      >
-                        {isSummaryLoading ? (
-                          <Box
-                            sx={{
-                              width: "100%",
-                              height: "100%",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                            }}
-                          >
-                            <Oval
-                              height={24}
-                              width={24}
-                              color="#fff"
-                              wrapperStyle={{}}
-                              wrapperClass=""
-                              visible={true}
-                              ariaLabel="oval-loading"
-                              secondaryColor="#4786ff"
-                              strokeWidth={5}
-                              strokeWidthSecondary={5}
-                            />
-                          </Box>
-                        ) : (
-                          activeTicket?.description || placeholderMessage
-                        )}
-                      </Typography>
+                      {isSummaryLoading ? (
+                        <Box
+                          sx={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <Oval
+                            height={24}
+                            width={24}
+                            color="#fff"
+                            wrapperStyle={{}}
+                            wrapperClass=""
+                            visible={true}
+                            ariaLabel="oval-loading"
+                            secondaryColor="#4786ff"
+                            strokeWidth={5}
+                            strokeWidthSecondary={5}
+                          />
+                        </Box>
+                      ) : (
+                        <Typography
+                          sx={{
+                            maxHeight: "450px",
+                            wordWrap: "break-word",
+                            paddingRight: "10px",
+                            overflow: "auto",
+                          }}
+                        >
+                          {activeTicket?.description || placeholderMessage}
+                        </Typography>
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -686,7 +734,7 @@ export const CreateRequest = () => {
                   disabled={
                     isSummaryLoading || messages.length === 0 || isTyping
                   }
-                  onClick={() => handleSummary()}
+                  onClick={handleSummary}
                 >
                   Generate Summary
                 </Button>
