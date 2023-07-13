@@ -1,9 +1,10 @@
-import {Header} from "../../components/Header/Header";
-import {Box, Button, Modal} from "@mui/material";
-import {ResetEmailForm} from "./components/ResetEmailForm";
-import {ResetPasswordForm} from "./components/ResetPasswordForm";
-import {useLocation, useNavigate} from "react-router-dom";
-import {ROUTES} from "../../core/constants/routes";
+import { Header } from "../../components/Header/Header";
+import { Box, Button, Modal } from "@mui/material";
+import { ResetEmailForm } from "./components/ResetEmailForm";
+import { ResetPasswordForm } from "./components/ResetPasswordForm";
+import { useLocation, useNavigate } from "react-router-dom";
+import { ROUTES } from "../../core/constants/routes";
+import React from "react";
 
 export const ResetPassword = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ export const ResetPassword = () => {
 
   return (
     <>
-      <Header/>
+      <Header />
 
       <Box>
         <Modal
@@ -26,17 +27,17 @@ export const ResetPassword = () => {
         >
           <Box
             sx={{
-              position: 'absolute' as 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
+              position: "absolute" as const,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
               width: 574,
-              bgcolor: 'background.paper',
+              bgcolor: "background.paper",
               boxShadow: 24,
               outline: "none",
               borderRadius: "8px",
               display: "flex",
-              justifyContent: "center"
+              justifyContent: "center",
             }}
           >
             <Button
@@ -48,17 +49,21 @@ export const ResetPassword = () => {
                 minWidth: "24px",
                 height: "24px",
                 fontSize: "24px",
-                color: "#9FA6B3"
+                color: "#9FA6B3",
               }}
               onClick={redirectToLogin}
             >
               <span>&times;</span>
             </Button>
 
-            {location.pathname === ROUTES.CREATE_NEW_PASSWORD ? <ResetPasswordForm/> : <ResetEmailForm/>}
+            {location.pathname === ROUTES.CREATE_NEW_PASSWORD ? (
+              <ResetPasswordForm />
+            ) : (
+              <ResetEmailForm />
+            )}
           </Box>
         </Modal>
       </Box>
     </>
-  )
-}
+  );
+};

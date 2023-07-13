@@ -1,7 +1,7 @@
 import { MessageInput } from "./MessageInput/MessageInput";
 import { MessageList } from "./MessageList/MessageList";
 import { useTranslation } from "react-i18next";
-import { useRef, useEffect, useMemo, FC } from "react";
+import React, { useRef, useEffect, useMemo, FC } from "react";
 import { useFormContext } from "react-hook-form";
 import { IMessage } from "./Message/Message";
 import styles from "./Chatbot.module.scss";

@@ -69,8 +69,7 @@ export const DraftModal: FC<DraftModalProps> = ({
   const createNewLocalTicket = () => {
     const defaultTicket = {
       title: "New request",
-      description:
-        "We will generate a description automatically as soon as we get some information from you. You can change the title and description at any time.",
+      description: "",
       createdDate: new Date().toISOString(),
       comment: null,
       messages: [],
@@ -110,7 +109,7 @@ export const DraftModal: FC<DraftModalProps> = ({
       >
         <Box
           sx={{
-            position: "absolute" as "absolute",
+            position: "absolute" as const,
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",

@@ -77,7 +77,7 @@ export const CreateRequest = () => {
     },
   });
   const placeholderMessage =
-    "We will generate a summary automatically as soon as we get some information from you. You can change the title and summary at any time.";
+    "A summary of your requirements will be shown here. Please feel free to change or add any additional requirements that you feel are not captured properly.";
 
   useEffect(() => {
     if (activeTicket) {
@@ -85,7 +85,7 @@ export const CreateRequest = () => {
         title: activeTicket.title || "",
         description: activeTicket.description || "",
         messages:
-          [...activeTicket?.messages].sort(
+          [...activeTicket.messages].sort(
             (a, b: IMessage) =>
               new Date(a.sendTime).getTime() - new Date(b.sendTime).getTime()
           ) || [],
@@ -134,7 +134,7 @@ export const CreateRequest = () => {
 
   const chat = useMemo(() => {
     return new ChatOpenAI({
-      temperature: 0,
+      temperature: 1,
       openAIApiKey: process.env.REACT_APP_OPENAI_SECRET_KEY,
     });
   }, [activeTicket, messages]);
@@ -352,7 +352,7 @@ export const CreateRequest = () => {
                 marginBottom: "8px",
               }}
             >
-              You don't have any requests yet
+              You don`t have any requests yet
             </Typography>
             <Typography sx={{ marginBottom: "48px" }}>
               Tap the button “Create new request” here or in the side bar to
@@ -447,7 +447,7 @@ export const CreateRequest = () => {
                   <Grid item>
                     <FormControl fullWidth>
                       <Typography sx={{ fontSize: "12px" }}>
-                        Summary (Description in code){" "}
+                        Identified Requirements
                       </Typography>
                       <TextField
                         multiline
@@ -660,8 +660,8 @@ export const CreateRequest = () => {
                           fontWeight: 700,
                         }}
                       >
-                        Summary (Description in code)
-                      </Typography>{" "}
+                        Identified Requirements
+                      </Typography>
                       <br /> <br />
                       {isSummaryLoading ? (
                         <Box

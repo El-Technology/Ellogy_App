@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import React ,{useEffect} from "react";
 import {useTranslation} from "react-i18next";
 import {Route, Routes} from "react-router-dom";
 import "./App.scss";

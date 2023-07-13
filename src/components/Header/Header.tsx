@@ -39,7 +39,7 @@ export const Header = () => {
   const location = useLocation();
   const { i18n } = useTranslation();
 
-  const handleChangeLang = (lang: string = "en") => {
+  const handleChangeLang = (lang = "en") => {
     i18n.changeLanguage(lang);
   };
 
