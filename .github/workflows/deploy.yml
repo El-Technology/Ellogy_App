@@ -19,11 +19,15 @@ jobs:
 
         with:
           node-version: 18
+
       - name: Install npm
         run: sudo apt-get install npm
 
       - name: Install dependencies
         run: npm install
+
+      - name: Set up environment
+        run: echo "REACT_APP_OPENAI_SECRET_KEY=${{ secrets.REACT_APP_OPENAI_SECRET_KEY }}" >> $GITHUB_ENV
 
       - name: Build application
         run: npm run build
