@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Box, Button, InputAdornment, TextField } from "@mui/material";
-import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Oval } from "react-loader-spinner";
 
@@ -37,7 +36,7 @@ import { ReactComponent as Search } from "../../assets/icons/search.svg";
 import useDebounce from "../../core/hooks/useDebounce";
 
 export const Sidebar = () => {
-  const { t } = useTranslation("navigation");
+  //   const { t } = useTranslation("navigation");
   const dispatch = useAppDispatch();
   const tickets = useSelector(getTickets);
   const loader = useSelector(getTicketsLoader);

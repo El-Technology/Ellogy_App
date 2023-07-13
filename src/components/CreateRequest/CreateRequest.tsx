@@ -1,10 +1,4 @@
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createRef, useEffect, useMemo, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
@@ -113,7 +107,7 @@ export const CreateRequest = () => {
     }
   }, [activeTicket]);
 
-  const { handleSubmit, reset, watch, register } = methods;
+  const { handleSubmit, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -226,11 +220,6 @@ export const CreateRequest = () => {
     };
     setMessages((prev) => [...prev, res]);
   };
-
-  const handleResetForm = useCallback(() => {
-    reset();
-    setMessages([]);
-  }, [reset]);
 
   const activateEditMode = () => {
     setEditMode(true);
