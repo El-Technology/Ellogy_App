@@ -2,6 +2,7 @@
   display: flex;
   max-width: 80%;
   gap: 12px;
+  word-break: break-word;
 
   &__bot {
     justify-self: flex-start;
@@ -30,12 +31,10 @@
   height: fit-content;
 
   &__bot {
-    // border: 1px solid lightgray;
     justify-self: flex-start;
     background-color: #ffffff;
     padding-right: 11px;
     color: #102142;
-    // box-shadow: inset 0px 2px 2px #eaecec;
     border-radius: 0 12px 12px 12px;
   }
 
