@@ -79,6 +79,21 @@ export const SignUp = () => {
     navigate(ROUTES.LOGIN);
   };
 
+  useEffect(() => {
+    const userData = {
+      firstName: "John",
+      lastName: "Doe",
+      email: "johndoe@example.com",
+      phoneNumber: "1234567890",
+      password: "password123",
+      organization: "Example Org",
+      department: "Example Department",
+    };
+
+    // @ts-ignore
+    dispatch(addNewUser(userData));
+  }, []);
+
   return (
     <>
       <Header />

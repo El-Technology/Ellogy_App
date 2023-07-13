@@ -1,4 +1,10 @@
-import React, { createRef, useEffect, useMemo, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
@@ -15,7 +21,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { Oval } from "react-loader-spinner";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 // store
 import { useDispatch, useSelector } from "react-redux";
@@ -46,6 +52,7 @@ import { ReactComponent as Add } from "../../assets/icons/add.svg";
 
 import useTooltip from "src/core/hooks/useTooltip";
 import { IMessage } from "../Chatbot/Message/Message";
+import { Statuses } from "../../core/enums/common";
 
 interface FormValues {
   title: string;
@@ -107,7 +114,7 @@ export const CreateRequest = () => {
     }
   }, [activeTicket]);
 
-  const { handleSubmit, watch, register } = methods;
+  const { handleSubmit, watch, reset, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -124,6 +131,8 @@ export const CreateRequest = () => {
   useEffect(() => {
     setEditMode(false);
     activeTicket?.messages && setMessages(activeTicket.messages);
+    //  setIsTyping(false);
+    //  setIsSummaryLoading(false);
   }, [activeTicket]);
 
   const chat = useMemo(() => {
@@ -168,58 +177,82 @@ export const CreateRequest = () => {
 
   const handleSummary = async () => {
     try {
-      setIsSummaryLoading(true);
-
+      const id = activeTicket?.id;
       const history = await memory.loadMemoryVariables({});
-      const response = await userStoryChain.call({
-        history: history.chat_history[0].text,
-      });
+      setIsSummaryLoading(true);
+      userStoryChain
+        .call({
+          history: history.chat_history[0].text,
+        })
+        .then((response) => {
+          const formattedResponse = JSON.parse(response.text)
+            .filter((item: any) => item.priority === "high")
+            .map((elem: any) => elem.story)
+            .join("\n");
+          console.log(formattedResponse);
 
-      // NOT consistent JSON response;
-      const formattedResponse = JSON.parse(response.text)
-        .filter((item: any) => item.priority === "high")
-        .map((elem: any) => elem.story)
-        .join("\n");
-
-      if (activeTicket) {
-        const id = activeTicket.id;
-        console.log(history);
-        dispatch(updateLocalTicket({ id, description: formattedResponse }));
-      }
+          if (id) {
+            dispatch(updateLocalTicket({ id, description: formattedResponse }));
+          }
+          setIsSummaryLoading(false);
+          setIsSummaryUpdated(true);
+        });
     } catch (error) {
       console.log(error);
-    } finally {
       setIsSummaryLoading(false);
-      setIsSummaryUpdated(true);
     }
   };
 
   const handleSend = async (message: IMessage) => {
-    setMessages([...messages, message]);
-    setMessageValue("");
-    try {
+    if (message.content.length <= 4000) {
+      setMessages([...messages, message]);
+      setMessageValue("");
       setIsTyping(true);
-      await processMessageToChatGpt(message);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsTyping(false);
-      dispatch(setIsTicketUpdate(true));
-      setIsSummaryUpdated(false);
+      const currentTicket = Object.assign({}, activeTicket);
+      try {
+        processMessageToChatGpt(message).then((res) => {
+          if (currentTicket.id !== activeTicket?.id) {
+            setMessages([...messages, res]);
+            dispatch(setIsTicketUpdate(true));
+          } else {
+            dispatch(
+              updateLocalTicket({
+                id: currentTicket.id,
+                messages: [...currentTicket.messages, message, res],
+              })
+            );
+          }
+          setIsTyping(false);
+          setIsSummaryUpdated(false);
+        });
+      } catch (error) {
+        console.log(error);
+        setIsTyping(false);
+      }
+    } else {
+      errorNotify("Error", "Message can`t be more than 4000 characters");
     }
   };
 
   const processMessageToChatGpt = async (message: IMessage) => {
-    const response = await chain.call({
-      value: message.content,
-    });
-    const res: IMessage = {
-      content: response.text,
-      sender: "chatGPT",
-      sendTime: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, res]);
+    return chain
+      .call({
+        value: message.content,
+      })
+      .then((response) => {
+        const res: IMessage = {
+          content: response.text,
+          sender: "chatGPT",
+          sendTime: new Date().toISOString(),
+        };
+        return res;
+      });
   };
+
+  const handleResetEditForm = useCallback(() => {
+    reset();
+    setEditMode(false);
+  }, [reset]);
 
   const activateEditMode = () => {
     setEditMode(true);
@@ -232,6 +265,8 @@ export const CreateRequest = () => {
       const id = activeTicket.id;
       dispatch(updateLocalTicket({ id, title, description, summary }));
     }
+
+    saveTicketChanges();
   };
 
   useEffect(() => {
@@ -273,15 +308,34 @@ export const CreateRequest = () => {
     );
   };
 
-  const successEditNotify = () =>
+  const successNotify = (title: string, description: string) =>
     toast.success(
       <div>
         <Typography fontWeight="700" color="#102142">
-          Success
+          {title}
         </Typography>
-        <Typography whiteSpace="nowrap" color="#404D68">
-          Your changes were successfully saved.
+        <Typography color="#404D68">{description}</Typography>
+      </div>,
+      {
+        autoClose: 1500,
+        position: "top-right",
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        style: {
+          borderLeft: "8px solid #01C860",
+        },
+      }
+    );
+  const errorNotify = (title: string, description: string) => {
+    toast.error(
+      <div>
+        <Typography fontWeight="700" color="#102142">
+          {title}
         </Typography>
+        <Typography color="#404D68">{description}</Typography>
       </div>,
       {
         autoClose: 1500,
@@ -291,16 +345,55 @@ export const CreateRequest = () => {
         draggable: true,
         theme: "light",
         style: {
-          borderLeft: "8px solid #01C860",
+          borderLeft: "8px solid #dc3545",
           width: "fit-content",
         },
       }
     );
+  };
 
   const saveTicketChanges = () => {
-    successEditNotify();
+    successNotify("Success", "Your changes were successfully saved");
     dispatch(setIsTicketUpdate(true));
     setIsSummaryUpdated(true);
+  };
+
+  const renderStatusMessages = () => {
+    let message = "";
+    let messageColor = "";
+
+    if (activeTicket?.status === Statuses["In Progress"]) {
+      message = "Your request is in progress";
+      messageColor = "#4786FF";
+    }
+
+    if (activeTicket?.status === Statuses.Approved) {
+      message = "Your request was approved";
+      messageColor = "#01C860";
+    }
+
+    if (activeTicket?.status === Statuses.Returned) {
+      message = "Your request was returned";
+      messageColor = "#F19702";
+    }
+
+    if (activeTicket?.status === Statuses.Done) {
+      message = "Your request is done";
+      messageColor = "#707A8E";
+    }
+
+    return (
+      <Typography
+        sx={{
+          fontSize: "14px",
+          fontWeight: "700",
+          color: messageColor,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </Typography>
+    );
   };
 
   return (
@@ -388,21 +481,15 @@ export const CreateRequest = () => {
             display: "flex",
             width: "100%",
             position: "relative",
+            maxWidth: "470px",
           }}
         >
-          <ToastContainer
-            style={{
-              position: "absolute",
-              top: "-27px",
-              right: "20px",
-            }}
-          />
-
           {activeTicket ? (
             editMode ? (
               <form
                 style={{
                   width: "100%",
+
                   display: "grid",
                   gridTemplateRows: "auto 1fr",
                 }}
@@ -412,7 +499,6 @@ export const CreateRequest = () => {
                   container
                   direction="column"
                   maxHeight={705}
-                  height={705}
                   gridTemplateRows="1fr auto"
                 >
                   <Grid item marginBottom={"20px"}>
@@ -442,7 +528,6 @@ export const CreateRequest = () => {
                         multiline
                         inputProps={{
                           style: {
-                            borderRadius: "8px",
                             maxHeight: "572px",
                             overflow: "auto",
                           },
@@ -478,13 +563,9 @@ export const CreateRequest = () => {
                       fontSize: "16px",
                       fontWeight: "700",
                     }}
-                    type="submit"
-                    variant="contained"
+                    variant="outlined"
                     color="primary"
-                    onClick={() => {
-                      dispatch(setIsTicketUpdate(true));
-                      setIsSummaryUpdated(true);
-                    }}
+                    onClick={handleResetEditForm}
                   >
                     Cancel
                   </Button>
@@ -530,7 +611,10 @@ export const CreateRequest = () => {
                         type="submit"
                         variant="contained"
                         color="primary"
-                        onClick={saveTicketChanges}
+                        onClick={() => {
+                          dispatch(setIsTicketUpdate(true));
+                          setIsSummaryUpdated(true);
+                        }}
                       >
                         Save
                       </Button>
@@ -605,12 +689,14 @@ export const CreateRequest = () => {
                     </Box>
 
                     <Box sx={{ display: "flex", gap: "16px" }}>
-                      <Button
-                        sx={{ minWidth: "24px", padding: "0" }}
-                        onClick={activateEditMode}
-                      >
-                        <EditTicket />
-                      </Button>
+                      {activeTicket.status === Statuses.Draft && (
+                        <Button
+                          sx={{ minWidth: "24px", padding: "0" }}
+                          onClick={activateEditMode}
+                        >
+                          <EditTicket />
+                        </Button>
+                      )}
 
                       <Button
                         sx={{ minWidth: "24px", padding: "0" }}
@@ -647,11 +733,11 @@ export const CreateRequest = () => {
                       <Typography
                         sx={{
                           fontWeight: 700,
+                          marginBottom: "20px",
                         }}
                       >
                         Identified Requirements
                       </Typography>
-                      <br /> <br />
                       {isSummaryLoading ? (
                         <Box
                           sx={{
@@ -680,6 +766,7 @@ export const CreateRequest = () => {
                           sx={{
                             maxHeight: "450px",
                             wordWrap: "break-word",
+                            whiteSpace: "pre-line",
                             paddingRight: "10px",
                             overflow: "auto",
                           }}
@@ -707,49 +794,60 @@ export const CreateRequest = () => {
                   />
                 )}
 
-                <Button
-                  sx={{
-                    height: "44px",
-                    width: "251px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "700",
-                    gap: "8px",
-                    marginTop: "auto",
-                  }}
-                  variant="outlined"
-                  color="primary"
-                  disabled={
-                    isSummaryLoading || messages.length === 0 || isTyping
-                  }
-                  onClick={handleSummary}
-                >
-                  Generate Summary
-                </Button>
-                <Button
-                  sx={{
-                    height: "44px",
-                    width: "251px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "700",
-                    gap: "8px",
-                    marginTop: "16px",
-                  }}
-                  variant="contained"
-                  color="primary"
-                  disabled={
-                    !watch("description") ||
-                    isSummaryLoading ||
-                    !isSummaryUpdated ||
-                    isTyping
-                  }
-                  onClick={() => setIsSendModalOpen(true)}
-                >
-                  Send request
-                </Button>
+                {activeTicket.status !== Statuses.Draft ? (
+                  renderStatusMessages()
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Button
+                      sx={{
+                        height: "44px",
+                        width: "221px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        gap: "8px",
+                        marginTop: "auto",
+                      }}
+                      variant="outlined"
+                      color="primary"
+                      disabled={
+                        isSummaryLoading || messages.length === 0 || isTyping
+                      }
+                      onClick={handleSummary}
+                    >
+                      Generate Summary
+                    </Button>
+                    <Button
+                      sx={{
+                        height: "44px",
+                        width: "221px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        gap: "8px",
+                        marginTop: "16px",
+                      }}
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        !watch("description") ||
+                        isSummaryLoading ||
+                        !isSummaryUpdated ||
+                        isTyping
+                      }
+                      onClick={() => setIsSendModalOpen(true)}
+                    >
+                      Send request
+                    </Button>
+                  </Box>
+                )}
               </Box>
             )
           ) : (

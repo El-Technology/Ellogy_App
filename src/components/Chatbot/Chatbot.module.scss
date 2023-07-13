@@ -4,7 +4,9 @@
   border: 1px solid lightgrey;
   border-radius: 10px;
   min-height: 705px;
+  max-width: 525px;
   overflow: hidden;
+  min-width: 525px;
 
   &__title {
     padding: 4px;
@@ -16,7 +18,7 @@
 .chat-input__container {
   background-color: #efefef;
   margin-top: 25px;
-  padding: 12px;
+  padding: 15px;
   box-sizing: border-box;
   border: 1px solid lightgrey;
   border-radius: 10px;

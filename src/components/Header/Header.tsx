@@ -13,6 +13,7 @@ import { LogoutModal } from "./LogoutModal";
 
 // assets
 import { ReactComponent as Logo } from "../../assets/icons/logo-ellogy.svg";
+import { ReactComponent as EllogyTitle } from "../../assets/icons/ellogy-title.svg";
 import { ReactComponent as Avatar } from "../../assets/icons/avatar.svg";
 import { ReactComponent as Notification } from "../../assets/icons/notification.svg";
 import { ReactComponent as ArrowDown } from "../../assets/icons/arrow-down.svg";
@@ -344,28 +345,9 @@ export const Header = () => {
           width: "100%",
         }}
       >
-        <Box sx={{ display: "flex", gap: "10px" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <Logo />
-
-          <Box sx={{ display: "flex", flexDirection: "column" }}>
-            <Typography
-              sx={{
-                background: "linear-gradient(90deg, #4786FF 0%, #3164C8 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                color: "#000000",
-                fontSize: "28px",
-                fontWeight: "700",
-              }}
-            >
-              Ellogy
-            </Typography>
-
-            <Typography sx={{ color: "#102142", fontSize: "10px" }}>
-              Semantic Automation
-            </Typography>
-          </Box>
+          <EllogyTitle />
         </Box>
 
         {renderButton()}

@@ -1,19 +1,27 @@
-import React, {useEffect} from 'react';
-import {useForm} from 'react-hook-form';
-import {TextField, Button, Typography, Grid, FormControl, FormHelperText, Box} from '@mui/material';
-import {yupResolver} from '@hookform/resolvers/yup';
-import {Header} from 'src/components/Header/Header';
-import {useNavigate} from 'react-router-dom';
-import {useSelector} from 'react-redux';
-import {loginUser} from '../../store/user-service/asyncActions';
-import {getUser} from 'src/store/user-service/selector';
-import {loginSchema} from "../../core/helpers/yupSchemas";
-import {removeLoginError} from 'src/store/user-service/userSlice';
-import {SignInType} from "../../core/types/base";
-import {Oval} from 'react-loader-spinner';
-import {ROUTES} from "../../core/constants/routes";
-import {InferType} from "yup";
-import {useAppDispatch} from "../../store/store";
+import React, { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import {
+  TextField,
+  Button,
+  Typography,
+  Grid,
+  FormControl,
+  FormHelperText,
+  Box,
+} from "@mui/material";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Header } from "src/components/Header/Header";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { loginUser } from "../../store/user-service/asyncActions";
+import { getUser } from "src/store/user-service/selector";
+import { loginSchema } from "../../core/helpers/yupSchemas";
+import { removeLoginError } from "src/store/user-service/userSlice";
+import { SignInType } from "../../core/types/base";
+import { Oval } from "react-loader-spinner";
+import { ROUTES } from "../../core/constants/routes";
+import { InferType } from "yup";
+import { useAppDispatch } from "../../store/store";
 
 type LoginFormSchema = InferType<typeof loginSchema>;
 
@@ -25,8 +33,8 @@ export const Login = () => {
   const {
     handleSubmit,
     register,
-    formState: {errors},
-    watch
+    formState: { errors },
+    watch,
   } = useForm<LoginFormSchema>({
     resolver: yupResolver(loginSchema),
   });
@@ -35,7 +43,7 @@ export const Login = () => {
     try {
       const result = await dispatch(loginUser(data)).unwrap();
       if (result) {
-        navigate(ROUTES.HOME)
+        navigate(ROUTES.HOME);
       } else {
         dispatch(removeLoginError());
       }
@@ -46,7 +54,7 @@ export const Login = () => {
 
   useEffect(() => {
     dispatch(removeLoginError());
-  }, [watch("email"), watch("password")])
+  }, [watch("email"), watch("password")]);
 
   const redirectToSignUp = () => {
     navigate(ROUTES.SIGNUP);
@@ -63,31 +71,31 @@ export const Login = () => {
       return (
         <FormHelperText
           sx={{
-            fontSize: '12px',
-            textAlign: 'right',
-            marginRight: '12px',
-            marginTop: '0',
-            color: "#FB0B24"
+            fontSize: "12px",
+            textAlign: "right",
+            marginRight: "12px",
+            marginTop: "0",
+            color: "#FB0B24",
           }}
         >
           Incorrect email
         </FormHelperText>
-      )
+      );
     } else {
       return (
         <FormHelperText
           sx={{
-            fontSize: '12px',
-            textAlign: 'right',
-            marginRight: '12px',
-            marginTop: '0'
+            fontSize: "12px",
+            textAlign: "right",
+            marginRight: "12px",
+            marginTop: "0",
           }}
         >
           {errors.email?.message}
         </FormHelperText>
-      )
+      );
     }
-  }
+  };
 
   const renderPasswordInfo = () => {
     const passwordError = "Login with this credentials was failed";
@@ -96,55 +104,60 @@ export const Login = () => {
       return (
         <FormHelperText
           sx={{
-            fontSize: '12px',
-            textAlign: 'right',
-            marginRight: '12px',
-            marginTop: '0',
-            color: "#FB0B24"
+            fontSize: "12px",
+            textAlign: "right",
+            marginRight: "12px",
+            marginTop: "0",
+            color: "#FB0B24",
           }}
         >
           Incorrect password
         </FormHelperText>
-      )
+      );
     } else if (errors.password) {
       return (
         <FormHelperText
           sx={{
-            fontSize: '12px',
-            textAlign: 'right',
-            marginRight: '12px',
-            marginTop: '0',
+            fontSize: "12px",
+            textAlign: "right",
+            marginRight: "12px",
+            marginTop: "0",
           }}
         >
           {errors.password?.message}
         </FormHelperText>
-      )
+      );
     } else {
       return (
         <Typography
           sx={{
-            fontSize: '12px',
-            textAlign: 'right',
-            marginRight: '12px',
-            color: '#1A5EEC',
-            cursor: 'pointer',
+            fontSize: "12px",
+            textAlign: "right",
+            marginRight: "12px",
+            color: "#1A5EEC",
+            cursor: "pointer",
           }}
           onClick={redirectToResetPassword}
         >
           Forgot password?
         </Typography>
-      )
+      );
     }
-  }
+  };
 
   return (
     <>
-      <Header/>
+      <Header />
 
-      <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '164px'}}>
-        <Grid container sx={{width: '374px', gap: '24px'}}>
-          <Grid item sx={{width: '100%', textAlign: 'center'}}>
-            <Typography variant="h3" sx={{fontSize: '34px', fontWeight: '700'}}>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", marginTop: "164px" }}
+      >
+        <Grid container sx={{ width: "374px", gap: "24px" }}>
+          <Grid item sx={{ width: "100%", textAlign: "center" }}>
+            <Typography
+              variant="h3"
+              sx={{ fontSize: "34px", fontWeight: "700" }}
+            >
               Login
             </Typography>
           </Grid>
@@ -154,17 +167,17 @@ export const Login = () => {
               <Grid container direction="column">
                 <Grid item>
                   <FormControl fullWidth error={!!errors.email}>
-                    <Typography sx={{fontSize: '12px'}}>Email</Typography>
+                    <Typography sx={{ fontSize: "12px" }}>Email</Typography>
                     <TextField
-                      inputProps={{style: {padding: '10px 12px'}}}
+                      inputProps={{ style: { padding: "10px 12px" } }}
                       placeholder="example@gmail.com"
                       sx={{
-                        height: '44px',
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '8px',
+                        height: "44px",
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
                         },
                       }}
-                      {...register('email')}
+                      {...register("email")}
                     />
                     {renderEmailInfo()}
                   </FormControl>
@@ -172,19 +185,21 @@ export const Login = () => {
 
                 <Grid item mt={2.4}>
                   <FormControl fullWidth error={!!errors.password}>
-                    <Typography sx={{fontSize: '12px'}}>Password</Typography>
+                    <Typography sx={{ fontSize: "12px" }}>Password</Typography>
                     <TextField
-                      inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
+                      inputProps={{
+                        style: { padding: "10px 12px", borderRadius: "8px" },
+                      }}
                       autoComplete="password"
                       type="password"
                       placeholder="Enter your password"
                       sx={{
-                        height: '44px',
-                        '& .MuiOutlinedInput-root': {
-                          borderRadius: '8px',
+                        height: "44px",
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "8px",
                         },
                       }}
-                      {...register('password')}
+                      {...register("password")}
                     />
                     {renderPasswordInfo()}
                   </FormControl>
@@ -194,11 +209,11 @@ export const Login = () => {
               {userData.loading ? (
                 <Button
                   sx={{
-                    marginTop: '24px',
+                    marginTop: "24px",
                     height: "44px",
-                    width: '374px',
-                    borderRadius: '8px',
-                    textTransform: 'none'
+                    width: "374px",
+                    borderRadius: "8px",
+                    textTransform: "none",
                   }}
                   type="submit"
                   variant="contained"
@@ -211,7 +226,7 @@ export const Login = () => {
                     wrapperStyle={{}}
                     wrapperClass=""
                     visible={true}
-                    ariaLabel='oval-loading'
+                    ariaLabel="oval-loading"
                     secondaryColor="#91B6FF"
                     strokeWidth={5}
                     strokeWidthSecondary={5}
@@ -220,13 +235,13 @@ export const Login = () => {
               ) : (
                 <Button
                   sx={{
-                    marginTop: '24px',
+                    marginTop: "24px",
                     height: "44px",
-                    width: '374px',
-                    borderRadius: '8px',
-                    textTransform: 'none',
+                    width: "374px",
+                    borderRadius: "8px",
+                    textTransform: "none",
                     fontSize: "16px",
-                    fontWeight: "700"
+                    fontWeight: "700",
                   }}
                   type="submit"
                   variant="contained"
@@ -238,9 +253,12 @@ export const Login = () => {
             </form>
           </Grid>
 
-          <Grid item sx={{display: 'flex', gap: '8px', marginTop: '8px'}}>
+          <Grid item sx={{ display: "flex", gap: "8px", marginTop: "8px" }}>
             <Typography>Don’t have an account yet?</Typography>
-            <Typography sx={{color: '#4786FF', cursor: 'pointer'}} onClick={redirectToSignUp}>
+            <Typography
+              sx={{ color: "#4786FF", cursor: "pointer" }}
+              onClick={redirectToSignUp}
+            >
               Sign up
             </Typography>
           </Grid>
