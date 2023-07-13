@@ -27,7 +27,7 @@ export const Chatbot: FC<ChatbotProps> = ({
 }) => {
   const activeTicket = useSelector(getActiveTicket);
 
-  const { setValue, getValues } = useFormContext();
+  const { setValue } = useFormContext();
   const { t } = useTranslation("inputs", {
     useSuspense: false,
   });
