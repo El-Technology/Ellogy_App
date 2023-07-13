@@ -6,6 +6,9 @@ import { useFormContext } from "react-hook-form";
 import { IMessage } from "./Message/Message";
 import styles from "./Chatbot.module.scss";
 import { Box } from "@mui/material";
+import { Statuses } from "../../core/enums/common";
+import { useSelector } from "react-redux";
+import { getActiveTicket } from "../../store/ticket-service/selector";
 
 interface ChatbotProps {
   isTyping: boolean;
@@ -22,7 +25,9 @@ export const Chatbot: FC<ChatbotProps> = ({
   messageValue,
   handleSend,
 }) => {
-  const { setValue } = useFormContext();
+  const activeTicket = useSelector(getActiveTicket);
+
+  const { setValue, getValues } = useFormContext();
   const { t } = useTranslation("inputs", {
     useSuspense: false,
   });
@@ -52,7 +57,8 @@ export const Chatbot: FC<ChatbotProps> = ({
       <Box
         className={styles.chat}
         sx={{
-          flex: "0 1 92%",
+          flex:
+            activeTicket?.status === Statuses.Draft ? "0 1 92%" : "0 1 100%",
           minHeight: "450px",
           backgroundColor: "#EFEFEF",
         }}
@@ -60,23 +66,25 @@ export const Chatbot: FC<ChatbotProps> = ({
         <MessageList list={messages} isTyping={isTyping} ref={chatWindowRef} />
       </Box>
 
-      <Box
-        sx={{
-          marginTop: "16px",
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "16px",
-        }}
-      >
-        <MessageInput
-          ref={inputRef}
-          placeholder={t("messagePlaceholder") || "red"} // bad translate
-          onSend={handleSend}
-          setValue={setMessageValue}
-          value={messageValue}
-          disabled={isTyping}
-        />
-      </Box>
+      {activeTicket?.status === Statuses.Draft && (
+        <Box
+          sx={{
+            marginTop: "16px",
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "16px",
+          }}
+        >
+          <MessageInput
+            ref={inputRef}
+            placeholder={t("messagePlaceholder") || "red"} // bad translate
+            onSend={handleSend}
+            setValue={setMessageValue}
+            value={messageValue}
+            disabled={isTyping}
+          />
+        </Box>
+      )}
     </Box>
   );
 };

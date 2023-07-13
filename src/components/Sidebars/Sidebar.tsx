@@ -207,6 +207,7 @@ export const Sidebar = () => {
         }}
       >
         <Box
+          ref={containerRef}
           sx={{
             display: "flex",
             flexDirection: "column",
