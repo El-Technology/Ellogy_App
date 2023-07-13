@@ -35,7 +35,7 @@ export const LogoutModal: FC<LogoutModalProps> = ({ handleCloseModal }) => {
       >
         <Box
           sx={{
-            position: "absolute" as const,
+            position: "absolute",
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",

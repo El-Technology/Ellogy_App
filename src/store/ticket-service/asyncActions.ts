@@ -88,7 +88,11 @@ export const deleteTicket = createAsyncThunk(
 export const searchTickets = createAsyncThunk(
   "tickets/searchTickets",
   async (
-    { userId, ticketTitle, currentPageNumber }: { userId: string; ticketTitle: string, currentPageNumber?: number },
+    {
+      userId,
+      ticketTitle,
+      currentPageNumber,
+    }: { userId: string; ticketTitle: string; currentPageNumber?: number },
     { rejectWithValue, dispatch }
   ) => {
     try {
