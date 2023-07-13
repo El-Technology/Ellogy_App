@@ -113,7 +113,7 @@ export const CreateRequest = () => {
     }
   }, [activeTicket]);
 
-  const { handleSubmit, reset, setValue, watch, register } = methods;
+  const { handleSubmit, reset, watch, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
