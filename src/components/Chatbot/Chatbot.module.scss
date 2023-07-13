@@ -2,8 +2,8 @@
   display: flex;
   flex-direction: column;
   border: 1px solid lightgrey;
-  width: 100%;
   border-radius: 10px;
+  min-height: 705px;
   overflow: hidden;
 
   &__title {
@@ -14,17 +14,16 @@
 }
 
 .chat-input__container {
+  background-color: #efefef;
   margin-top: 25px;
-  padding: 15px;
+  padding: 12px;
   box-sizing: border-box;
-  width: 100%;
   border: 1px solid lightgrey;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-bottom: 25px;
-
   span {
     font-size: 14px;
   }

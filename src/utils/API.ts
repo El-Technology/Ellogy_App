@@ -1,17 +1,17 @@
-import axios, { AxiosError } from 'axios';
-import { VaultService } from './storage';
+import axios, { AxiosError } from "axios";
+import { VaultService } from "./storage";
 
 const storage = new VaultService();
 
 const axiosConfig = {
-  baseURL: 'https://api-dev.elottdev.pp.ua/api/',
+  baseURL: "https://backend.ellogy.ai/gateway",
 };
 const instance = axios.create(axiosConfig);
 
 // Interceptors
 instance.interceptors.request.use(
   (req) => {
-    const TOKEN = storage.getItem('token');
+    const TOKEN = storage.getItem("token");
 
     if (TOKEN && req.headers) {
       Object.assign(req.headers, { Authorization: `bearer ${TOKEN}` });
@@ -25,7 +25,7 @@ instance.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error.response);
-  },
+  }
 );
 
 //on successful response
@@ -35,11 +35,11 @@ instance.interceptors.response.use(
     if (error && error.response && error.response.status === 401) {
       storage.clearStorage();
       sessionStorage.clear();
-      window.location.href = '/';
+      window.location.href = "/";
     } else {
       return Promise.reject(error.response);
     }
-  },
+  }
 );
 
 export default instance;

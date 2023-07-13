@@ -1,64 +1,73 @@
 import { Box } from "@mui/material";
-import { ReactNode } from "react";
-import { Header } from "../components/Header/Header";
+import React, { ReactNode } from "react";
 import { Sidebar } from "../components/Sidebars/Sidebar";
+import { Header } from "../components/Header/Header";
 
 export const MainPageLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <Box>
+    <>
       <Header />
+
       <Box
         sx={{
           display: "flex",
-          width: {
-            xs: "100%",
-            sm: "calc(100vw - 91px)",
-            md: "calc(100vw - 91px)",
-            xl: "calc(100vw - 91px)",
-          },
-          overflowY: "auto",
-          overflowX: "hidden",
-          height: "100%",
-          maxHeight: {
-            xs: "calc(100vh - 170px)",
-            sm: "calc(100vh - 70px)"
-          },
-          position: "absolute",
-          left: {
-            xs: 0,
-            sm: "91px",
-            md: "91px",
-            xl: "91px",
-          },
-          paddingLeft: {
-            xs: "20px",
-            sm: "70px",
-            md: "70px",
-            xl: "70px",
-          },
-          paddingTop: "20px",
-          paddingRight: {
-            xs: "20px",
-            sm: "82px",
-            md: "82px",
-            xl: "82px",
-          },
-          backgroundColor: "#EFEFEF",
-          boxSizing: "border-box",
+          justifyContent: "center",
         }}
       >
         <Box
-          position="relative"
-          display={"flex"}
-          flexDirection={"column"}
-          flexGrow={1}
-          height="100%"
-        >
-          {children}
-        </Box>
-      </Box>
+          sx={{
+            width: "calc((100% - 1370px) / 2)",
+            height: "calc(100vh - 82px)",
+            display: "flex",
+            justifyContent: "center",
+            background: "#FBFBFB",
+          }}
+        ></Box>
 
-      <Sidebar />
-    </Box>
+        <Box
+          sx={{
+            display: "flex",
+            maxWidth: "1370px",
+            width: "100%",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Sidebar />
+
+          <Box
+            sx={{
+              width: "calc(100% - 20px)",
+              display: "flex",
+              overflowY: "auto",
+              overflowX: "hidden",
+              height: "calc(100vh - 82px)",
+              padding: "20px 0 20px 24px",
+              backgroundColor: "#EFEFEF",
+              boxSizing: "border-box",
+            }}
+          >
+            <Box
+              position="relative"
+              display={"flex"}
+              flexDirection={"column"}
+              flexGrow={1}
+              height="100%"
+            >
+              {children}
+            </Box>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            width: "calc((100% - 1370px) / 2)",
+            height: "calc(100vh - 82px)",
+            display: "flex",
+            justifyContent: "center",
+            backgroundColor: "#efefef",
+          }}
+        ></Box>
+      </Box>
+    </>
   );
 };
