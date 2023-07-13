@@ -9,7 +9,6 @@ import {
   Typography,
 } from "@mui/material";
 import { useLocation, Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { LogoutModal } from "./LogoutModal";
 
 // assets
@@ -37,11 +36,6 @@ export const Header = () => {
     setAnchorEl(null);
   };
   const location = useLocation();
-  const { i18n } = useTranslation();
-
-  const handleChangeLang = (lang = "en") => {
-    i18n.changeLanguage(lang);
-  };
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;

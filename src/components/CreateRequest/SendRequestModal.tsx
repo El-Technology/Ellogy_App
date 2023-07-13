@@ -3,11 +3,7 @@ import React, { FC, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as Question } from "../../assets/icons/question.svg";
 import { setIsTicketUpdate } from "src/store/ticket-service/ticketSlice";
-import {
-  deleteTicket,
-  getTicketsByUserId,
-  updateTicket,
-} from "../../store/ticket-service/asyncActions";
+import { updateTicket } from "../../store/ticket-service/asyncActions";
 import { TicketType } from "../../store/ticket-service/types";
 import { updateLocalTicket } from "src/store/ticket-service/ticketSlice";
 import { Oval } from "react-loader-spinner";

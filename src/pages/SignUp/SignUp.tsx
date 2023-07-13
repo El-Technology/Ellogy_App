@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {useForm} from 'react-hook-form';
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import {
   TextField,
   Button,
@@ -8,26 +8,26 @@ import {
   FormControl,
   FormHelperText,
   Box,
-} from '@mui/material';
-import InputMask from 'react-input-mask';
-import {Oval} from "react-loader-spinner";
-import {yupResolver} from '@hookform/resolvers/yup';
-import {useNavigate} from 'react-router-dom';
-import {useDispatch, useSelector} from "react-redux";
+} from "@mui/material";
+import InputMask from "react-input-mask";
+import { Oval } from "react-loader-spinner";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 // store
-import {getUser} from "../../store/user-service/selector";
-import {addNewUser, loginUser} from "../../store/user-service/asyncActions";
-import {removeLoginError, removeSignUpError} from "../../store/user-service/userSlice";
+import { getUser } from "../../store/user-service/selector";
+import { addNewUser } from "../../store/user-service/asyncActions";
+import { removeSignUpError } from "../../store/user-service/userSlice";
 
 // core
-import {signUpSchema} from "../../core/helpers/yupSchemas";
-import {SignInType, SignUpType} from "../../core/types/base";
-import {ROUTES} from "../../core/constants/routes";
+import { signUpSchema } from "../../core/helpers/yupSchemas";
+import { SignUpType } from "../../core/types/base";
+import { ROUTES } from "../../core/constants/routes";
 
 // components
-import {Header} from 'src/components/Header/Header';
-import {SuccessSignUpModal} from "./SuccessSignUpModal";
+import { Header } from "src/components/Header/Header";
+import { SuccessSignUpModal } from "./SuccessSignUpModal";
 
 export const SignUp = () => {
   const navigate = useNavigate();
@@ -39,9 +39,9 @@ export const SignUp = () => {
   const {
     handleSubmit,
     register,
-    formState: {errors},
+    formState: { errors },
     watch,
-    resetField
+    resetField,
   } = useForm({
     resolver: yupResolver(signUpSchema),
   });
@@ -49,14 +49,14 @@ export const SignUp = () => {
   const stringHasWhitespaceAtTheBeginning = /^\s/;
 
   useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-        if (name) {
-          if (stringHasWhitespaceAtTheBeginning.test(String(value[name]))) {
-            resetField(name);
-          }
+    const subscription = watch((value, { name }) => {
+      if (name) {
+        if (stringHasWhitespaceAtTheBeginning.test(String(value[name]))) {
+          resetField(name);
         }
-    })
-    return () => subscription.unsubscribe()
+      }
+    });
+    return () => subscription.unsubscribe();
   }, [watch]);
 
   useEffect(() => {
@@ -81,41 +81,48 @@ export const SignUp = () => {
 
   return (
     <>
-      <Header/>
+      <Header />
 
-      <Box sx={{display: 'flex', justifyContent: 'center', marginTop: '164px'}}>
-        <Grid container sx={{width: '574px', gap: '24px'}}>
-          <Grid item sx={{width: '100%', textAlign: 'center'}}>
-            <Typography variant="h3" sx={{fontSize: '34px', fontWeight: '700'}}>
+      <Box
+        sx={{ display: "flex", justifyContent: "center", marginTop: "164px" }}
+      >
+        <Grid container sx={{ width: "574px", gap: "24px" }}>
+          <Grid item sx={{ width: "100%", textAlign: "center" }}>
+            <Typography
+              variant="h3"
+              sx={{ fontSize: "34px", fontWeight: "700" }}
+            >
               Sign Up
             </Typography>
           </Grid>
 
-          <Grid item sx={{width: '100%'}}>
+          <Grid item sx={{ width: "100%" }}>
             <form onSubmit={handleSubmit(registerUser)}>
               <Grid container direction="column">
                 <Grid item>
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.firstName}>
-                        <Typography sx={{fontSize: '12px'}}>First Name</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          First Name
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          inputProps={{ style: { padding: "10px 12px" } }}
                           placeholder="Enter your first name"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('firstName')}
+                          {...register("firstName")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.firstName?.message}
@@ -125,24 +132,26 @@ export const SignUp = () => {
 
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.organization}>
-                        <Typography sx={{fontSize: '12px'}}>Organization</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Organization
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          inputProps={{ style: { padding: "10px 12px" } }}
                           placeholder="Enter your organization name"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('organization')}
+                          {...register("organization")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.organization?.message}
@@ -152,28 +161,33 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.firstName || errors.organization) ? 0 : 2.4}>
+                <Grid
+                  item
+                  mt={errors.firstName || errors.organization ? 0 : 2.4}
+                >
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.lastName}>
-                        <Typography sx={{fontSize: '12px'}}>Last Name</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Last Name
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          inputProps={{ style: { padding: "10px 12px" } }}
                           placeholder="Enter your last name"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('lastName')}
+                          {...register("lastName")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.lastName?.message}
@@ -183,24 +197,26 @@ export const SignUp = () => {
 
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.department}>
-                        <Typography sx={{fontSize: '12px'}}>Department</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Department
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          inputProps={{ style: { padding: "10px 12px" } }}
                           placeholder="Enter your department"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('department')}
+                          {...register("department")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.department?.message}
@@ -210,69 +226,77 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.lastName || errors.department) ? 0 : 2.4}>
+                <Grid item mt={errors.lastName || errors.department ? 0 : 2.4}>
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.email}>
-                        <Typography sx={{fontSize: '12px'}}>Email</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>Email</Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px'}}}
+                          inputProps={{ style: { padding: "10px 12px" } }}
                           placeholder="example@gmail.com"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('email')}
+                          {...register("email")}
                         />
-                        {userData.signUpError ?
+                        {userData.signUpError ? (
                           <FormHelperText
                             sx={{
-                              fontSize: '12px',
-                              textAlign: 'right',
-                              marginRight: '12px',
-                              marginTop: '0',
-                              color: "#FB0B24"
+                              fontSize: "12px",
+                              textAlign: "right",
+                              marginRight: "12px",
+                              marginTop: "0",
+                              color: "#FB0B24",
                             }}
                           >
                             User with email already exist
                           </FormHelperText>
-                          : <FormHelperText
+                        ) : (
+                          <FormHelperText
                             sx={{
-                              fontSize: '12px',
-                              textAlign: 'right',
-                              marginRight: '12px',
-                              marginTop: '0',
+                              fontSize: "12px",
+                              textAlign: "right",
+                              marginRight: "12px",
+                              marginTop: "0",
                             }}
                           >
                             {errors.email?.message}
                           </FormHelperText>
-                        }
+                        )}
                       </FormControl>
                     </Grid>
 
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.password}>
-                        <Typography sx={{fontSize: '12px'}}>Password</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Password
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
+                          inputProps={{
+                            style: {
+                              padding: "10px 12px",
+                              borderRadius: "8px",
+                            },
+                          }}
                           type="password"
                           placeholder="Minimum of 8 characters"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('password')}
+                          {...register("password")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.password?.message}
@@ -282,35 +306,44 @@ export const SignUp = () => {
                   </Grid>
                 </Grid>
 
-                <Grid item mt={(errors.email || errors.password || userData.signUpError) ? 0 : 2.4}>
+                <Grid
+                  item
+                  mt={
+                    errors.email || errors.password || userData.signUpError
+                      ? 0
+                      : 2.4
+                  }
+                >
                   <Grid container spacing={2.4}>
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.phoneNumber}>
-                        <Typography sx={{fontSize: '12px'}}>Phone Number</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Phone Number
+                        </Typography>
                         <TextField
                           InputProps={{
                             // @ts-ignore
                             inputComponent: InputMask,
                             inputProps: {
-                              mask: '+999 99 999 99 99',
-                              style: {padding: '10px 12px'}
+                              mask: "+999 99 999 99 99",
+                              style: { padding: "10px 12px" },
                             },
                           }}
                           placeholder="+000 00 000 00 00"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('phoneNumber')}
+                          {...register("phoneNumber")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.phoneNumber?.message}
@@ -320,25 +353,32 @@ export const SignUp = () => {
 
                     <Grid item xs={6}>
                       <FormControl fullWidth error={!!errors.confirmPassword}>
-                        <Typography sx={{fontSize: '12px'}}>Confirm Password</Typography>
+                        <Typography sx={{ fontSize: "12px" }}>
+                          Confirm Password
+                        </Typography>
                         <TextField
-                          inputProps={{style: {padding: '10px 12px', borderRadius: '8px'}}}
+                          inputProps={{
+                            style: {
+                              padding: "10px 12px",
+                              borderRadius: "8px",
+                            },
+                          }}
                           type="password"
                           placeholder="Minimum of 8 characters"
                           sx={{
-                            height: '44px',
+                            height: "44px",
                             "& .MuiOutlinedInput-root": {
-                              borderRadius: '8px',
+                              borderRadius: "8px",
                             },
                           }}
-                          {...register('confirmPassword')}
+                          {...register("confirmPassword")}
                         />
                         <FormHelperText
                           sx={{
-                            fontSize: '12px',
-                            textAlign: 'right',
-                            marginRight: '12px',
-                            marginTop: '0',
+                            fontSize: "12px",
+                            textAlign: "right",
+                            marginRight: "12px",
+                            marginTop: "0",
                           }}
                         >
                           {errors.confirmPassword?.message}
@@ -350,26 +390,38 @@ export const SignUp = () => {
 
                 <Grid item mt={2.4}>
                   <FormControl error={!!errors.check}>
-                    <Box sx={{display: 'flex'}}>
+                    <Box sx={{ display: "flex" }}>
                       <input
                         type="checkbox"
-                        style={{margin: "0"}}
-                        {...register('check')}
+                        style={{ margin: "0" }}
+                        {...register("check")}
                       />
 
-                      <Typography sx={{fontSize: '12px', marginLeft: '8px'}}>
-                        I agree to the <span style={{color: '#4786FF'}}>Terms of Service</span> and <span
-                        style={{color: '#4786FF'}}>Privacy Policy</span>
+                      <Typography sx={{ fontSize: "12px", marginLeft: "8px" }}>
+                        I agree to the{" "}
+                        <span style={{ color: "#4786FF" }}>
+                          Terms of Service
+                        </span>{" "}
+                        and{" "}
+                        <span style={{ color: "#4786FF" }}>Privacy Policy</span>
                       </Typography>
                     </Box>
-                    <FormHelperText sx={{marginLeft: "0px"}}>{errors.check?.message}</FormHelperText>
+                    <FormHelperText sx={{ marginLeft: "0px" }}>
+                      {errors.check?.message}
+                    </FormHelperText>
                   </FormControl>
                 </Grid>
               </Grid>
 
               {userData.loading ? (
                 <Button
-                  sx={{marginTop: '24px', height: "44px", width: '574px', borderRadius: '8px', textTransform: 'none'}}
+                  sx={{
+                    marginTop: "24px",
+                    height: "44px",
+                    width: "574px",
+                    borderRadius: "8px",
+                    textTransform: "none",
+                  }}
                   type="submit"
                   variant="contained"
                   color="primary"
@@ -381,7 +433,7 @@ export const SignUp = () => {
                     wrapperStyle={{}}
                     wrapperClass=""
                     visible={true}
-                    ariaLabel='oval-loading'
+                    ariaLabel="oval-loading"
                     secondaryColor="#91B6FF"
                     strokeWidth={5}
                     strokeWidthSecondary={5}
@@ -390,13 +442,13 @@ export const SignUp = () => {
               ) : (
                 <Button
                   sx={{
-                    marginTop: '24px',
+                    marginTop: "24px",
                     height: "44px",
-                    width: '574px',
-                    borderRadius: '8px',
-                    textTransform: 'none',
+                    width: "574px",
+                    borderRadius: "8px",
+                    textTransform: "none",
                     fontSize: "16px",
-                    fontWeight: "700"
+                    fontWeight: "700",
                   }}
                   type="submit"
                   variant="contained"
@@ -408,13 +460,18 @@ export const SignUp = () => {
             </form>
           </Grid>
 
-          <Grid item sx={{display: 'flex', gap: '8px', marginTop: '8px'}}>
+          <Grid item sx={{ display: "flex", gap: "8px", marginTop: "8px" }}>
             <Typography>Already have an account?</Typography>
-            <Typography sx={{color: '#4786FF', cursor: 'pointer'}} onClick={redirectToLogin}>Log in</Typography>
+            <Typography
+              sx={{ color: "#4786FF", cursor: "pointer" }}
+              onClick={redirectToLogin}
+            >
+              Log in
+            </Typography>
           </Grid>
         </Grid>
 
-        <SuccessSignUpModal isOpen={open}/>
+        <SuccessSignUpModal isOpen={open} />
       </Box>
     </>
   );

@@ -22,7 +22,7 @@ export const Chatbot: FC<ChatbotProps> = ({
   messageValue,
   handleSend,
 }) => {
-  const { setValue, getValues } = useFormContext();
+  const { setValue } = useFormContext();
   const { t } = useTranslation("inputs", {
     useSuspense: false,
   });
