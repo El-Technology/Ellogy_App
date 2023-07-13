@@ -124,6 +124,8 @@ export const CreateRequest = () => {
   useEffect(() => {
     setEditMode(false);
     activeTicket?.messages && setMessages(activeTicket.messages);
+    //  setIsTyping(false);
+    //  setIsSummaryLoading(false);
   }, [activeTicket]);
 
   const chat = useMemo(() => {
@@ -168,57 +170,76 @@ export const CreateRequest = () => {
 
   const handleSummary = async () => {
     try {
-      setIsSummaryLoading(true);
-
+      const id = activeTicket?.id;
       const history = await memory.loadMemoryVariables({});
-      const response = await userStoryChain.call({
-        history: history.chat_history[0].text,
-      });
+      setIsSummaryLoading(true);
+      userStoryChain
+        .call({
+          history: history.chat_history[0].text,
+        })
+        .then((response) => {
+          const formattedResponse = JSON.parse(response.text)
+            .filter((item: any) => item.priority === "high")
+            .map((elem: any) => elem.story)
+            .join("\n");
+          console.log(formattedResponse);
 
-      // NOT consistent JSON response;
-      const formattedResponse = JSON.parse(response.text)
-        .filter((item: any) => item.priority === "high")
-        .map((elem: any) => elem.story)
-        .join("\n");
-
-      if (activeTicket) {
-        const id = activeTicket.id;
-        console.log(history);
-        dispatch(updateLocalTicket({ id, description: formattedResponse }));
-      }
+          if (id) {
+            dispatch(updateLocalTicket({ id, description: formattedResponse }));
+          }
+          setIsSummaryLoading(false);
+          setIsSummaryUpdated(true);
+        });
     } catch (error) {
       console.log(error);
-    } finally {
       setIsSummaryLoading(false);
-      setIsSummaryUpdated(true);
     }
   };
 
   const handleSend = async (message: IMessage) => {
-    setMessages([...messages, message]);
-    setMessageValue("");
-    try {
+    if (message.content.length <= 4000) {
+      setMessages([...messages, message]);
+      setMessageValue("");
       setIsTyping(true);
-      await processMessageToChatGpt(message);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsTyping(false);
-      dispatch(setIsTicketUpdate(true));
-      setIsSummaryUpdated(false);
+      const currentTicket = Object.assign({}, activeTicket);
+      try {
+        processMessageToChatGpt(message).then((res) => {
+          if (currentTicket.id !== activeTicket?.id) {
+            setMessages([...messages, res]);
+            dispatch(setIsTicketUpdate(true));
+          } else {
+            dispatch(
+              updateLocalTicket({
+                id: currentTicket.id,
+                messages: [...currentTicket.messages, message, res],
+              })
+            );
+          }
+          setIsTyping(false);
+          setIsSummaryUpdated(false);
+        });
+      } catch (error) {
+        console.log(error);
+        setIsTyping(false);
+      }
+    } else {
+      errorNotify("Error", "Message can`t be more than 4000 characters");
     }
   };
 
   const processMessageToChatGpt = async (message: IMessage) => {
-    const response = await chain.call({
-      value: message.content,
-    });
-    const res: IMessage = {
-      content: response.text,
-      sender: "chatGPT",
-      sendTime: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, res]);
+    return chain
+      .call({
+        value: message.content,
+      })
+      .then((response) => {
+        const res: IMessage = {
+          content: response.text,
+          sender: "chatGPT",
+          sendTime: new Date().toISOString(),
+        };
+        return res;
+      });
   };
 
   const activateEditMode = () => {
@@ -273,15 +294,13 @@ export const CreateRequest = () => {
     );
   };
 
-  const successEditNotify = () =>
+  const successNotify = (title: string, description: string) =>
     toast.success(
       <div>
         <Typography fontWeight="700" color="#102142">
-          Success
+          {title}
         </Typography>
-        <Typography whiteSpace="nowrap" color="#404D68">
-          Your changes were successfully saved.
-        </Typography>
+        <Typography color="#404D68">{description}</Typography>
       </div>,
       {
         autoClose: 1500,
@@ -296,9 +315,31 @@ export const CreateRequest = () => {
         },
       }
     );
+  const errorNotify = (title: string, description: string) => {
+    toast.error(
+      <div>
+        <Typography fontWeight="700" color="#102142">
+          {title}
+        </Typography>
+        <Typography color="#404D68">{description}</Typography>
+      </div>,
+      {
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "light",
+        style: {
+          borderLeft: "8px solid #dc3545",
+          width: "fit-content",
+        },
+      }
+    );
+  };
 
   const saveTicketChanges = () => {
-    successEditNotify();
+    successNotify("Success", "Your changes were successfully saved");
     dispatch(setIsTicketUpdate(true));
     setIsSummaryUpdated(true);
   };
@@ -388,6 +429,7 @@ export const CreateRequest = () => {
             display: "flex",
             width: "100%",
             position: "relative",
+            maxWidth: "470px",
           }}
         >
           <ToastContainer
@@ -403,6 +445,7 @@ export const CreateRequest = () => {
               <form
                 style={{
                   width: "100%",
+
                   display: "grid",
                   gridTemplateRows: "auto 1fr",
                 }}
@@ -442,7 +485,6 @@ export const CreateRequest = () => {
                         multiline
                         inputProps={{
                           style: {
-                            borderRadius: "8px",
                             maxHeight: "572px",
                             overflow: "auto",
                           },
@@ -647,11 +689,11 @@ export const CreateRequest = () => {
                       <Typography
                         sx={{
                           fontWeight: 700,
+                          marginBottom: "20px",
                         }}
                       >
                         Identified Requirements
                       </Typography>
-                      <br /> <br />
                       {isSummaryLoading ? (
                         <Box
                           sx={{
@@ -680,6 +722,7 @@ export const CreateRequest = () => {
                           sx={{
                             maxHeight: "450px",
                             wordWrap: "break-word",
+                            whiteSpace: "pre-line",
                             paddingRight: "10px",
                             overflow: "auto",
                           }}
