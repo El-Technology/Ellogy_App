@@ -1,11 +1,16 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IUserReducer } from './types';
-import {addNewUser, forgotPasswordRequest, loginUser, resetPassword} from "./asyncActions";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { IUserReducer } from "./types";
+import {
+  addNewUser,
+  forgotPasswordRequest,
+  loginUser,
+  resetPassword,
+} from "./asyncActions";
 
 const initialState: IUserReducer = {};
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     removeSignUpError: (state) => {
@@ -57,13 +62,10 @@ const userSlice = createSlice({
       })
       .addCase(resetPassword.rejected, (state) => {
         state.loading = false;
-      })
-  }
+      });
+  },
 });
 
-export const {
-  removeSignUpError,
-  removeLoginError,
-} = userSlice.actions;
+export const { removeSignUpError, removeLoginError } = userSlice.actions;
 
 export default userSlice.reducer;

@@ -13,6 +13,7 @@ interface IMessageInputProps {
 }
 export const MessageInput = forwardRef<HTMLInputElement, IMessageInputProps>(
   ({ onSend, placeholder = "", disabled = false, value, setValue }, ref) => {
+
     const handleSend = () => {
       if (value.trim() && !disabled) {
         onSend({
