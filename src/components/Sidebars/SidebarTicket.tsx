@@ -40,7 +40,9 @@ export const SidebarTicket: FC<SidebarTicketProps> = ({
         justifyContent: "space-between",
         alignItems: "center",
       }}
-      onClick={() => handleTicketClick(ticket)}
+      onClick={() =>
+        ticket.id !== activeTicket?.id ? handleTicketClick(ticket) : null
+      }
     >
       <Box
         sx={{

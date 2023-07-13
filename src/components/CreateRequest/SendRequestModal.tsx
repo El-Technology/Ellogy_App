@@ -2,6 +2,7 @@ import { Box, Button, Modal, Typography } from "@mui/material";
 import React, { FC, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { ReactComponent as Question } from "../../assets/icons/question.svg";
+import { setIsTicketUpdate } from "src/store/ticket-service/ticketSlice";
 import {
   deleteTicket,
   getTicketsByUserId,
@@ -34,7 +35,9 @@ export const SendRequestModal: FC<SendRequestModalProps> = ({
     try {
       ticket &&
         dispatch(updateTicket({ ...ticket, status: 1 })).then(
-          dispatch(updateLocalTicket({ ...ticket, status: 1 }))
+          dispatch(updateLocalTicket({ ...ticket, status: 1 })).then(
+            dispatch(setIsTicketUpdate(false))
+          )
         );
     } catch (e) {
       console.log("Error appeared when trying to send ticket to server");
@@ -53,7 +56,7 @@ export const SendRequestModal: FC<SendRequestModalProps> = ({
       >
         <Box
           sx={{
-            position: "absolute" as "absolute",
+            position: "absolute" as const,
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",

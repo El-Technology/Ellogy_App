@@ -1,17 +1,17 @@
-import {Box} from "@mui/material";
-import {ReactNode} from "react";
-import {Sidebar} from "../components/Sidebars/Sidebar";
-import {Header} from "../components/Header/Header";
+import { Box } from "@mui/material";
+import React, { ReactNode } from "react";
+import { Sidebar } from "../components/Sidebars/Sidebar";
+import { Header } from "../components/Header/Header";
 
-export const MainPageLayout = ({children}: { children: ReactNode }) => {
+export const MainPageLayout = ({ children }: { children: ReactNode }) => {
   return (
     <>
-      <Header/>
+      <Header />
 
       <Box
         sx={{
           display: "flex",
-          justifyContent: "center"
+          justifyContent: "center",
         }}
       >
         <Box
@@ -20,10 +20,9 @@ export const MainPageLayout = ({children}: { children: ReactNode }) => {
             height: "calc(100vh - 82px)",
             display: "flex",
             justifyContent: "center",
-            background: "#FBFBFB"
+            background: "#FBFBFB",
           }}
-        >
-        </Box>
+        ></Box>
 
         <Box
           sx={{
@@ -33,7 +32,7 @@ export const MainPageLayout = ({children}: { children: ReactNode }) => {
             justifyContent: "flex-start",
           }}
         >
-          <Sidebar/>
+          <Sidebar />
 
           <Box
             sx={{
@@ -65,10 +64,9 @@ export const MainPageLayout = ({children}: { children: ReactNode }) => {
             height: "calc(100vh - 82px)",
             display: "flex",
             justifyContent: "center",
-            backgroundColor: "#efefef"
+            backgroundColor: "#efefef",
           }}
-        >
-        </Box>
+        ></Box>
       </Box>
     </>
   );

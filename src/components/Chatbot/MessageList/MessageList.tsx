@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import React, { forwardRef } from "react";
 import styles from "./MessageList.module.scss";
 import { Message } from "../Message/Message";
 import { IMessage } from "../Message/Message";

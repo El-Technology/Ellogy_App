@@ -43,7 +43,7 @@ export const DeleteRequestModal: FC<DeleteRequestModalProps> = ({handleCloseModa
       >
         <Box
           sx={{
-            position: 'absolute' as 'absolute',
+            position: 'absolute' as const,
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',

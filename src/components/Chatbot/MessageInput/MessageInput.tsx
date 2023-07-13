@@ -1,4 +1,4 @@
-import { KeyboardEvent, forwardRef } from "react";
+import React, { KeyboardEvent, forwardRef } from "react";
 import { IMessage } from "../Message/Message";
 import { Button } from "@mui/material";
 import { ReactComponent as Send } from "../../../assets/icons/send.svg";
