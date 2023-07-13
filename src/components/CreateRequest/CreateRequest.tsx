@@ -1,4 +1,10 @@
-import React, { createRef, useEffect, useMemo, useState } from "react";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { LLMChain } from "langchain/chains";
 import { PromptTemplate } from "langchain/prompts";
@@ -15,7 +21,7 @@ import {
 } from "@mui/material";
 import { format } from "date-fns";
 import { Oval } from "react-loader-spinner";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 // store
 import { useDispatch, useSelector } from "react-redux";
@@ -46,6 +52,7 @@ import { ReactComponent as Add } from "../../assets/icons/add.svg";
 
 import useTooltip from "src/core/hooks/useTooltip";
 import { IMessage } from "../Chatbot/Message/Message";
+import { Statuses } from "../../core/enums/common";
 
 interface FormValues {
   title: string;
@@ -107,7 +114,7 @@ export const CreateRequest = () => {
     }
   }, [activeTicket]);
 
-  const { handleSubmit, watch, register } = methods;
+  const { handleSubmit, watch, reset, register } = methods;
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [messageValue, setMessageValue] = useState<string>("");
@@ -242,6 +249,11 @@ export const CreateRequest = () => {
       });
   };
 
+  const handleResetEditForm = useCallback(() => {
+    reset();
+    setEditMode(false);
+  }, [reset]);
+
   const activateEditMode = () => {
     setEditMode(true);
   };
@@ -253,6 +265,8 @@ export const CreateRequest = () => {
       const id = activeTicket.id;
       dispatch(updateLocalTicket({ id, title, description, summary }));
     }
+
+    saveTicketChanges();
   };
 
   useEffect(() => {
@@ -304,6 +318,7 @@ export const CreateRequest = () => {
       </div>,
       {
         autoClose: 1500,
+        position: "top-right",
         hideProgressBar: true,
         closeOnClick: true,
         pauseOnHover: true,
@@ -311,7 +326,6 @@ export const CreateRequest = () => {
         theme: "light",
         style: {
           borderLeft: "8px solid #01C860",
-          width: "fit-content",
         },
       }
     );
@@ -342,6 +356,44 @@ export const CreateRequest = () => {
     successNotify("Success", "Your changes were successfully saved");
     dispatch(setIsTicketUpdate(true));
     setIsSummaryUpdated(true);
+  };
+
+  const renderStatusMessages = () => {
+    let message = "";
+    let messageColor = "";
+
+    if (activeTicket?.status === Statuses["In Progress"]) {
+      message = "Your request is in progress";
+      messageColor = "#4786FF";
+    }
+
+    if (activeTicket?.status === Statuses.Approved) {
+      message = "Your request was approved";
+      messageColor = "#01C860";
+    }
+
+    if (activeTicket?.status === Statuses.Returned) {
+      message = "Your request was returned";
+      messageColor = "#F19702";
+    }
+
+    if (activeTicket?.status === Statuses.Done) {
+      message = "Your request is done";
+      messageColor = "#707A8E";
+    }
+
+    return (
+      <Typography
+        sx={{
+          fontSize: "14px",
+          fontWeight: "700",
+          color: messageColor,
+          textAlign: "center",
+        }}
+      >
+        {message}
+      </Typography>
+    );
   };
 
   return (
@@ -432,14 +484,6 @@ export const CreateRequest = () => {
             maxWidth: "470px",
           }}
         >
-          <ToastContainer
-            style={{
-              position: "absolute",
-              top: "-27px",
-              right: "20px",
-            }}
-          />
-
           {activeTicket ? (
             editMode ? (
               <form
@@ -455,7 +499,6 @@ export const CreateRequest = () => {
                   container
                   direction="column"
                   maxHeight={705}
-                  height={705}
                   gridTemplateRows="1fr auto"
                 >
                   <Grid item marginBottom={"20px"}>
@@ -520,13 +563,9 @@ export const CreateRequest = () => {
                       fontSize: "16px",
                       fontWeight: "700",
                     }}
-                    type="submit"
-                    variant="contained"
+                    variant="outlined"
                     color="primary"
-                    onClick={() => {
-                      dispatch(setIsTicketUpdate(true));
-                      setIsSummaryUpdated(true);
-                    }}
+                    onClick={handleResetEditForm}
                   >
                     Cancel
                   </Button>
@@ -573,10 +612,6 @@ export const CreateRequest = () => {
                         variant="contained"
                         color="primary"
                         onClick={() => {
-                          successNotify(
-                            "Success",
-                            "Your changes were successfully saved"
-                          );
                           dispatch(setIsTicketUpdate(true));
                           setIsSummaryUpdated(true);
                         }}
@@ -654,12 +689,14 @@ export const CreateRequest = () => {
                     </Box>
 
                     <Box sx={{ display: "flex", gap: "16px" }}>
-                      <Button
-                        sx={{ minWidth: "24px", padding: "0" }}
-                        onClick={activateEditMode}
-                      >
-                        <EditTicket />
-                      </Button>
+                      {activeTicket.status === Statuses.Draft && (
+                        <Button
+                          sx={{ minWidth: "24px", padding: "0" }}
+                          onClick={activateEditMode}
+                        >
+                          <EditTicket />
+                        </Button>
+                      )}
 
                       <Button
                         sx={{ minWidth: "24px", padding: "0" }}
@@ -757,49 +794,60 @@ export const CreateRequest = () => {
                   />
                 )}
 
-                <Button
-                  sx={{
-                    height: "44px",
-                    width: "251px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "700",
-                    gap: "8px",
-                    marginTop: "auto",
-                  }}
-                  variant="outlined"
-                  color="primary"
-                  disabled={
-                    isSummaryLoading || messages.length === 0 || isTyping
-                  }
-                  onClick={handleSummary}
-                >
-                  Generate Summary
-                </Button>
-                <Button
-                  sx={{
-                    height: "44px",
-                    width: "251px",
-                    borderRadius: "8px",
-                    textTransform: "none",
-                    fontSize: "16px",
-                    fontWeight: "700",
-                    gap: "8px",
-                    marginTop: "16px",
-                  }}
-                  variant="contained"
-                  color="primary"
-                  disabled={
-                    !watch("description") ||
-                    isSummaryLoading ||
-                    !isSummaryUpdated ||
-                    isTyping
-                  }
-                  onClick={() => setIsSendModalOpen(true)}
-                >
-                  Send request
-                </Button>
+                {activeTicket.status !== Statuses.Draft ? (
+                  renderStatusMessages()
+                ) : (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                    }}
+                  >
+                    <Button
+                      sx={{
+                        height: "44px",
+                        width: "221px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        gap: "8px",
+                        marginTop: "auto",
+                      }}
+                      variant="outlined"
+                      color="primary"
+                      disabled={
+                        isSummaryLoading || messages.length === 0 || isTyping
+                      }
+                      onClick={handleSummary}
+                    >
+                      Generate Summary
+                    </Button>
+                    <Button
+                      sx={{
+                        height: "44px",
+                        width: "221px",
+                        borderRadius: "8px",
+                        textTransform: "none",
+                        fontSize: "16px",
+                        fontWeight: "700",
+                        gap: "8px",
+                        marginTop: "16px",
+                      }}
+                      variant="contained"
+                      color="primary"
+                      disabled={
+                        !watch("description") ||
+                        isSummaryLoading ||
+                        !isSummaryUpdated ||
+                        isTyping
+                      }
+                      onClick={() => setIsSendModalOpen(true)}
+                    >
+                      Send request
+                    </Button>
+                  </Box>
+                )}
               </Box>
             )
           ) : (
